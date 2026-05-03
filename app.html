@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Charset & Viewport -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Title & Description -->
+    <title>Cheer ET | Get paid while creating moments</title>
+    <meta name="description" content="Cheer ET is a platform that allows users to earn rewards while creating moments.">
+   
+    
+    <!-- Keywords -->
+    <meta name="keywords" content="Cheer ET, earn rewards, donation, Ethiopia streamers">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Author -->
+    <meta name="author" content="Kayon Tech" />
+
+    <!-- Open Graph (Facebook, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Cheer ET | Get paid while creating moments" />
+    <meta property="og:description" content="Cheer ET is a platform that allows users to earn rewards while creating moments." />
+    <meta property="og:url" content="https://cheer-et.web.app/" />
+    <meta property="og:site_name" content="Cheer ET" />
+    <meta property="og:image" content="https://cheer-et.web.app/logo-bg.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Cheer ET|  Get paid while creating moments" />
+    <meta name="twitter:description" content="Donate to your favorite Ethiopian streamers and support their content creation." />
+    <meta name="twitter:image" content="https://cheer-et.web.app/assets/logo.png" />
+    <meta name="twitter:site" content="@CheerET" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://cheer-et.web.app/" />
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow" />
+
+    <!-- Favicons & Web Manifest -->
+    <link rel="icon" href="/logo-bg.png" />
+    <link rel="apple-touch-icon" href="/assets/logo.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Schema.org for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "MobileApplication",
+      "name": "Cheer ET",
+      "operatingSystem": "iOS, Android, Web",
+      "applicationCategory": "Donation Platform",
+      "url": "https://cheer-et.web.app/",
+      "logo": "https://cheer-et.web.app/logo-bg.png",
+      "description": "Cheer ET is a platform that allows users to earn rewards while creating moments.",
+      "inLanguage": ["am", "en"],
+      "offers": {
+        "@type": "MinmumPaymentSpecification",
+        "price": "100",
+        "priceCurrency": "ETB"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Cheer ET",
+        "url": "https://cheer-et.web.app/"
+      }
+    }
+    </script>
+
+ 
+  
+</head>
+ <body>
+
+
+<style>
+
+/* ===== ROOT ===== */
+:root{
+--bg1:#0b0f14;
+--bg2:#121821;
+--glass:rgba(255,255,255,.08);
+--border:rgba(255,255,255,.15);
+--text:#f5f7fa;
+--muted:#a9b2bd;
+--grad:linear-gradient(120deg,#6aa8ff,#9bc4ff,#c7e0ff);
+font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Segoe UI,Roboto,Arial;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html{scroll-behavior:smooth;}
+
+body{
+background:linear-gradient(180deg,var(--bg1),var(--bg2));
+color:var(--text);
+overflow-x:hidden;
+}
+
+/* SCROLL GRADIENT EFFECT */
+body::before{
+content:"";
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:radial-gradient(circle at 20% 30%,rgba(106,168,255,.25),transparent 40%),
+           radial-gradient(circle at 80% 70%,rgba(155,196,255,.2),transparent 40%);
+z-index:-1;
+transition:.3s;
+}
+
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{
+background:linear-gradient(#6aa8ff,#9bc4ff);
+border-radius:10px;
+} 
+/* GLOBAL SPACING */
+section{
+padding:80px 20px;
+max-width:1100px;
+margin:auto;
+}
+
+h1,h2{margin-bottom:16px;}
+p{color:var(--muted);}
+
+/* GLASS */
+.glass{
+background:var(--glass);
+border:1px solid var(--border);
+backdrop-filter:blur(20px);
+border-radius:18px;
+}
+
+/* NAV */
+header{
+position:fixed;
+top:0;
+width:100%;
+height:70px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:0 24px;
+background:rgba(31, 45, 66, 0.6);
+backdrop-filter:blur(18px);
+z-index:100;
+}
+
+.logo{font-weight:800;}
+
+nav{
+display:flex;
+gap:24px;
+align-items:center;
+}
+
+nav a{
+text-decoration:none;
+color:rgb(255, 255, 255);
+opacity:.85;
+}
+
+.nav-btn{padding:8px 18px;}
+
+.menu{display:none;font-size:26px;cursor:pointer;}
+
+@media(max-width:768px){
+nav{
+position:fixed;
+top:0;
+right:-100%;
+width:60%;
+height:100vh;
+flex-direction:column;
+justify-content:center;
+gap:30px;
+background:#0b0f14;
+transition:2.5s;
+}
+nav.active{right:0;}
+.menu{display:block;}
+.close{
+position:absolute;
+top:20px;
+right:20px;
+font-size:26px;
+cursor:pointer;
+}
+}
+
+/* HERO */
+.hero{
+padding-top:120px;
+text-align:center;
+display:flex;
+flex-direction:column;
+gap:20px;
+align-items:center;
+}
+
+.hero h1{font-size:89px;
+    background: linear-gradient(90deg, #ffffff, #7e8fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+} 
+
+.search{
+display:flex;
+gap:10px;
+padding:14px 18px;
+width:420px;
+max-width:100%;
+}
+
+.search input{
+flex:1;
+background:none;
+border:none;
+outline:none;
+color:white;
+}
+
+.btn{
+padding:14px 28px;
+border:none;
+cursor:pointer;
+color: #ffffff;
+}
+
+/* COUNTDOWN */
+.count{
+text-align:center;
+padding:100px 20px;
+}
+
+.count-grid{
+display:flex;
+justify-content:center;
+gap:95px;
+flex-wrap:wrap;
+margin-top:20px;
+}
+
+.count-grid span{
+font-size:clamp(4px,8vw,80px);
+font-weight:800;
+background:var(--grad);
+-webkit-background-clip:text;
+color:transparent;
+}
+
+/* STREAMERS */
+.slider{
+overflow:hidden;
+width:100%;
+}
+
+.track{
+display:flex;
+gap:20px;
+width:max-content;
+animation:scroll 20s linear infinite;
+}
+
+.card{
+min-width:180px; /* FIX SIZE */
+flex-shrink:0;
+border-radius:12px;
+overflow:hidden;
+position:relative;
+}
+
+.card img{
+width:100%;
+height:260px;
+object-fit:cover;
+}
+
+@keyframes scroll{
+0%{transform:translateX(0)}
+100%{transform:translateX(-50%)}
+}
+/* CHAPA */
+.chapa{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:68px;
+max-width:1000px;
+margin:auto;
+padding:80px 20px;
+align-items:center;
+}
+
+.chapa ul{line-height:2;color:var(--muted);}
+
+.chapa img{width:100%;border-radius:16px;}
+
+@media(max-width:768px){
+.chapa{grid-template-columns:1fr}
+.chapa img{order:-1}
+}
+
+/* STEPS */
+.steps-box{
+padding:30px;
+display:grid;
+gap:16px;
+}
+
+.step{
+display:flex;
+gap:12px;
+align-items:center;
+}
+
+/* FAQ */
+.faq-box{
+padding:30px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.faq-item{
+padding:14px;
+cursor:pointer;
+}
+
+.faq-answer{
+max-height:0;
+overflow:hidden;
+transition:.3s;
+font-size:14px;
+}
+
+/* CTA */
+.cta-box{
+text-align:center;
+padding:40px;
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+/* FOOTER */
+footer{
+text-align:center;
+padding:40px 20px;
+color:var(--muted);
+}
+
+/* REVEAL */
+.reveal{
+opacity:0;
+transform:translateY(40px);
+transition:1s;
+}
+
+.reveal.active{
+opacity:1;
+transform:translateY(0);
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">Cheer ET</div>
+<i class="bi bi-list menu" id="menu"></i>
+
+<nav id="nav">
+<i class="bi bi-x close" id="close"></i>
+<a>Home</a>
+<a>Streamers</a>
+<button id="langToggle" class="glass nav-btn">አማ</button>
+<a class="glass nav-btn" href="app.html">Get Started</a>
+</nav>
+</header>
+
+<section class="hero reveal">
+<h1 id="heroTitle">Get paid while creating moments</h1>
+<p id="heroDesc">Turn your audience into income with a simple link built for Ethiopian creators.</p>
+
+<div class="glass search">
+<input placeholder="Search @username">
+<i class="bi bi-search"></i>
+</div>
+
+<button class="glass btn" id="createBtn" >Create Your Page</button>
+</section>
+
+<section class="count reveal">
+<h2 id="countTitle">Launch Countdown</h2>
+
+<div class="count-grid">
+<div><span id="mo">0</span><p>Months</p></div>
+<div><span id="da">0</span><p>Days</p></div>
+<div><span id="ho">0</span><p>Hours</p></div>
+</div>
+
+<p>left for launch</p>
+</section>
+
+<section class="reveal">
+<div class="slider">
+<div class="track">
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_1011.JPEG"><p>KAD Sniper</p></div>
+
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_1011.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_1011.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_1011.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_1011.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_0358.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_0358.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_0358.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_0358.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_0358.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_0358.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_0358.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_0358.JPEG"><p>KAD Sniper</p></div>
+
+<div class="card"><img src="kaled.png"><p>Khaledmtp22</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190738.png"><p>Natty2cold</p></div>
+<div class="card"><img src="Screenshot 2026-03-15 190836.png"><p>Lofty Haron</p></div>
+
+<div class="card"><img src="Screenshot 2026-03-19 100544.png"><p>Seyoum Tad</p></div>
+<div class="card"><img src="IMG_0358.JPEG"><p>KAD Sniper</p></div>
+
+
+</div>
+</div>
+</section>
+
+<section class="chapa reveal">
+<div>
+<h2 id="chapaTitle">Powered by Chapa</h2>
+<ul>
+<li>Instant payouts to your account</li>
+<li>Secure and trusted transactions</li>
+<li>Supports local and global payments</li>
+</ul>
+</div>
+<img src="chapa.jpg">
+</section>
+
+<section class="reveal">
+<div class="glass steps-box">
+<h2>How it works</h2>
+
+<div class="step"><i class="bi bi-person-plus"></i> Create your Cheer ET page in seconds</div>
+<div class="step"><i class="bi bi-share"></i> Share your link with fans and followers</div>
+<div class="step"><i class="bi bi-cash-coin"></i> Receive instant payouts directly</div>
+
+</div>
+</section>
+
+<section class="reveal">
+<div class="glass faq-box">
+
+<h2>FAQ</h2>
+
+<div class="faq-item">
+<div>What is Cheer ET?</div>
+<div class="faq-answer">Cheer ET is a platform that allows creators to receive support and payments directly from their audience.</div>
+</div>
+
+<div class="faq-item">
+<div>How do payments work?</div>
+<div class="faq-answer">Payments are processed instantly using Chapa with secure and reliable transactions.</div>
+</div>
+
+<div class="faq-item">
+<div>Who can use this platform?</div>
+<div class="faq-answer">Anyone creating content — streamers, influencers, or creatives — can use Cheer ET.</div>
+</div>
+
+</div>
+</section>
+
+<section class="reveal">
+<div class="glass cta-box">
+<h2 id="ctaTitle">Make moments while getting paid from your chat</h2>
+<p id="ctaDesc"> Start earning today with local and global payments built for your success.</p>
+<button class="glass btn" id="ctaBtn">Create Your Page</button>
+</div>
+</section>
+
+<footer>
+Cheer ET • Addis Ababa <br>
+ • Phone +251945421674 <br>
+ • Email  kayonkau@gmail.com
+<br><br>
+Powered by Chapa  
+<br><br>
+2026 Cheer ET • Kayon Tech
+</footer>
+<script>
+
+let isAmharic = false;
+
+const translations = {
+  en: {
+    heroTitle: "Get paid while creating moments",
+    heroDesc: "Turn your audience into income with a simple link built for Ethiopian creators.",
+    createBtn: "Create Your Page",
+    countTitle: "Launch Countdown",
+    countSub: "left for launch",
+    chapaTitle: "Powered by Chapa",
+    faq1q: "What is Cheer ET?",
+    faq1a: "Cheer ET is a platform that allows creators to receive support and payments directly from their audience.",
+    faq2q: "How do payments work?",
+    faq2a: "Payments are processed instantly using Chapa with secure and reliable transactions.",
+    faq3q: "Who can use this platform?",
+    faq3a: "Anyone creating content can use Cheer ET.",
+    ctaTitle: "Make moments while getting paid from your chat",
+    ctaDesc: "Start earning today with local and global payments built for your success.",
+    ctaBtn: "Create Your Page",
+    toggle: "አማ"
+  },
+
+  am: {
+    heroTitle: "ስሜቶችን እየፈጠርክ ገንዘብ ያግኙ",
+    heroDesc: "ተከታታዮችዎን ወደ ገቢ ይቀይሩ",
+    createBtn: "ገጽዎን ይፍጠሩ",
+    countTitle: "የመክፈቻ ቆጠራ",
+    countSub: "እስከ መክፈቻው",
+    chapaTitle: "በቻፓ የተገናኘ",
+    faq1q: "Cheer ET ምንድነው?",
+    faq1a: "ፈጣሪዎች ከተከታታዮቻቸው ገንዘብ እንዲቀበሉ የሚያስችል መድረክ ነው።",
+    faq2q: "ክፍያ እንዴት ይሰራል?",
+    faq2a: "ክፍያዎች በቻፓ በኩል ይከናወናሉ።",
+    faq3q: "ማን ሊጠቀም ይችላል?",
+    faq3a: "ማንኛውም ፈጣሪ መጠቀም ይችላል።",
+    ctaTitle: "ከቻትዎ ገንዘብ እያገኙ ይፍጠሩ",
+    ctaDesc: "ዛሬ ይጀምሩ",
+    ctaBtn: "ገጽዎን ይፍጠሩ",
+    toggle: "EN"
+  }
+};
+
+const toggleBtn = document.getElementById("langToggle");
+
+toggleBtn.onclick = () => {
+  isAmharic = !isAmharic;
+  const lang = isAmharic ? "am" : "en";
+
+  for (let key in translations[lang]) {
+    const el = document.getElementById(key);
+    if (el) el.innerText = translations[lang][key];
+  }
+
+  toggleBtn.innerText = translations[lang].toggle;
+};
+
+</script>
+<script>
+
+const menu = document.getElementById("menu");
+const closeBtn = document.getElementById("close");
+const nav = document.getElementById("nav");
+
+menu.onclick = () => nav.classList.add("active");
+closeBtn.onclick = () => nav.classList.remove("active");
+/* FAQ */
+document.querySelectorAll(".faq-item").forEach(i=>{
+i.onclick=()=>{
+let a=i.querySelector(".faq-answer")
+a.style.maxHeight=a.style.maxHeight?null:a.scrollHeight+"px"
+}
+})
+
+/* COUNTDOWN */
+const target=new Date("June 16 2026");
+
+setInterval(()=>{
+let now=new Date()
+let diff=target-now
+
+let mo=Math.floor(diff/(1000*60*60*24*30))
+let da=Math.floor(diff/(1000*60*60*24)%30)
+let ho=Math.floor(diff/(1000*60*60)%24)
+
+moEl.innerText=mo
+daEl.innerText=da
+hoEl.innerText=ho
+
+},1000)
+
+/* FIX IDS */
+const moEl=document.getElementById("mo")
+const daEl=document.getElementById("da")
+const hoEl=document.getElementById("ho")
+
+/* SCROLL REVEAL */
+const reveals=document.querySelectorAll(".reveal")
+
+window.addEventListener("scroll",()=>{
+reveals.forEach(el=>{
+if(el.getBoundingClientRect().top<window.innerHeight-100){
+el.classList.add("active")
+}
+})
+})
+
+</script>
+
+  </body>
+</html>
+
+
+
+
