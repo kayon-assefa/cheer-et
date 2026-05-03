@@ -1,0 +1,215 @@
+.live-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: white;
+}
+
+.live-container.light { color: #111; }
+.live-container.chroma { color: #ffffff; }
+
+/* Themes */
+.live-container.dark { background: #1a1a1a; }
+.live-container.light { background: #f8f9fa; }
+.live-container.default {
+  background: linear-gradient(270deg, #0c597c, #093981, #300979);
+  background-size: 600% 600%;
+  animation: moveBg 15s infinite;
+}
+.live-container.chroma { background: #00ff00 !important; }
+
+@keyframes moveBg {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Menu - Text color adapts to theme */
+.menu {
+  position: absolute;
+  top: 60px;
+  left: 15px;
+  background: rgba(20,20,20,0.97);
+  backdrop-filter: blur(12px);
+  padding: 10px 8px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  min-width: 200px;
+  z-index: 200;
+}
+
+.live-container.light .menu { background: rgba(255,255,255,0.95); color: #111; }
+.live-container.chroma .menu { background: rgba(0,255,0,0.9); color: #000; }
+
+.menu p {
+  padding: 10px 16px;
+  margin: 4px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.menu p:hover { 
+  background: rgba(255,255,255,0.15); 
+}
+.live-container.light .menu p:hover { background: rgba(0,0,0,0.08); }
+.live-container.chroma .menu p:hover { background: rgba(0,0,0,0.1); }
+
+/* Top Left */
+.top-left {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  z-index: 100;
+  cursor: pointer;
+}
+
+/* Goal Input */
+.goal-input {
+  position: absolute;
+  top: 110px;
+  left: 25px;
+  background: rgba(0,0,0,0.9);
+  padding: 15px;
+  border-radius: 12px;
+  z-index: 150;
+  display: flex;
+  gap: 10px;
+}
+
+.live-container.light .goal-input { background: rgba(255,255,255,0.95); }
+.live-container.light .goal-input input { background: #eee; color: #111; }
+
+.goal-input input {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #222;
+  color: white;
+  width: 180px;
+}
+
+.goal-input button {
+  padding: 12px 20px;
+  background: #1842cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Realtime - Fixed Wave */
+.realtime {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  background: rgba(0,0,0,0.4);
+  padding: 6px 18px;
+  border-radius: 30px;
+}
+
+.live-container.light .realtime { background: rgba(0,0,0,0.15); color: #111; }
+
+.wave-dot {
+  width: 11px;
+  height: 11px;
+  background: #00aaff;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 12px #00aaff;
+  flex-shrink: 0;
+}
+
+.wave-dot::before {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: rgba(0,170,255,0.35);
+  border-radius: 50%;
+  top: -6.5px;
+  left: -6.5px;
+  animation: wave 1.7s infinite ease-out;
+}
+
+@keyframes wave {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+/* Center */
+.center { text-align: center; }
+
+.profile {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  object-fit: cover;
+
+  box-shadow: 0 0 45px rgba(0, 119, 255, 0.7);
+  border: 2px white solid;
+  
+}
+
+.name-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 0 12px;   /* Increased spacing */
+}
+
+.name-row h2 {
+  font-size: 2.35rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.verified {
+  width: 26px;
+  height: 26px;
+}
+
+/* Counter */
+.counter {
+  font-size: 102px;
+  font-weight: 800;
+  margin: 10px 0 8px;
+  line-height: 1;
+}
+
+/* Label & Goal */
+.label {
+  font-size: 1.1rem;
+  letter-spacing: 2.5px;
+  opacity: 0.8;
+}
+
+.goal-display {
+  font-size: 1.45rem;
+  font-weight: 600;
+  margin-top: 10px;
+  opacity: 0.9;
+}
+
+/* Congrats */
+.congrats-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.trophy { color: rgb(4, 0, 255); margin-bottom: 10px; }
