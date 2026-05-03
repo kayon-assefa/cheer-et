@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { useNavigate } from "react-router-dom";
 const Home = () => {
   const [isAmharic, setIsAmharic] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ months: 0, days: 0, hours: 0 });
@@ -18,7 +18,7 @@ const Home = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
+const navigate = useNavigate();
   const t = isAmharic ? {
     heroTitle: "ስሜቶችን እየፈጠርክ ገንዘብ ያግኙ",
     heroDesc: "ተከታታዮችዎን ወደ ገቢ ይቀይሩ በቀላል ሊንክ",
@@ -86,7 +86,7 @@ const Home = () => {
             {t.toggle}
           </button>
           <button 
-            onClick={() => window.location.href = '/login'} 
+         onClick={() => navigate('/login')}
             className="glass" 
             style={{ padding: '8px 20px' }}
           >
