@@ -590,7 +590,7 @@ export default function WithdrawPage() {
         </div>
 
         <div style={styles.footerNote}>
-          Apple Pay-inspired clarity. Payout requests are reviewed before processing.
+Powered by Chapa Co
         </div>
       </div>
 

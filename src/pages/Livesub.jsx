@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../styles/livesub.css";
-import { db } from "../firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import { ThreeDotsVertical, PlusCircle, Trophy } from "react-bootstrap-icons";
 
 const LiveSub = () => {
@@ -19,7 +20,9 @@ const LiveSub = () => {
   useEffect(() => {
     const savedTheme = localStorage.getItem("livesub_theme") || "dark";
     const savedGoal = localStorage.getItem("livesub_goal");
+
     setTheme(savedTheme);
+
     if (savedGoal) setGoal(Number(savedGoal));
   }, []);
 
@@ -29,37 +32,67 @@ const LiveSub = () => {
     setMenuOpen(false);
   };
 
-  // User Data
+  // ✅ FIXED USER DATA
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "users"), (snap) => {
-      let activeUser = null;
-      snap.forEach((doc) => {
-        if (doc.data()?.status === "active") activeUser = doc.data();
-      });
-      if (activeUser) setUserData(activeUser);
-      setIsLoading(false);
-    });
-    return () => unsub();
-  }, []);
-
-  // Count + Sound + Goal Check
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "donations"), (snap) => {
-      const newCount = snap.size;
-
-      if (newCount > prevCount && prevCount !== 0) {
-        playSound();
-        if (goal > 0 && newCount >= goal && count < goal) {
-          setCongrats(true);
-          setTimeout(() => setCongrats(false), 5000);
-        }
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        setIsLoading(false);
+        return;
       }
 
-      setPrevCount(count);
-      setCount(newCount);
+      try {
+        // ONLY current logged in user
+        const userRef = doc(db, "users", currentUser.uid);
+
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          setUserData(userSnap.data());
+        }
+      } catch (error) {
+        console.error("User Load Error:", error);
+      }
+
+      setIsLoading(false);
     });
 
-    return () => unsub();
+    return () => unsubscribeAuth();
+  }, []);
+
+  // ✅ FIXED DONATION COUNT
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) return;
+
+      const unsub = onSnapshot(collection(db, "donations"), (snap) => {
+        let total = 0;
+
+        snap.forEach((doc) => {
+          const d = doc.data();
+
+          // ONLY current streamer donations
+          if (d.streamerId === currentUser.uid) {
+            total++;
+          }
+        });
+
+        if (total > prevCount && prevCount !== 0) {
+          playSound();
+
+          if (goal > 0 && total >= goal && count < goal) {
+            setCongrats(true);
+            setTimeout(() => setCongrats(false), 5000);
+          }
+        }
+
+        setPrevCount(count);
+        setCount(total);
+      });
+
+      return () => unsub();
+    });
+
+    return () => unsubscribeAuth();
   }, [count, prevCount, goal]);
 
   const playSound = () => {
@@ -76,8 +109,10 @@ const LiveSub = () => {
   };
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    if (!document.fullscreenElement)
+      document.documentElement.requestFullscreen();
     else document.exitFullscreen();
+
     setMenuOpen(false);
   };
 
@@ -86,7 +121,10 @@ const LiveSub = () => {
 
       {/* Menu */}
       <div className="top-left">
-        <ThreeDotsVertical size={26} onClick={() => setMenuOpen(!menuOpen)} />
+        <ThreeDotsVertical
+          size={26}
+          onClick={() => setMenuOpen(!menuOpen)}
+        />
 
         {menuOpen && (
           <div className="menu">
@@ -96,10 +134,14 @@ const LiveSub = () => {
             <p onClick={() => changeTheme("chroma")}>Chroma Key</p>
 
             <hr />
+
             <p onClick={() => setShowGoalInput(!showGoalInput)}>
               <PlusCircle size={18} /> Add Goal
             </p>
-            <p onClick={toggleFullscreen}>Fullscreen</p>
+
+            <p onClick={toggleFullscreen}>
+              Fullscreen
+            </p>
           </div>
         )}
       </div>
@@ -113,20 +155,25 @@ const LiveSub = () => {
             value={goal || ""}
             onChange={(e) => setGoal(Number(e.target.value))}
           />
-          <button onClick={saveGoal}>Save</button>
+
+          <button onClick={saveGoal}>
+            Save
+          </button>
         </div>
       )}
 
       {/* Realtime */}
       <div className="realtime">
         <span className="wave-dot"></span>
-       Live Updating
+        Live Updating
       </div>
 
       {/* Center */}
       <div className="center">
         {isLoading ? (
-          <div className="loading">Loading...</div>
+          <div className="loading">
+            Loading...
+          </div>
         ) : (
           <>
             <img
@@ -136,17 +183,28 @@ const LiveSub = () => {
             />
 
             <div className="name-row">
-              <h2>{userData?.username || "User"}</h2>
+              <h2>
+                {userData?.username || "User"}
+              </h2>
+
               {userData?.verified && (
-                <img src="/verified.png" className="verified" alt="verified" />
+                <img
+                  src="/verified.png"
+                  className="verified"
+                  alt="verified"
+                />
               )}
             </div>
 
             <div className="counter">
-              <span className="count-number">{count.toLocaleString()}</span>
+              <span className="count-number">
+                {count.toLocaleString()}
+              </span>
             </div>
 
-            <p className="label">TOTAL SUBS</p>
+            <p className="label">
+              TOTAL SUBS
+            </p>
 
             {goal > 0 && (
               <div className="goal-display">
