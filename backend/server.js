@@ -62,7 +62,7 @@ app.post("/api/create-payment", async (req, res) => {
           "https://cheerapi.onrender.com/api/verify",
 
         return_url:
-          "http://localhost:5173/payment-success",
+          "https://cheer-et.web.app/payment-success",
 
         customization: {
           title: "CheerET",
@@ -236,5 +236,8 @@ app.listen(PORT, () => {
   console.log(
     `Backend running on port ${PORT}`
   );
+console.log(
+  `${import.meta.env.VITE_API_URL}/api/create-payment`
+);
 
 });
