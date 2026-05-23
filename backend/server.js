@@ -59,7 +59,7 @@ app.post("/api/create-payment", async (req, res) => {
         tx_ref,
 
         callback_url:
-          "https://670d-196-188-228-173.ngrok-free.app/api/verify",
+          "https://cheerapi.onrender.com/api/verify",
 
         return_url:
           "http://localhost:5173/payment-success",
