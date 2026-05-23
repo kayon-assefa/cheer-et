@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Changed Successfully - Cheer ET</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(to bottom, #0a1428 0%, #1a2a5e 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+      border-radius: 24px;
+    }
+
+    .success-icon {
+      width: 88px;
+      height: 88px;
+      background: linear-gradient(135deg, #3b82f6, #1e40af);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5),
+                  inset 0 4px 8px rgba(255,255,255,0.3);
+    }
+  </style>
+</head>
+<body class="text-white">
+  <div class="max-w-md w-full">
+    <div class="glass-card p-10 md:p-12 text-center">
+      
+      <!-- Success Icon Inside Card -->
+      <div class="mx-auto mb-8 flex justify-center">
+        <div class="success-icon">
+          <i class="fa-solid fa-check text-white text-5xl"></i>
+        </div>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-semibold tracking-tight mb-3">
+        Email Changed Successfully
+      </h1>
+      <p class="text-blue-100 text-[17px] leading-relaxed">
+        Your email address has been updated.<br>
+        All future donation alerts will now go to your new email.
+      </p>
+
+      <div class="mt-10">
+        <a href="/dashboard" 
+           class="block w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition-all py-4 rounded-2xl text-lg font-semibold shadow-lg">
+          Continue to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="mt-10 text-center text-blue-200/60 text-sm">
+      Cheer ET © 2026. Owned by Kayon Tech.
+    </p>
+  </div>
+</body>
+</html>
