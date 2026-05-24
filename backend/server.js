@@ -130,7 +130,7 @@ app.get("/api/verify", async (req, res) => {
         const doc = snap.docs[0];
 
         await doc.ref.update({
-          paymentStatus: "completed",
+          paymentStatus: "successful",
           completedAt: new Date()
         });
 

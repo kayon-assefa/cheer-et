@@ -520,6 +520,7 @@
 
 .ad-card {
   padding: 14px;
+  height: 230px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   display: block;
@@ -535,7 +536,7 @@
   width: 100%;
   border-radius: 10px;
   display: block;
-  max-height: 88px;
+  max-height: 200px;
   object-fit: cover;
 }
 

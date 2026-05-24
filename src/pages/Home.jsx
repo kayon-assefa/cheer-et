@@ -1,617 +1,624 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-/* ─── THEME TOKENS ─── */
-const css = `
-  @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
-  @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
-
-  :root {
-    --bg: #ffffff;
-    --bg2: #f5f5f7;
-    --bg3: #e8e8ed;
-    --surface: rgba(255,255,255,0.8);
-    --surface2: rgba(245,245,247,0.9);
-    --text: #1d1d1f;
-    --text2: #6e6e73;
-    --text3: #86868b;
-    --accent: #0071e3;
-    --accent2: #0077ed;
-    --accent-light: #e8f0fe;
-    --border: rgba(0,0,0,0.08);
-    --border2: rgba(0,0,0,0.12);
-    --shadow: 0 2px 20px rgba(0,0,0,0.08);
-    --shadow2: 0 8px 40px rgba(0,0,0,0.12);
-    --radius: 18px;
-    --radius-sm: 12px;
-    --radius-xs: 8px;
-    --scrollbar: rgba(0,0,0,0.2);
-    --font: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+/* ─────────────────────────────────────────────
+   TRANSLATIONS  (EN + AM)
+───────────────────────────────────────────── */
+const T = {
+  en: {
+    // nav
+    navFeatures:"Features", navCreators:"Creators", navPricing:"Pricing", navContact:"Contact",
+    login:"Sign In", getStarted:"Get Started",
+    // hero
+    heroBadge:"Ethiopia's Creator Platform",
+    heroTitle:"Your audience.\nYour income.",
+    heroSub:"Cheer ET lets Ethiopian streamers, gamers & creators receive fan support — powered by Chapa.",
+    ctaStart:"Start for Free", ctaDemo:"See how it works",
+    heroTrust:"No setup fee · Instant ETB payouts · Free to start",
+    // chapa flow
+    chapaTitle:"Powered by Chapa",
+    chapaSub:"Money moves seamlessly between your fans and your wallet through Ethiopia's trusted payment network.",
+    // how
+    howLabel:"How It Works", howTitle:"Three steps. That's it.",
+    s1title:"Fan sends a Cheer", s1desc:"Any amount, via Telebirr, CBEBirr or any Ethiopian bank.",
+    s2title:"Alert appears on stream", s2desc:"Animated overlay + TTS voice fires instantly on your stream.",
+    s3title:"Money hits your account", s3desc:"ETB lands in your wallet immediately. Cash out anytime.",
+    // creators
+    creatorsLabel:"Community", creatorsTitle:"Top Creators",
+    support:"Support",
+    totalRaised:"Total raised",
+    // moments (gallery)
+    galleryLabel:"Biggest Moments", galleryTitle:"Watch creators go live.",
+    // features
+    featLabel:"Features", featTitle:"Built different.",
+    featItems:[
+      { icon:"bi-lightning-charge-fill", title:"Real-time alerts", desc:"Instant donation alerts on your stream." },
+      { icon:"bi-volume-up-fill", title:"Text-to-speech", desc:"Fan messages read aloud as they arrive." },
+      { icon:"bi-graph-up-arrow", title:"Analytics", desc:"Beautiful dashboard to track growth." },
+      { icon:"bi-phone-fill", title:"Mobile ready", desc:"Manage everything from your phone." },
+      { icon:"bi-shield-check-fill", title:"Secure payments", desc:"Backed by Chapa's secure infrastructure." },
+      { icon:"bi-translate", title:"Amharic support", desc:"Full Amharic language experience." },
+    ],
+    // countdown
+    countLabel:"Launch Date · June 30, 2026",
+    countTitle:"Ethiopia's creator economy starts soon.",
+    days:"Days", hours:"Hours", minutes:"Min",
+    joinEarly:"Join Early Access", contactUs:"Contact",
+    // testimonials
+    testiLabel:"Reviews", testiTitle:"Creators love it.",
+    // cta
+    ctaTitle:"Your fans are ready.",
+    ctaSub:"Start earning from your audience today.",
+    createPage:"Create Your Page",
+    ctaTrust:"Free · No credit card · 🇪🇹",
+    // footer
+    footDesc:"Ethiopia's fan-support platform for creators, streamers, and gamers.",
+    footProduct:"Product", footCompany:"Company", footLegal:"Legal",
+    footCopy:"© 2026 Cheer ET. All rights reserved.",
+    footBuilt:"Built by Kayon Tech · Powered by Chapa",
+    productLinks:["Features","Creator Pages","Analytics","Stream Alerts","Pricing"],
+    companyLinks:["About","Blog","Careers","Press","Contact"],
+    legalLinks:["Privacy","Terms","Cookies"],
+    // misc
+    todayBalance:"Today's balance", viaChapa:"via Chapa", liveNow:"Live",
+    newCheer:"New Cheer!", ttsOn:"TTS ON", liveFeed:"Live",
+    topSupporter:"Top Supporter", cashOut:"Cash out", history:"History",
+    totalEarned:"Total earned", thisWeek:"This week", supporters:"Supporters", avgDon:"Avg donation",
+    weeklyRev:"Weekly Revenue", sendViaChapa:"Send via Chapa", sendAmount:"Amount",
+    cheerAlert:"CHEER ALERT", ttsReading:"TTS:",
+    // offline / notification
+    offlineMsg:"No internet connection. Please check your network.",
+    notifAsk:"Enable notifications to know when your fans cheer you.",
+    notifBtn:"Enable Notifications",
+    notifDeny:"Maybe later",
+  },
+  am: {
+    navFeatures:"ባህሪያት", navCreators:"ፈጣሪዎች", navPricing:"ዋጋ", navContact:"ያግኙን",
+    login:"ግባ", getStarted:"ጀምር",
+    heroBadge:"የኢትዮጵያ ፈጣሪ መድረክ",
+    heroTitle:"ታዳሚዎ.\nገቢዎ.",
+    heroSub:"Cheer ET ኢትዮጵያዊ ስትሪመሮች፣ ጨዋቾች እና ፈጣሪዎች የደጋፊ ድጋፍ እንዲያገኙ ያደርጋል — በቻፓ ይሰራል።",
+    ctaStart:"ነጻ ጀምር", ctaDemo:"እንዴት እንደሚሰራ ይመልከቱ",
+    heroTrust:"ምንም ማቋቋሚያ ክፍያ የለም · ፈጣን ETB ክፍያ · ነጻ",
+    chapaTitle:"በቻፓ ይሰራል",
+    chapaSub:"ገንዘቡ በቻፓ ተዓማኒ ሂደት ከደጋፊዎችዎ ወደ ቦርሳዎ ያልፋል።",
+    howLabel:"እንዴት ይሰራል", howTitle:"ሦስት ደረጃዎች ብቻ።",
+    s1title:"ደጋፊ ቺር ይልካል", s1desc:"ማንኛውም መጠን፣ በቴሌብር፣ CBEBirr ወይም ሌላ ባንክ።",
+    s2title:"ማስጠንቀቂያ ወዲያው ይነሳል", s2desc:"አኒሜሽን ኦቨርሌይ + TTS ድምጽ ወዲያው ይቀጥላሉ።",
+    s3title:"ገንዘቡ ወዲያው ይደርሳል", s3desc:"ETB ወዲያው ወደ ቦርሳዎ ይደርሳል። ማንኛውም ጊዜ ያውጡ።",
+    creatorsLabel:"ማህበረሰብ", creatorsTitle:"ምርጥ ፈጣሪዎች",
+    support:"ደግፍ",
+    totalRaised:"ጠቅላላ የተሰበሰበ",
+    galleryLabel:"ትልቁ ቅጽበቶች", galleryTitle:"ፈጣሪዎች ቀጥታ ሲሄዱ ይመልከቱ።",
+    featLabel:"ባህሪያት", featTitle:"ለየት ያለ ተሰርቷል።",
+    featItems:[
+      { icon:"bi-lightning-charge-fill", title:"ቀጥታ ማስጠንቀቂያ", desc:"ወዲያው ልገሳ ማስጠንቀቂያ።" },
+      { icon:"bi-volume-up-fill", title:"ጽሑፍ-ወደ-ንግግር", desc:"የደጋፊ መልዕክቶች ሲደርሱ ይነበባሉ።" },
+      { icon:"bi-graph-up-arrow", title:"ትንታኔ", desc:"እድገትን ለመከታተል ቆንጆ ዳሽቦርድ።" },
+      { icon:"bi-phone-fill", title:"ሞባይል ዝግጁ", desc:"ሁሉን ከስልክዎ ያስተዳድሩ።" },
+      { icon:"bi-shield-check-fill", title:"ደህንነቱ የተጠበቀ", desc:"በቻፓ ደህንነቱ የተጠበቀ።" },
+      { icon:"bi-translate", title:"አማርኛ ድጋፍ", desc:"ሙሉ አማርኛ ቋንቋ ተሞክሮ።" },
+    ],
+    countLabel:"የጅምር ቀን · ሰኔ 30፣ 2026",
+    countTitle:"የኢትዮጵያ ፈጣሪ ኢኮኖሚ ብዙም ሳይቆይ ይጀምራል።",
+    days:"ቀናት", hours:"ሰዓታት", minutes:"ደቂቃ",
+    joinEarly:"ቀደም ብሎ ተቀላቀሉ", contactUs:"ያግኙን",
+    testiLabel:"ግምገማዎች", testiTitle:"ፈጣሪዎች ይወዳሉ።",
+    ctaTitle:"ደጋፊዎችዎ ዝግጁ ናቸው።",
+    ctaSub:"ዛሬ ከታዳሚዎችዎ ማግኘት ይጀምሩ።",
+    createPage:"ገጽዎን ይፍጠሩ",
+    ctaTrust:"ነጻ · ክሬዲት ካርድ አያስፈልግም · 🇪🇹",
+    footDesc:"ለፈጣሪዎች፣ ስትሪመሮች እና ጨዋቾች የኢትዮጵያ ደጋፊ-ድጋፍ መድረክ።",
+    footProduct:"ምርት", footCompany:"ኩባንያ", footLegal:"ህጋዊ",
+    footCopy:"© 2026 Cheer ET. መብቶቹ ሁሉ የተጠበቁ ናቸው።",
+    footBuilt:"በ Kayon Tech · በቻፓ",
+    productLinks:["ባህሪያት","የፈጣሪ ገጾች","ትንታኔ","ስትሪም ማስጠንቀቂያ","ዋጋ"],
+    companyLinks:["ስለ እኛ","ብሎግ","ቅጥር","ፕሬስ","ያግኙን"],
+    legalLinks:["ግላዊነት","ውሎች","ኩኪዎች"],
+    todayBalance:"የዛሬ ቀሪ ሂሳብ", viaChapa:"በቻፓ", liveNow:"ቀጥታ",
+    newCheer:"አዲስ ቺር!", ttsOn:"TTS ክፍት", liveFeed:"ቀጥታ",
+    topSupporter:"ምርጥ ደጋፊ", cashOut:"አውጣ", history:"ታሪክ",
+    totalEarned:"ጠቅላላ ያገኙ", thisWeek:"ይህ ሳምንት", supporters:"ደጋፊዎች", avgDon:"አማካይ ልገሳ",
+    weeklyRev:"ሳምንታዊ ገቢ", sendViaChapa:"በቻፓ ይላኩ", sendAmount:"መጠን",
+    cheerAlert:"ቺር ማስጠንቀቂያ", ttsReading:"TTS:",
+    offlineMsg:"ኢንተርኔት ግንኙነት የለም። አውታረ መረብዎን ያረጋግጡ።",
+    notifAsk:"ደጋፊዎችዎ ቺር ሲልኩ ለማወቅ ማሳወቂያዎችን ያንቁ።",
+    notifBtn:"ማሳወቂያዎችን አንቃ",
+    notifDeny:"ቆየት ብሎ",
   }
-  [data-theme="dark"] {
-    --bg: #111111;
-    --bg2: #1c1c1e;
-    --bg3: #2c2c2e;
-    --surface: rgba(28,28,30,0.8);
-    --surface2: rgba(44,44,46,0.9);
-    --text: #f5f5f7;
-    --text2: #aeaeb2;
-    --text3: #6e6e73;
-    --accent: #2997ff;
-    --accent2: #66b2ff;
-    --accent-light: rgba(41,151,255,0.15);
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.12);
-    --shadow: 0 2px 20px rgba(0,0,0,0.4);
-    --shadow2: 0 8px 40px rgba(0,0,0,0.5);
-    --scrollbar: rgba(255,255,255,0.2);
-  }
+};
 
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior: smooth; font-size: 16px; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    transition: background 0.3s ease, color 0.3s ease;
-  }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
-
-  /* TYPOGRAPHY */
-  .display { font-size: clamp(2.6rem,5.5vw,4.8rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.025em; color: var(--text); }
-  .title-lg { font-size: clamp(1.8rem,3.5vw,3rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }
-  .title { font-size: clamp(1.4rem,2.5vw,2rem); font-weight: 600; line-height: 1.2; letter-spacing: -0.015em; }
-  .body-lg { font-size: 1.125rem; line-height: 1.7; color: var(--text2); }
-  .body { font-size: 1rem; line-height: 1.65; color: var(--text2); }
-  .caption { font-size: 0.82rem; color: var(--text3); letter-spacing: 0.02em; }
-  .eyebrow { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-  .accent-text { color: var(--accent); }
-
-  /* NAV */
-  .nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-    height: 52px; display: flex; align-items: center; justify-content: space-between;
-    padding: 0 22px;
-    background: var(--surface);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-bottom: 0.5px solid var(--border);
-    transition: all 0.3s ease;
-  }
-  .nav-logo { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.03em; color: var(--text); text-decoration: none; }
-  .nav-logo span { color: var(--accent); }
-  .nav-links { display: flex; gap: 28px; align-items: center; }
-  .nav-links a { font-size: 0.86rem; color: var(--text2); text-decoration: none; cursor: pointer; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--text); }
-  .nav-actions { display: flex; gap: 10px; align-items: center; }
-
-  /* BUTTONS */
-  .btn-primary {
-    background: var(--accent); color: #fff;
-    border: none; border-radius: 980px;
-    padding: 10px 22px; font-size: 0.9rem; font-weight: 500;
-    cursor: pointer; font-family: var(--font);
-    transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
-    white-space: nowrap;
-  }
-  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,113,227,0.3); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-ghost {
-    background: transparent; color: var(--text2);
-    border: 1px solid var(--border2); border-radius: 980px;
-    padding: 9px 18px; font-size: 0.86rem; font-weight: 500;
-    cursor: pointer; font-family: var(--font);
-    transition: all 0.2s ease;
-    white-space: nowrap;
-  }
-  .btn-ghost:hover { background: var(--bg2); color: var(--text); }
-  .btn-icon {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--bg2); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--text2); font-size: 1rem;
-    transition: all 0.2s ease;
-  }
-  .btn-icon:hover { background: var(--bg3); color: var(--text); }
-
-  /* CARDS */
-  .card {
-    background: var(--bg2); border-radius: var(--radius);
-    border: 1px solid var(--border); padding: 28px;
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  }
-  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow2); border-color: var(--border2); }
-  .card-flat { background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; }
-
-  /* SECTIONS */
-  section { padding: 90px 22px; }
-  .section-inner { max-width: 980px; margin: 0 auto; }
-  .section-header { text-align: center; margin-bottom: 56px; }
-  .section-header .eyebrow { margin-bottom: 14px; display: block; }
-
-  /* REVEAL */
-  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
-  .reveal.in { opacity: 1; transform: none; }
-  .reveal-d1 { transition-delay: 0.05s; }
-  .reveal-d2 { transition-delay: 0.12s; }
-  .reveal-d3 { transition-delay: 0.2s; }
-
-  /* HERO */
-  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 140px 22px 80px; }
-  .hero-inner { max-width: 760px; margin: 0 auto; }
-  .hero .display { margin-bottom: 20px; }
-  .hero .body-lg { max-width: 560px; margin: 0 auto 36px; }
-
-  /* BADGE */
-  .badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--accent-light); color: var(--accent);
-    border-radius: 980px; padding: 5px 14px;
-    font-size: 0.8rem; font-weight: 600;
-    margin-bottom: 24px;
-  }
-  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
-
-  /* PAYMENT FLOW */
-  .payment-flow { max-width: 900px; margin: 0 auto; }
-  .flow-canvas { position: relative; width: 100%; height: 420px; }
-  @media(max-width:600px){ .flow-canvas{ height: 520px; } }
-
-  /* CREATORS — desktop grid, mobile instagram-style horizontal scroll */
-  .creators-grid {
-    display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
-  }
-  @media(max-width:700px){
-    .creators-grid {
-      display: flex; overflow-x: auto; gap: 14px;
-      scroll-snap-type: x mandatory; padding-bottom: 12px;
-      -webkit-overflow-scrolling: touch; scrollbar-width: none;
-    }
-    .creators-grid::-webkit-scrollbar { display: none; }
-    .creator-card { min-width: 260px; scroll-snap-align: start; flex-shrink: 0; }
-  }
-
-  /* GALLERY slider */
-  .gallery-track { display: flex; gap: 14px; overflow: hidden; }
-  .gallery-slide {
-    flex: 0 0 340px; border-radius: var(--radius); overflow: hidden;
-    background: #000; position: relative; cursor: pointer;
-    transition: transform 0.3s ease;
-  }
-  .gallery-slide:hover { transform: scale(1.02); }
-  .gallery-slide iframe { width: 100%; height: 220px; border: none; pointer-events: none; }
-  .gallery-slide .slide-label {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.75));
-    padding: 14px; color: #fff; font-size: 0.82rem; font-weight: 600;
-  }
-  @media(max-width:600px){ .gallery-slide { flex: 0 0 85vw; } }
-
-  /* FEATURES GRID */
-  .features-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; }
-  .feature-item { background: var(--bg2); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 24px; transition: all 0.25s ease; }
-  .feature-item:hover { border-color: var(--border2); background: var(--bg3); }
-  .feature-icon { font-size: 1.5rem; color: var(--accent); margin-bottom: 12px; display: block; }
-
-  /* COUNTDOWN */
-  .countdown-grid { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-  .cdown-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 36px; text-align: center; min-width: 130px; }
-  .cdown-num { font-size: clamp(2.8rem,6vw,4.5rem); font-weight: 700; letter-spacing: -0.04em; color: var(--text); line-height: 1; }
-  .cdown-label { font-size: 0.78rem; color: var(--text3); margin-top: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
-
-  /* TESTIMONIALS */
-  .test-track { display: flex; gap: 14px; animation: scroll-left 30s linear infinite; width: max-content; }
-  .test-track:hover { animation-play-state: paused; }
-  @keyframes scroll-left { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-  .test-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; min-width: 290px; max-width: 300px; }
-
-  /* DIAGRAM SVG */
-  .diagram-wrap { overflow-x: auto; }
-
-  /* STATS */
-  .stats-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 1px; background: var(--border); border-radius: var(--radius); overflow: hidden; }
-  .stat-cell { background: var(--bg2); padding: 32px 24px; text-align: center; }
-  .stat-num { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; color: var(--text); }
-  .stat-label { font-size: 0.84rem; color: var(--text3); margin-top: 4px; }
-
-  /* HOW IT WORKS */
-  .steps-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 16px; }
-  .step-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; position: relative; }
-  .step-num { font-size: 3rem; font-weight: 700; color: var(--border2); letter-spacing: -0.04em; line-height: 1; margin-bottom: 16px; }
-
-  /* FOOTER */
-  footer { padding: 60px 22px 40px; border-top: 1px solid var(--border); }
-  .footer-inner { max-width: 980px; margin: 0 auto; }
-  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
-  @media(max-width:700px){ .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; } }
-  .footer-col-title { font-size: 0.78rem; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
-  .footer-link { font-size: 0.88rem; color: var(--text2); display: block; margin-bottom: 10px; text-decoration: none; cursor: pointer; transition: color 0.15s; }
-  .footer-link:hover { color: var(--text); }
-
-  /* OFFLINE BANNER */
-  .offline-bar {
-    position: fixed; top: 52px; left: 0; right: 0; z-index: 999;
-    background: #222222; color: #fff;
-    padding: 10px 22px; text-align: center;
-    font-size: 0.88rem; font-weight: 500;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transform: translateY(-100%); transition: transform 0.3s ease;
-  }
-  .offline-bar.show { transform: translateY(0); }
-
-  /* NOTIFICATION PROMPT */
-  .notif-prompt {
-    position: fixed; bottom: 24px; right: 24px; z-index: 900;
-    background: var(--surface2); border: 1px solid var(--border2);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-radius: var(--radius); padding: 20px 22px;
-    max-width: 320px; box-shadow: var(--shadow2);
-    transform: translateY(20px); opacity: 0;
-    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  .notif-prompt.show { transform: translateY(0); opacity: 1; }
-
-  /* LANG PILL */
-  .lang-am { font-family: 'Noto Sans Ethiopic', var(--font); }
-
-  @media(max-width:900px){
-    .nav-links { display: none; }
-    .hero { padding: 120px 22px 60px; }
-    section { padding: 70px 18px; }
-  }
-  @media(max-width:600px){
-    .cdown-box { min-width: 80px; padding: 20px 16px; }
-    .display { letter-spacing: -0.02em; }
-  }
-`;
-
-/* ─── DATA ─── */
+/* ─────────────────────────────────────────────
+   DATA
+───────────────────────────────────────────── */
 const CREATORS = [
-  { name:"Abel Gaming", handle:"@abelgame", type:"Gaming", raised:"ETB 12,450", supporters:284, init:"AG", color:"#0071e3" },
-  { name:"Hiwot Music", handle:"@hiwotmusic", type:"Music", raised:"ETB 8,200", supporters:156, init:"HM", color:"#30a46c" },
-  { name:"Selam Draws", handle:"@selamdraws", type:"Art", raised:"ETB 9,150", supporters:201, init:"SD", color:"#e54d2e" },
-];
-
-const FEATURES = [
-  { icon:"bi-lightning-charge-fill", title:"Real-Time Alerts", desc:"Instant overlay alerts the moment a fan supports you — zero delay.", amh:"የቅጽበት ማሳወቂያ" },
-  { icon:"bi-mic-fill", title:"Text-to-Speech", desc:"Fan messages read aloud on your stream, just like big streamers do.", amh:"ድምጽ ቅጂ" },
-  { icon:"bi-camera-video-fill", title:"Stream Overlays", desc:"Cinematic overlays for OBS, Streamlabs, and all broadcast tools.", amh:"ስትሪም ኦቨርሌይ" },
-  { icon:"bi-bank2", title:"Chapa Payments", desc:"Telebirr, CBEBirr, and all major Ethiopian banks — native support.", amh:"ቻፓ ክፍያ" },
-  { icon:"bi-wallet2", title:"Instant Payouts", desc:"ETB hits your account immediately. No waiting, no minimums.", amh:"ፈጣን ክፍያ" },
-  { icon:"bi-bar-chart-fill", title:"Analytics", desc:"Beautiful real-time data on revenue, fans, and your growth.", amh:"ትንታኔ" },
-  { icon:"bi-person-badge-fill", title:"Creator Page", desc:"Your own link, shareable and built to convert fans to supporters.", amh:"ፈጣሪ ገጽ" },
-  { icon:"bi-phone-fill", title:"Mobile First", desc:"Manage donations and stream alerts from any device, anywhere.", amh:"ሞባይል ቅድሚያ" },
+  { name:"AbelGaming", nameAm:"አቤልጌሚንግ", type:"Gamer", typeAm:"ጨዋች", raised:"ETB 12,450", icon:"bi-controller", color:"#0066FF" },
+  { name:"HabtamuTube", nameAm:"ሀብታሙ ቲዩብ", type:"YouTuber", typeAm:"ዩቱበር", raised:"ETB 31,000", icon:"bi-play-circle-fill", color:"#0088CC" },
+  { name:"MesaretArt", nameAm:"መሰረት አርት", type:"Artist", typeAm:"አርቲስት", raised:"ETB 9,150", icon:"bi-palette-fill", color:"#0055AA" },
 ];
 
 const TESTIMONIALS = [
-  { name:"Yonas T.", handle:"@yonastv", text:"This feels exactly like Streamlabs but built for Ethiopia. My viewers donate every stream now.", init:"YT" },
-  { name:"Selam K.", handle:"@selamdraws", text:"Finally a platform that understands African creators. Cheer ET changed everything for me.", init:"SK" },
-  { name:"Abel M.", handle:"@abelgame", text:"Got my first real donation in 10 minutes of going live. The Chapa integration is seamless!", init:"AM" },
-  { name:"Hiwot G.", handle:"@hiwotmusic", text:"The TTS alerts are amazing. My stream went from 0 to 500 viewers in one week.", init:"HG" },
-  { name:"Dawit B.", handle:"@dawittv", text:"Ethiopian Birr payments via Chapa. Finally. No more workarounds.", init:"DB" },
-  { name:"Mekdes A.", handle:"@mekdesart", text:"The analytics dashboard is beautiful. I know exactly who my top fans are.", init:"MA" },
+  { en:"This is exactly like Streamlabs but for Ethiopia. My viewers donate every stream now.", am:"ልክ እንደ Streamlabs ነው ለኢትዮጵያ። ተመልካቾቼ በእያንዳንዱ ስትሪም ይለግሳሉ።", name:"Yonas T.", handle:"@yonastv" },
+  { en:"The Chapa integration is seamless. ETB in my account instantly.", am:"የቻፓ ውህደት ሲምለስ ነው። ETB ወዲያው ሂሳቤ ላይ።", name:"Abel M.", handle:"@abelgame" },
+  { en:"Finally a platform built for African creators. Changed everything.", am:"በመጨረሻ ለአፍሪካ ፈጣሪዎች የተሰራ። ሁሉ ነገር ተለወጠ።", name:"Selam K.", handle:"@selamdraws" },
+  { en:"TTS alerts went viral. My stream grew from 0 to 800 in a week.", am:"TTS ማስጠንቀቂያዎቹ ቫይረሎ ሆኑ። ስትሪሜ 0 ወደ 800 አደገ።", name:"Hiwot G.", handle:"@hiwotmusic" },
+  { en:"Telebirr support is a game changer. No more workarounds.", am:"ቴሌብር ድጋፍ ጨዋታ ቀያሪ ነው። ምንም ዙሪያ መለሻ የለም።", name:"Dawit B.", handle:"@dawittv" },
+  { en:"Best analytics I've seen on any creator platform.", am:"ባየሁት ምርጥ ፈጣሪ ትንታኔ።", name:"Mekdes A.", handle:"@mekdesart" },
 ];
 
-const GALLERY = [
-  { id:"dQw4w9WgXcQ", title:"Abel Gaming — Epic Win Moment" },
-  { id:"ZZ5LpwO-An4", title:"Hiwot Music — Live Concert Stream" },
-  { id:"9bZkp7q19f0", title:"Selam Draws — Art Stream Highlight" },
-  { id:"kJQP7kiw5Fk", title:"Ethiopian Gaming Legends Collab" },
+const PAYMENT_NODES = [
+  { label:"Telebirr", x:50, y:4 },
+  { label:"CBEBirr", x:88, y:28 },
+  { label:"Awash", x:92, y:62 },
+  { label:"Dashen", x:70, y:90 },
+  { label:"Zemen", x:30, y:90 },
+  { label:"PayPal", x:8, y:62 },
+  { label:"Amhara", x:12, y:28 },
 ];
 
-const BANKS = [
-  { name:"Telebirr", x:50, y:50 },
-  { name:"CBE Birr", x:85, y:20 },
-  { name:"Awash", x:115, y:60 },
-  { name:"Dashen", x:90, y:85 },
-  { name:"Zemen", x:55, y:95 },
-  { name:"Paypal", x:20, y:80 },
-  { name:"Abyssinia", x:10, y:45 },
-  { name:"Nib", x:25, y:15 },
+const YT_VIDEOS = [
+  "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&rel=0&modestbranding=1",
+  "https://www.youtube.com/embed/jNQXAC9IVRw?autoplay=0&rel=0&modestbranding=1",
+  "https://www.youtube.com/embed/9bZkp7q19f0?autoplay=0&rel=0&modestbranding=1",
 ];
 
-/* ─── TEXT ─── */
-const COPY = {
-  en: {
-    badge: "Ethiopia's #1 Creator Platform",
-    heroTitle: "Turn Support Into a Career.",
-    heroSub: "Built for Ethiopian streamers, gamers, artists and storytellers. Powered by Chapa.",
-    cta1: "Start Creating",
-    cta2: "Watch Demo",
-    toggle: "አማ",
-    featTitle: "Everything you need to get paid.",
-    featSub: "Tools built for the Ethiopian creator.",
-    creatorsTitle: "Top Creators",
-    creatorsSub: "Ethiopian creators earning real income.",
-    galleryTitle: "Biggest Moments",
-    gallerySub: "Watch live stream highlights.",
-    howTitle: "Three steps. That's all.",
-    howSub: "Simple, fast, built for Ethiopia.",
-    steps: [
-      { num:"01", title:"Fan Sends a Cheer", desc:"Viewer picks any amount and pays via Telebirr or any Chapa-supported bank in seconds." },
-      { num:"02", title:"Alert Fires Instantly", desc:"A cinematic overlay appears on your stream with text-to-speech reading the fan message." },
-      { num:"03", title:"Money in Your Account", desc:"Your ETB balance updates live. Cash out instantly to your bank via Chapa — no waiting." },
-    ],
-    payTitle: "Powered by Chapa",
-    paySub: "Every payment flows through Ethiopia's most trusted gateway.",
-    countTitle: "Ethiopia's creator economy launches soon.",
-    countSub: "Launch Date · June 30, 2026",
-    testTitle: "Creators love Cheer ET.",
-    ctaFinal: "Your audience already supports you.",
-    ctaFinalSub: "Now get paid for it.",
-    ctaFinalBtn: "Create Your Page",
-    statsTitle: "Growing fast.",
-    stats: [
-      { num:"4,200+", label:"Creators" },
-      { num:"ETB 2.1M", label:"Paid Out" },
-      { num:"98%", label:"Uptime" },
-      { num:"4.9★", label:"Creator Rating" },
-    ],
-    notifTitle: "Stay updated",
-    notifBody: "Get notified when Cheer ET launches and when fans support you.",
-    notifAllow: "Allow Notifications",
-    notifDeny: "Not Now",
-    offlineBanner: "No internet connection. Check your network.",
-    login: "Sign In",
-    register: "Get Started",
-    support: "Support",
-    raised: "raised",
-  },
-  am: {
-    badge: "የኢትዮጵያ ቁ.1 ፈጣሪ መድረክ",
-    heroTitle: "ድጋፍን ወደ ሙያ ቀይር።",
-    heroSub: "ለኢትዮጵያ ስትሪመሮች፣ ጌምሮች፣ አርቲስቶች እና ተርጓሚዎች። በቻፓ ይሰራል።",
-    cta1: "ፈጠራ ጀምር",
-    cta2: "ቪዲዮ ይመልከቱ",
-    toggle: "EN",
-    featTitle: "ለሚከፈልህ ሁሉም ነገር።",
-    featSub: "ለኢትዮጵያ ፈጣሪ የተሰሩ መሳሪያዎች።",
-    creatorsTitle: "ምርጥ ፈጣሪዎች",
-    creatorsSub: "እውነተኛ ገቢ የሚያገኙ ኢትዮጵያውያን ፈጣሪዎች።",
-    galleryTitle: "ትልቁ ቅጽበቶች",
-    gallerySub: "የቀጥታ ስትሪም ደቂቃዎችን ይመልከቱ።",
-    howTitle: "ሶስት ደረጃዎች ብቻ።",
-    howSub: "ቀላል፣ ፈጣን፣ ለኢትዮጵያ የተሰራ።",
-    steps: [
-      { num:"01", title:"አድናቂ ቺር ይልካል", desc:"ተመልካቹ ማናቸውም መጠን ይመርጣል እና በቴሌብር ወይም በቻፓ ደጋፊ ባንክ ይከፍላል።" },
-      { num:"02", title:"ማሳወቂያ ወዲያው ይነሳሳል", desc:"በስትሪምህ ላይ የሲኒማ ኦቨርሌይ ይታያል እና የአድናቂ መልዕክቱ ይነበባል።" },
-      { num:"03", title:"ገንዘብ ወደ ሂሳብህ ይገባል", desc:"ETB ቀሪ ሂሳብህ ቅጽበታዊ ይዘምናል። ቀጥተኛ ወደ ባንክህ ያስተላልፍ — ምንም ጥበቃ የለም።" },
-    ],
-    payTitle: "በቻፓ ይሰራል",
-    paySub: "እያንዳንዱ ክፍያ በኢትዮጵያ በጣም ታማኝ ጌትዌይ ያልፋል።",
-    countTitle: "የኢትዮጵያ ፈጣሪ ኢኮኖሚ በቅርቡ ይጀምራል።",
-    countSub: "የጅምር ቀን · ሰኔ 30, 2026",
-    testTitle: "ፈጣሪዎች ቺር ኢቲን ይወዱታል።",
-    ctaFinal: "ታዳሚዎችህ አስቀድሞ ይደግፉሃል።",
-    ctaFinalSub: "አሁን ለዚህ ክፍያ ተቀበል።",
-    ctaFinalBtn: "ገጽህን ፍጠር",
-    statsTitle: "በፍጥነት እያደገ ነው።",
-    stats: [
-      { num:"4,200+", label:"ፈጣሪዎች" },
-      { num:"ETB 2.1M", label:"ተከፍሏል" },
-      { num:"98%", label:"አፕታይም" },
-      { num:"4.9★", label:"የፈጣሪ ደረጃ" },
-    ],
-    notifTitle: "ዘምን",
-    notifBody: "ቺር ኢቲ ሲጀምር እና አድናቂዎች ሲደግፉህ ማሳወቂያ ይምጣ።",
-    notifAllow: "ማሳወቂያ ፍቀድ",
-    notifDeny: "አሁን አይደለም",
-    offlineBanner: "የኢንተርኔት ግንኙነት የለም። ኔትወርክህን ያረጋግጥ።",
-    login: "ይግቡ",
-    register: "ይጀምሩ",
-    support: "ደግፍ",
-    raised: "ተሰብስቧል",
-  },
+/* ─────────────────────────────────────────────
+   THEME  (dark / light)
+───────────────────────────────────────────── */
+const DARK = {
+  bg:"#08090C", surface:"rgba(255,255,255,0.04)", surfaceHover:"rgba(255,255,255,0.07)",
+  border:"rgba(255,255,255,0.08)", borderHover:"rgba(0,140,255,0.4)",
+  text:"#F0F4FF", muted:"rgba(240,244,255,0.55)", faint:"rgba(240,244,255,0.3)",
+  accent:"#0A84FF", accentSoft:"rgba(10,132,255,0.12)",
+  navBg:"rgba(8,9,12,0.85)", scrollFade:"#08090C",
+  inputBg:"rgba(255,255,255,0.06)",
+  cardBg:"rgba(255,255,255,0.04)",
+};
+const LIGHT = {
+  bg:"#FAFCFF", surface:"rgba(255,255,255,0.9)", surfaceHover:"rgba(255,255,255,1)",
+  border:"rgba(0,0,0,0.07)", borderHover:"rgba(0,100,220,0.35)",
+  text:"#0D1733", muted:"rgba(13,23,51,0.6)", faint:"rgba(13,23,51,0.38)",
+  accent:"#0066CC", accentSoft:"rgba(0,102,204,0.08)",
+  navBg:"rgba(250,252,255,0.9)", scrollFade:"#FAFCFF",
+  inputBg:"rgba(0,80,200,0.05)",
+  cardBg:"rgba(0,80,200,0.03)",
 };
 
-/* ─── PAYMENT FLOW SVG ─── */
-function PaymentDiagram({ isDark }) {
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const i = setInterval(() => setTick(t => t + 1), 80);
-    return () => clearInterval(i);
-  }, []);
+/* ─────────────────────────────────────────────
+   GLOBAL CSS  (injected into <style>)
+───────────────────────────────────────────── */
+const makeCSS = (dark) => {
+  const th = dark ? DARK : LIGHT;
+  return `
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
 
-  const cx = 450, cy = 200, r = 150;
-  const chapaCx = cx, chapaCy = cy;
-  const chapR = 48;
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; }
+body {
+  background:${th.bg};
+  color:${th.text};
+  font-family:'Plus Jakarta Sans',-apple-system,'SF Pro Display',BlinkMacSystemFont,sans-serif;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.5;
+}
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:${th.bg}; }
+::-webkit-scrollbar-thumb { background:${th.accent}44; border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background:${th.accent}88; }
 
-  const banks = [
-    { name:"Telebirr", angle:-90 },
-    { name:"CBE Birr", angle:-30 },
-    { name:"Awash", angle:30 },
-    { name:"Dashen", angle:90 },
-    { name:"Zemen", angle:150 },
-    { name:"Paypal", angle:210 },
-    { name:"Nib", angle:270 },
-    { name:"Abyssinia", angle:-150 },
-  ];
+/* LOGO */
+.ce-logo {
+  font-family:-apple-system,'SF Pro Display','Plus Jakarta Sans',sans-serif;
+  font-weight:700; font-size:1.35rem; letter-spacing:-0.04em;
+  background:linear-gradient(135deg,${dark?"#60B0FF":"#004DC0"} 0%,${th.accent} 60%,${dark?"#40D0FF":"#0066FF"} 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.ce-logo sup { font-size:.52em; font-weight:600; letter-spacing:.1em; vertical-align:super; }
 
-  const toRad = deg => deg * Math.PI / 180;
-  const bankPos = banks.map(b => ({
-    ...b,
-    x: cx + r * Math.cos(toRad(b.angle)),
-    y: cy + r * Math.sin(toRad(b.angle)),
-  }));
+/* BUTTONS */
+.btn-primary {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  background:${th.accent}; color:#fff; border:none; border-radius:980px;
+  padding:12px 26px; font-size:.93rem; font-weight:600;
+  cursor:pointer; font-family:inherit;
+  transition:all .22s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 2px 12px ${th.accent}44;
+  white-space:nowrap; text-decoration:none;
+}
+.btn-primary:hover { background:${dark?"#1E9AFF":"#0055BB"}; box-shadow:0 4px 24px ${th.accent}66; transform:translateY(-1px); }
+.btn-primary:active { transform:translateY(0); }
 
-  const ANIM_SPEED = 0.04;
-  const stroke = isDark ? "#2997ff" : "#0071e3";
-  const textFill = isDark ? "#f5f5f7" : "#1d1d1f";
-  const textFill2 = isDark ? "#aeaeb2" : "#6e6e73";
-  const nodeBg = isDark ? "#1c1c1e" : "#f5f5f7";
-  const nodeBorder = isDark ? "#3a3a3c" : "#d1d1d6";
-  const chapaBg = isDark ? "#0a2540" : "#e8f0fe";
-  const chapaStroke = stroke;
+.btn-ghost {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  background:${th.inputBg}; color:${th.text}; border:1px solid ${th.border};
+  border-radius:980px; padding:12px 24px; font-size:.93rem; font-weight:500;
+  cursor:pointer; font-family:inherit;
+  transition:all .22s cubic-bezier(.4,0,.2,1);
+  backdrop-filter:blur(12px); white-space:nowrap;
+}
+.btn-ghost:hover { background:${th.accentSoft}; border-color:${th.borderHover}; }
 
+/* CARDS */
+.card {
+  background:${th.surface};
+  border:1px solid ${th.border};
+  border-radius:18px; overflow:hidden;
+  backdrop-filter:blur(24px);
+  transition:all .28s cubic-bezier(.4,0,.2,1);
+}
+.card:hover { border-color:${th.borderHover}; background:${th.surfaceHover}; }
+
+/* NAV */
+.nav-link {
+  color:${th.muted}; text-decoration:none; font-size:.9rem; font-weight:500;
+  transition:color .18s; cursor:pointer; letter-spacing:.01em; white-space:nowrap;
+}
+.nav-link:hover { color:${th.text}; }
+
+/* SECTION LABELS */
+.label-tag {
+  font-size:.72rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase;
+  color:${th.accent}; margin-bottom:10px; display:block;
+}
+
+/* SCROLL REVEAL */
+.reveal { opacity:0; transform:translateY(24px); transition:opacity .65s cubic-bezier(.4,0,.2,1),transform .65s cubic-bezier(.4,0,.2,1); }
+.reveal.on { opacity:1; transform:translateY(0); }
+.reveal-d1 { transition-delay:.1s; }
+.reveal-d2 { transition-delay:.2s; }
+.reveal-d3 { transition-delay:.3s; }
+
+/* ANIMATIONS */
+@keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);} }
+@keyframes float2 { 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(10px) rotate(1.5deg);} }
+@keyframes pulse-ring { 0%{transform:scale(1);opacity:.6;} 100%{transform:scale(2.2);opacity:0;} }
+@keyframes slide-up { from{opacity:0;transform:translateY(36px);} to{opacity:1;transform:translateY(0);} }
+@keyframes scroll-l { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+@keyframes wave { 0%,100%{height:4px;} 50%{height:20px;} }
+@keyframes don-pop { 0%{opacity:0;transform:translateY(14px) scale(.92);} 10%{opacity:1;transform:translateY(0) scale(1);} 80%{opacity:1;} 100%{opacity:0;transform:translateY(-6px);} }
+@keyframes dash-flow { to{stroke-dashoffset:0;} }
+@keyframes dot-travel { 0%{offset-distance:0%;opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{offset-distance:100%;opacity:0;} }
+@keyframes spin-slow { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+@keyframes fade-in { from{opacity:0;} to{opacity:1;} }
+@keyframes orb-drift { 0%,100%{transform:translate(0,0);} 33%{transform:translate(20px,-14px);} 66%{transform:translate(-14px,10px);} }
+@keyframes gradient-x { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+
+.hero-title {
+  font-family:-apple-system,'SF Pro Display','Plus Jakarta Sans',sans-serif;
+  font-size:clamp(2.6rem,6vw,5rem); font-weight:700; line-height:1.08;
+  letter-spacing:-0.03em;
+  background:linear-gradient(160deg,${th.text} 0%,${dark?"#7EC8FF":"#0044AA"} 60%,${th.accent} 100%);
+  background-size:200% 200%;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:gradient-x 8s ease infinite;
+  white-space:pre-line;
+}
+
+.wave-bar {
+  width:3px; border-radius:3px; align-self:center;
+  background:linear-gradient(180deg,${th.accent},${dark?"#40AAFF":"#004DB5"});
+}
+
+/* MOBILE MENU */
+.mobile-menu {
+  position:fixed; top:56px; left:0; right:0; bottom:0;
+  background:${dark?"rgba(8,9,12,0.97)":"rgba(250,252,255,0.97)"};
+  backdrop-filter:blur(32px);
+  z-index:990; padding:24px;
+  display:flex; flex-direction:column; gap:4px;
+  transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.mobile-menu.open { transform:translateX(0); }
+.mobile-nav-link {
+  padding:16px 12px; font-size:1.1rem; font-weight:500; color:${th.text};
+  border-bottom:1px solid ${th.border}; cursor:pointer;
+  display:flex; align-items:center; gap:12px;
+  text-decoration:none; transition:color .18s;
+}
+.mobile-nav-link:last-of-type { border-bottom:none; }
+.mobile-nav-link:hover { color:${th.accent}; }
+
+/* CREATOR CARD (mobile: Instagram-style slide) */
+.creators-scroll {
+  display:flex; gap:16px; overflow-x:auto; padding:8px 24px 16px;
+  scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.creators-scroll::-webkit-scrollbar { display:none; }
+.creator-slide {
+  flex:0 0 260px; scroll-snap-align:center;
+  background:${th.surface}; border:1px solid ${th.border};
+  border-radius:22px; overflow:hidden;
+  transition:all .28s ease;
+}
+.creator-slide:hover { border-color:${th.borderHover}; transform:translateY(-4px); box-shadow:0 12px 40px ${th.accent}22; }
+
+/* GALLERY (Netflix trailer style) */
+.gallery-track { display:flex; gap:16px; overflow-x:auto; padding:8px 24px 16px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.gallery-track::-webkit-scrollbar { display:none; }
+.gallery-item { flex:0 0 300px; scroll-snap-align:start; border-radius:16px; overflow:hidden; position:relative; }
+@media(min-width:600px) { .gallery-item { flex:0 0 360px; } }
+@media(min-width:900px) { .gallery-item { flex:0 0 440px; } }
+
+/* COUNTDOWN */
+.countdown-num {
+  font-family:-apple-system,'SF Pro Display','Plus Jakarta Sans',sans-serif;
+  font-size:clamp(2.4rem,5.5vw,4rem); font-weight:700; color:${th.accent};
+  line-height:1; letter-spacing:-0.03em;
+}
+
+/* TESTIMONIAL SCROLL */
+.testi-track { display:flex; gap:16px; animation:scroll-l 34s linear infinite; width:max-content; }
+.testi-track:hover { animation-play-state:paused; }
+.testi-card {
+  width:290px; flex-shrink:0;
+  background:${th.surface}; border:1px solid ${th.border};
+  border-radius:18px; padding:22px;
+}
+
+/* FEAT GRID */
+.feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+@media(max-width:780px) { .feat-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:480px) { .feat-grid { grid-template-columns:1fr 1fr; } }
+
+/* OFFLINE BANNER */
+.offline-banner {
+  position:fixed; bottom:0; left:0; right:0; z-index:2000;
+  background:${dark?"#1a0a00":"#FFF3E0"}; color:${dark?"#FFCC88":"#7A3800"};
+  border-top:1px solid ${dark?"#FF8C0044":"#FF8C0044"};
+  padding:12px 24px; display:flex; align-items:center; justify-content:center; gap:10px;
+  font-size:.88rem; font-weight:500;
+  transform:translateY(100%); transition:transform .3s ease;
+}
+.offline-banner.show { transform:translateY(0); }
+
+/* NOTIF PROMPT */
+.notif-prompt {
+  position:fixed; bottom:24px; right:24px; z-index:1500;
+  background:${th.surface}; border:1px solid ${th.border};
+  border-radius:18px; padding:20px; max-width:320px; width:calc(100vw - 48px);
+  backdrop-filter:blur(24px); box-shadow:0 8px 40px rgba(0,0,0,.18);
+  animation:fade-in .35s ease;
+}
+
+/* RESPONSIVE helpers */
+.hide-mobile { }
+.hide-desktop { display:none !important; }
+@media(max-width:900px) {
+  .hide-mobile { display:none !important; }
+  .hide-desktop { display:block !important; }
+  .hero-split { flex-direction:column !important; gap:32px !important; }
+  .steps-grid { grid-template-columns:1fr !important; }
+  .feat-grid { grid-template-columns:1fr 1fr !important; }
+  .footer-grid { grid-template-columns:1fr 1fr !important; }
+}
+@media(max-width:600px) {
+  .footer-grid { grid-template-columns:1fr !important; }
+  .stats-grid { grid-template-columns:1fr 1fr !important; }
+  .cta-row { flex-direction:column !important; }
+  .cta-row button, .cta-row a { width:100% !important; text-align:center !important; }
+}
+
+/* Payment Flow Diagram */
+.pay-diagram { position:relative; width:100%; aspect-ratio:1; max-width:480px; margin:0 auto; }
+.pay-dot {
+  position:absolute; border-radius:50%; background:${th.accent};
+  animation:pulse-ring 2s ease-out infinite;
+}
+
+/* Section spacing */
+section { padding:80px 0; }
+@media(max-width:600px) { section { padding:56px 0; } }
+.container { max-width:1100px; margin:0 auto; padding:0 24px; }
+.container-wide { max-width:1280px; margin:0 auto; padding:0 24px; }
+`;
+};
+
+/* ─────────────────────────────────────────────
+   SUB-COMPONENTS
+───────────────────────────────────────────── */
+function WaveBar({ delay = 0, accent }) {
   return (
-    <svg viewBox="0 0 900 400" style={{ width:"100%", maxWidth:900, display:"block", margin:"0 auto" }}>
-      <defs>
-        <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-          <path d="M0,1 L7,4 L0,7 Z" fill={stroke} opacity="0.7" />
-        </marker>
-      </defs>
-
-      {bankPos.map((b, i) => {
-        const progress = ((tick * ANIM_SPEED + i * 0.37) % 1 + 1) % 1;
-        const goingIn = progress < 0.5;
-        const t = goingIn ? progress * 2 : (progress - 0.5) * 2;
-        const fromX = goingIn ? b.x : chapaCx;
-        const fromY = goingIn ? b.y : chapaCy;
-        const toX = goingIn ? chapaCx : b.x;
-        const toY = goingIn ? chapaCy : b.y;
-        const dotX = fromX + (toX - fromX) * t;
-        const dotY = fromY + (toY - fromY) * t;
-
-        const nearChapa = Math.hypot(dotX - chapaCx, dotY - chapaCy) < chapR + 10;
-
-        return (
-          <g key={i}>
-            <line
-              x1={b.x} y1={b.y} x2={chapaCx} y2={chapaCy}
-              stroke={stroke} strokeWidth="1" opacity="0.18"
-              strokeDasharray="5 6"
-            />
-            {!nearChapa && (
-              <circle cx={dotX} cy={dotY} r="5" fill={stroke} opacity={0.85} />
-            )}
-          </g>
-        );
-      })}
-
-      {bankPos.map((b, i) => (
-        <g key={i}>
-          <rect x={b.x-38} y={b.y-20} width={76} height={40} rx="10"
-            fill={nodeBg} stroke={nodeBorder} strokeWidth="1" />
-          <text x={b.x} y={b.y+5} textAnchor="middle"
-            fontSize="11" fontWeight="600" fill={textFill}
-            fontFamily="-apple-system, 'SF Pro Display', sans-serif">
-            {b.name}
-          </text>
-        </g>
-      ))}
-
-      <circle cx={chapaCx} cy={chapaCy} r={chapR + 12} fill={chapaBg} opacity="0.5" />
-      <circle cx={chapaCx} cy={chapaCy} r={chapR} fill={chapaBg} stroke={chapaStroke} strokeWidth="2" />
-      <text x={chapaCx} y={chapaCy - 8} textAnchor="middle"
-        fontSize="13" fontWeight="700" fill={stroke}
-        fontFamily="-apple-system, 'SF Pro Display', sans-serif">Chapa</text>
-      <text x={chapaCx} y={chapaCy + 8} textAnchor="middle"
-        fontSize="10" fill={textFill2}
-        fontFamily="-apple-system, 'SF Pro Display', sans-serif">Gateway</text>
-      <text x={chapaCx} y={chapaCy + 22} textAnchor="middle"
-        fontSize="10" fill={textFill2}
-        fontFamily="-apple-system, 'SF Pro Display', sans-serif">100% Secure</text>
-    </svg>
+    <div className="wave-bar" style={{
+      animation: `wave 1.1s ease-in-out ${delay}ms infinite`,
+    }} />
   );
 }
 
-/* ─── GALLERY SLIDER ─── */
-function GallerySlider({ t }) {
-  const trackRef = useRef(null);
-  const [current, setCurrent] = useState(0);
-  const [playing, setPlaying] = useState(null);
-
-  const prev = () => setCurrent(c => Math.max(0, c - 1));
-  const next = () => setCurrent(c => Math.min(GALLERY.length - 1, c + 1));
-
-  useEffect(() => {
-    if (trackRef.current) {
-      const slideW = trackRef.current.children[0]?.offsetWidth + 14;
-      trackRef.current.scrollTo({ left: current * slideW, behavior: "smooth" });
-    }
-  }, [current]);
-
+function LiveDonRow({ name, amount, msg, emoji, visible, accent }) {
   return (
-    <div>
-      <div ref={trackRef} className="gallery-track" style={{ scrollBehavior:"smooth", overflowX:"hidden" }}>
-        {GALLERY.map((v, i) => (
-          <div key={i} className="gallery-slide" onClick={() => setPlaying(playing === i ? null : i)}>
-            {playing === i ? (
-              <iframe
-                src={`https://www.youtube.com/embed/${v.id}?autoplay=1&end=20&mute=0&rel=0&showinfo=0`}
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-                style={{ width:"100%", height:220, border:"none", pointerEvents:"all" }}
-              />
-            ) : (
-              <>
-                <img
-                  src={`https://img.youtube.com/vi/${v.id}/hqdefault.jpg`}
-                  alt={v.title}
-                  style={{ width:"100%", height:220, objectFit:"cover", display:"block" }}
-                />
-                <div style={{
-                  position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)",
-                  width:52, height:52, background:"rgba(0,0,0,0.7)", borderRadius:"50%",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                }}>
-                  <i className="bi bi-play-fill" style={{ fontSize:"1.4rem", color:"#fff", marginLeft:3 }} />
-                </div>
-                <div className="slide-label">{v.title}</div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-      <div style={{ display:"flex", gap:10, justifyContent:"center", marginTop:20 }}>
-        <button className="btn-icon" onClick={prev} disabled={current===0} style={{ opacity: current===0?0.3:1 }}>
-          <i className="bi bi-chevron-left" />
-        </button>
-        {GALLERY.map((_,i) => (
-          <div key={i} onClick={() => setCurrent(i)} style={{
-            width:8, height:8, borderRadius:"50%", cursor:"pointer", marginTop:14,
-            background: i===current ? "var(--accent)" : "var(--border2)",
-            transition:"background 0.2s",
-          }} />
-        ))}
-        <button className="btn-icon" onClick={next} disabled={current===GALLERY.length-1} style={{ opacity: current===GALLERY.length-1?0.3:1 }}>
-          <i className="bi bi-chevron-right" />
-        </button>
+    <div style={{
+      opacity: visible ? 1 : 0,
+      transition: "opacity .5s ease",
+      background: "rgba(10,132,255,0.07)",
+      border: "1px solid rgba(10,132,255,0.15)",
+      borderRadius: 13, padding: "10px 14px",
+      display: "flex", alignItems: "center", gap: 10, marginBottom: 8,
+    }}>
+      <i className={`bi ${emoji}`} style={{ fontSize: 18, color: accent }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ fontWeight: 600, fontSize: ".84rem" }}>{name}</span>
+          <span style={{ color: accent, fontWeight: 700, fontSize: ".84rem" }}>{amount}</span>
+        </div>
+        <p style={{ fontSize: ".72rem", opacity: .55, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{msg}</p>
       </div>
     </div>
   );
 }
 
-/* ─── MAIN COMPONENT ─── */
+/* Payment Flow Diagram */
+function PaymentDiagram({ dark, accent }) {
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+  const particlesRef = useRef(
+    PAYMENT_NODES.map((n, i) => ({
+      nodeIndex: i,
+      progress: Math.random(),
+      dir: Math.random() > 0.5 ? 1 : -1,
+      speed: 0.003 + Math.random() * 0.003,
+    }))
+  );
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const draw = () => {
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const cx = W / 2, cy = H / 2;
+      const r = Math.min(W, H) * 0.38;
+
+      const nodes = PAYMENT_NODES.map(n => ({
+        x: (n.x / 100) * W,
+        y: (n.y / 100) * H,
+        label: n.label,
+      }));
+
+      // Draw lines from nodes to center
+      nodes.forEach(node => {
+        const grad = ctx.createLinearGradient(node.x, node.y, cx, cy);
+        grad.addColorStop(0, dark ? "rgba(10,132,255,0.15)" : "rgba(0,102,204,0.12)");
+        grad.addColorStop(1, dark ? "rgba(10,132,255,0.4)" : "rgba(0,102,204,0.35)");
+        ctx.beginPath();
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5, 8]);
+        ctx.lineDashOffset = -(Date.now() / 40) % 13;
+        ctx.moveTo(node.x, node.y);
+        ctx.lineTo(cx, cy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+
+      // Animated dots on lines
+      const t = Date.now();
+      particlesRef.current.forEach((p, pi) => {
+        p.progress += p.speed;
+        if (p.progress > 1) p.progress = 0;
+
+        const node = nodes[p.nodeIndex];
+        const tp = p.dir === 1 ? p.progress : 1 - p.progress;
+        const px = node.x + (cx - node.x) * tp;
+        const py = node.y + (cy - node.y) * tp;
+
+        const dotGrad = ctx.createRadialGradient(px, py, 0, px, py, 5);
+        dotGrad.addColorStop(0, dark ? "#60BFFF" : "#0066FF");
+        dotGrad.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.fillStyle = dotGrad;
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Draw node circles
+      nodes.forEach(node => {
+        // outer pulse
+        ctx.beginPath();
+        ctx.fillStyle = dark ? "rgba(10,132,255,0.08)" : "rgba(0,102,204,0.06)";
+        ctx.arc(node.x, node.y, 24, 0, Math.PI * 2);
+        ctx.fill();
+
+        // circle
+        ctx.beginPath();
+        ctx.fillStyle = dark ? "rgba(20,28,48,0.95)" : "rgba(250,252,255,0.95)";
+        ctx.strokeStyle = dark ? "rgba(10,132,255,0.35)" : "rgba(0,102,204,0.25)";
+        ctx.lineWidth = 1.5;
+        ctx.arc(node.x, node.y, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // label
+        ctx.fillStyle = dark ? "rgba(240,244,255,0.85)" : "rgba(13,23,51,0.85)";
+        ctx.font = "bold 9px Plus Jakarta Sans, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(node.label, node.x, node.y);
+      });
+
+      // Center Chapa circle
+      const cr = 40;
+      const cGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, cr);
+      cGrad.addColorStop(0, dark ? "#0A84FF" : "#0066CC");
+      cGrad.addColorStop(1, dark ? "#0055CC" : "#004499");
+      ctx.beginPath();
+      ctx.fillStyle = cGrad;
+      ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Chapa pulse ring
+      const pulse = ((t % 2000) / 2000);
+      ctx.beginPath();
+      ctx.strokeStyle = dark
+        ? `rgba(10,132,255,${0.6 * (1 - pulse)})`
+        : `rgba(0,100,200,${0.4 * (1 - pulse)})`;
+      ctx.lineWidth = 2;
+      ctx.arc(cx, cy, cr + pulse * 30, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 13px Plus Jakarta Sans, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Chapa", cx, cy);
+
+      animRef.current = requestAnimationFrame(draw);
+    };
+
+    const resize = () => {
+      const size = canvas.parentElement.clientWidth;
+      canvas.width = Math.min(size, 480);
+      canvas.height = canvas.width;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    animRef.current = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
+    };
+  }, [dark]);
+
+  return (
+    <canvas ref={canvasRef} style={{ width: "100%", maxWidth: 480, display: "block", margin: "0 auto" }} />
+  );
+}
+
+/* ─────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────── */
 export default function CheerETHome() {
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(false);
-  const [isAmharic, setIsAmharic] = useState(false);
-  const [timeLeft, setTimeLeft] = useState({ days:0, hours:0, minutes:0 });
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
-  const [showNotifPrompt, setShowNotifPrompt] = useState(false);
+  const [lang, setLang] = useState("en");
+  const [dark, setDark] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
+  const [liveDon, setLiveDon] = useState(null);
+  const [balance, setBalance] = useState(12450);
+  const [offline, setOffline] = useState(!navigator.onLine);
+  const [showNotif, setShowNotif] = useState(false);
   const revealRefs = useRef([]);
+  const s = T[lang];
+  const th = dark ? DARK : LIGHT;
 
-  const t = isAmharic ? COPY.am : COPY.en;
-
-  /* Check auth */
+  // Auth redirect
   useEffect(() => {
-    try {
-      const token = localStorage.getItem("cheerET_token") || sessionStorage.getItem("cheerET_token");
-      if (token) navigate("/dashboard");
-    } catch(_) {}
+    const tok = localStorage.getItem("cheeret_token") || sessionStorage.getItem("cheeret_token");
+    if (tok) navigate("/dashboard", { replace: true });
   }, []);
 
-  /* Theme */
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
-  }, [isDark]);
-
-  /* Online/offline */
-  useEffect(() => {
-    const onOnline = () => setIsOffline(false);
-    const onOffline = () => setIsOffline(true);
-    window.addEventListener("online", onOnline);
-    window.addEventListener("offline", onOffline);
-    return () => { window.removeEventListener("online", onOnline); window.removeEventListener("offline", onOffline); };
-  }, []);
-
-  /* Countdown */
+  // Countdown June 30 2026
   useEffect(() => {
     const target = new Date("2026-06-30T00:00:00").getTime();
     const tick = () => {
@@ -622,296 +629,401 @@ export default function CheerETHome() {
         minutes: Math.floor((diff % 3600000) / 60000),
       });
     };
-    tick();
-    const i = setInterval(tick, 1000);
-    return () => clearInterval(i);
+    tick(); const i = setInterval(tick, 1000); return () => clearInterval(i);
   }, []);
 
-  /* Notification prompt after 5s */
+  // Scroll
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 44);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  // Offline detection
+  useEffect(() => {
+    const on = () => setOffline(false);
+    const off = () => setOffline(true);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", off); };
+  }, []);
+
+  // Notification permission prompt (after 4s)
   useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
-      const t = setTimeout(() => setShowNotifPrompt(true), 5000);
+      const t = setTimeout(() => setShowNotif(true), 4000);
       return () => clearTimeout(t);
     }
   }, []);
 
-  /* Reveal on scroll */
+  // Live donations
+  useEffect(() => {
+    const pool = [
+      { name: "Tigist A.", amount: "ETB 500", msg: lang === "am" ? "ቀጥሉ! 🔥" : "Keep going! 🔥", emoji: "bi-heart-fill" },
+      { name: "Samuel B.", amount: "ETB 1,000", msg: lang === "am" ? "ምርጥ ስትሪም!" : "Best stream ever!", emoji: "bi-controller" },
+      { name: "Biruk M.", amount: "ETB 2,000", msg: lang === "am" ? "ጎት!" : "You're the GOAT!", emoji: "bi-trophy-fill" },
+    ];
+    let idx = 0;
+    const show = () => {
+      setLiveDon(pool[idx % pool.length]);
+      setBalance(b => b + Math.floor(Math.random() * 450 + 100));
+      idx++;
+    };
+    show(); const i = setInterval(show, 4500); return () => clearInterval(i);
+  }, [lang]);
+
+  // Scroll reveal
   useEffect(() => {
     const obs = new IntersectionObserver(
-      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("in"); }),
-      { threshold: 0.08 }
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("on"); }),
+      { threshold: 0.1 }
     );
     revealRefs.current.forEach(r => r && obs.observe(r));
     return () => obs.disconnect();
   }, []);
+  const addR = el => { if (el && !revealRefs.current.includes(el)) revealRefs.current.push(el); };
 
-  const addReveal = el => { if (el && !revealRefs.current.includes(el)) revealRefs.current.push(el); };
-
-  const requestNotif = async () => {
-    setShowNotifPrompt(false);
+  const askNotification = () => {
     if ("Notification" in window) {
-      const perm = await Notification.requestPermission();
-      if (perm === "granted") {
-        new Notification("Cheer ET", { body: "You'll be notified when fans support you!", icon: "/favicon.ico" });
-      }
+      Notification.requestPermission().then(p => {
+        if (p === "granted") new Notification("Cheer ET", { body: lang === "am" ? "ማሳወቂያዎች ነቅተዋል!" : "Notifications enabled!", icon: "/favicon.ico" });
+        setShowNotif(false);
+      });
     }
   };
 
+  const feats = s.featItems;
+  const testimonials = TESTIMONIALS;
+
+  const navBg = scrolled
+    ? `${th.navBg}` : "transparent";
+
   return (
     <>
-      <style>{css}</style>
+      <style>{makeCSS(dark)}</style>
 
-      {/* OFFLINE BANNER */}
-      <div className={`offline-bar ${isOffline ? "show" : ""}`}>
-        <i className="bi bi-wifi-off" />
-        {t.offlineBanner}
+      {/* ──── NAVBAR ──── */}
+      <header style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
+        padding: scrolled ? "10px 24px" : "16px 24px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        background: navBg,
+        backdropFilter: scrolled ? "blur(28px) saturate(1.8)" : "none",
+        borderBottom: scrolled ? `1px solid ${th.border}` : "none",
+        transition: "all .35s cubic-bezier(.4,0,.2,1)",
+      }}>
+        <span className="ce-logo">Cheer<sup>ET</sup></span>
+
+        {/* Desktop nav */}
+        <nav className="hide-mobile" style={{ display: "flex", gap: 28, alignItems: "center" }}>
+          <a className="nav-link">{s.navFeatures}</a>
+          <a className="nav-link">{s.navCreators}</a>
+          <a className="nav-link">{s.navPricing}</a>
+          <a className="nav-link" onClick={() => navigate("/contact")}>{s.navContact}</a>
+        </nav>
+
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {/* Theme */}
+          <button onClick={() => setDark(d => !d)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "1.1rem", color: th.muted, padding: "4px 6px", borderRadius: 8, transition: "color .2s" }} title="Toggle theme">
+            <i className={`bi ${dark ? "bi-sun-fill" : "bi-moon-fill"}`} />
+          </button>
+          {/* Lang */}
+          <button onClick={() => setLang(l => l === "en" ? "am" : "en")} className="btn-ghost" style={{ padding: "7px 13px", fontSize: ".82rem" }}>
+            {lang === "en" ? "አማ" : "EN"}
+          </button>
+          <button onClick={() => navigate("/login")} className="btn-ghost hide-mobile" style={{ padding: "8px 18px", fontSize: ".86rem" }}>{s.login}</button>
+          <button onClick={() => navigate("/register")} className="btn-primary" style={{ padding: "9px 20px", fontSize: ".86rem" }}>{s.getStarted}</button>
+          {/* Hamburger */}
+          <button onClick={() => setMobileOpen(o => !o)} className="hide-desktop" style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: th.text }}>
+            <i className={`bi ${mobileOpen ? "bi-x-lg" : "bi-list"}`} style={{ fontSize: "1.4rem" }} />
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile menu */}
+      <div className={`mobile-menu${mobileOpen ? " open" : ""}`}>
+        {[
+          { label: s.navFeatures, icon: "bi-stars" },
+          { label: s.navCreators, icon: "bi-people-fill" },
+          { label: s.navPricing, icon: "bi-tag-fill" },
+          { label: s.navContact, icon: "bi-chat-dots-fill", action: () => navigate("/contact") },
+        ].map(l => (
+          <a key={l.label} className="mobile-nav-link" onClick={() => { l.action?.(); setMobileOpen(false); }}>
+            <i className={`bi ${l.icon}`} style={{ color: th.accent, width: 20 }} />{l.label}
+          </a>
+        ))}
+        <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
+          <button onClick={() => navigate("/login")} className="btn-ghost" style={{ flex: 1 }}>{s.login}</button>
+          <button onClick={() => navigate("/register")} className="btn-primary" style={{ flex: 1 }}>{s.getStarted}</button>
+        </div>
       </div>
 
-      {/* NOTIFICATION PROMPT */}
-      <div className={`notif-prompt ${showNotifPrompt ? "show" : ""}`}>
-        <div style={{ display:"flex", alignItems:"flex-start", gap:14, marginBottom:14 }}>
-          <div style={{ width:38, height:38, borderRadius:"50%", background:"var(--accent-light)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-            <i className="bi bi-bell-fill" style={{ color:"var(--accent)", fontSize:"1.1rem" }} />
-          </div>
-          <div>
-            <div style={{ fontWeight:600, fontSize:"0.92rem", color:"var(--text)", marginBottom:4 }}>{t.notifTitle}</div>
-            <div style={{ fontSize:"0.82rem", color:"var(--text2)", lineHeight:1.5 }}>{t.notifBody}</div>
-          </div>
-        </div>
-        <div style={{ display:"flex", gap:8 }}>
-          <button className="btn-primary" style={{ flex:1, padding:"8px 14px", fontSize:"0.84rem" }} onClick={requestNotif}>{t.notifAllow}</button>
-          <button className="btn-ghost" style={{ padding:"8px 14px", fontSize:"0.84rem" }} onClick={() => setShowNotifPrompt(false)}>{t.notifDeny}</button>
-        </div>
-      </div>
+      {/* ──── HERO ──── */}
+      <section style={{ minHeight: "100svh", display: "flex", alignItems: "center", padding: "120px 0 80px", position: "relative", overflow: "hidden" }}>
+        {/* Subtle background orb */}
+        <div style={{ position: "absolute", top: "20%", right: "-5%", width: "45vw", height: "45vw", maxWidth: 520, maxHeight: 520, borderRadius: "50%", background: dark ? "radial-gradient(circle,rgba(10,132,255,0.12) 0%,transparent 70%)" : "radial-gradient(circle,rgba(0,102,204,0.07) 0%,transparent 70%)", animation: "orb-drift 16s ease-in-out infinite", pointerEvents: "none" }} />
 
-      {/* ─── NAV ─── */}
-      <nav className="nav">
-        <a className="nav-logo" onClick={() => window.scrollTo({top:0,behavior:"smooth"})}>
-          Cheer<span>ET</span>
-        </a>
-        <div className="nav-links">
-          <a onClick={() => document.getElementById("features")?.scrollIntoView({behavior:"smooth"})}>Features</a>
-          <a onClick={() => document.getElementById("creators")?.scrollIntoView({behavior:"smooth"})}>Creators</a>
-          <a onClick={() => document.getElementById("gallery")?.scrollIntoView({behavior:"smooth"})}>Highlights</a>
-          <a onClick={() => navigate("/contact")}>Contact</a>
-        </div>
-        <div className="nav-actions">
-          <button className="btn-icon" onClick={() => setIsDark(d => !d)} title="Toggle theme">
-            <i className={`bi ${isDark ? "bi-sun-fill" : "bi-moon-fill"}`} />
-          </button>
-          <button className="btn-ghost" style={{ padding:"7px 14px", fontSize:"0.82rem" }} onClick={() => setIsAmharic(a => !a)}>
-            {t.toggle}
-          </button>
-          <button className="btn-ghost" style={{ padding:"7px 16px", fontSize:"0.84rem" }} onClick={() => navigate("/login")}>{t.login}</button>
-          <button className="btn-primary" style={{ padding:"8px 18px", fontSize:"0.84rem" }} onClick={() => navigate("/register")}>{t.register}</button>
-        </div>
-      </nav>
-
-      {/* ─── HERO ─── */}
-      <section className="hero">
-        <div className="hero-inner">
-          <div className="badge">
-            <span className="dot" />
-            <span>{t.badge}</span>
-          </div>
-          <h1 className="display" style={{ marginBottom:20 }}>{t.heroTitle}</h1>
-          <p className="body-lg" style={{ maxWidth:560, margin:"0 auto 36px" }}>{t.heroSub}</p>
-          <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap", marginBottom:24 }}>
-            <button className="btn-primary" style={{ padding:"14px 32px", fontSize:"1rem" }} onClick={() => navigate("/register")}>{t.cta1}</button>
-            <button className="btn-ghost" style={{ padding:"14px 28px", fontSize:"1rem" }}>
-              <i className="bi bi-play-circle-fill" style={{ marginRight:6 }} />{t.cta2}
-            </button>
-          </div>
-          <p className="caption">Free to start · ETB payouts · No setup fees</p>
-        </div>
-      </section>
-
-      {/* ─── STATS ─── */}
-      <section style={{ padding:"0 22px 80px" }}>
-        <div className="section-inner reveal" ref={addReveal}>
-          <div className="stats-row">
-            {t.stats.map((s,i) => (
-              <div key={i} className="stat-cell">
-                <div className="stat-num">{s.num}</div>
-                <div className="stat-label">{s.label}</div>
+        <div className="container">
+          <div className="hero-split" style={{ display: "flex", gap: 48, alignItems: "center" }}>
+            {/* Left */}
+            <div style={{ flex: "1 1 460px", animation: "slide-up .8s cubic-bezier(.4,0,.2,1) forwards" }}>
+              {/* Badge */}
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: th.accentSoft, border: `1px solid ${th.accent}28`, borderRadius: 100, padding: "5px 14px", marginBottom: 22 }}>
+                <i className="bi bi-broadcast" style={{ fontSize: ".78rem", color: th.accent }} />
+                <span style={{ fontSize: ".78rem", color: th.accent, fontWeight: 600 }}>{s.heroBadge}</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ─── FEATURES ─── */}
-      <section id="features" style={{ background:"var(--bg2)", padding:"90px 22px" }}>
-        <div className="section-inner">
-          <div className="section-header reveal" ref={addReveal}>
-            <span className="eyebrow">Features</span>
-            <h2 className="title-lg">{t.featTitle}</h2>
-            <p className="body" style={{ marginTop:12, maxWidth:480, margin:"12px auto 0" }}>{t.featSub}</p>
-          </div>
-          <div className="features-grid reveal" ref={addReveal}>
-            {FEATURES.map((f, i) => (
-              <div key={i} className="feature-item">
-                <i className={`bi ${f.icon} feature-icon`} />
-                <h3 style={{ fontSize:"0.97rem", fontWeight:600, marginBottom:8, color:"var(--text)" }}>{f.title}</h3>
-                <p style={{ fontSize:"0.85rem", color:"var(--text2)", lineHeight:1.6 }}>{f.desc}</p>
-                {isAmharic && <p style={{ fontSize:"0.78rem", color:"var(--accent)", marginTop:8 }}>{f.amh}</p>}
+              <h1 className="hero-title" style={{ marginBottom: 20 }}>{s.heroTitle}</h1>
+
+              <p style={{ fontSize: "1.05rem", color: th.muted, lineHeight: 1.75, maxWidth: 460, marginBottom: 16 }}>{s.heroSub}</p>
+
+              {/* Chapa trust */}
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: th.accentSoft, border: `1px solid ${th.accent}22`, borderRadius: 100, padding: "5px 14px", marginBottom: 32 }}>
+                <i className="bi bi-shield-check-fill" style={{ fontSize: ".78rem", color: th.accent }} />
+                <span style={{ fontSize: ".8rem", color: th.muted }}>
+                  {lang === "am" ? "በቻፓ ተጠብቋል" : "Secured by"} <strong style={{ color: th.accent }}>Chapa</strong> · Telebirr · CBEBirr
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ─── HOW IT WORKS ─── */}
-      <section>
-        <div className="section-inner">
-          <div className="section-header reveal" ref={addReveal}>
-            <span className="eyebrow">How it works</span>
-            <h2 className="title-lg">{t.howTitle}</h2>
-            <p className="body" style={{ maxWidth:400, margin:"12px auto 0" }}>{t.howSub}</p>
-          </div>
-          <div className="steps-grid reveal" ref={addReveal}>
-            {t.steps.map((s, i) => (
-              <div key={i} className="step-card">
-                <div className="step-num">{s.num}</div>
-                <h3 style={{ fontSize:"1rem", fontWeight:600, marginBottom:10, color:"var(--text)" }}>{s.title}</h3>
-                <p style={{ fontSize:"0.86rem", color:"var(--text2)", lineHeight:1.65 }}>{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── CREATORS ─── */}
-      <section id="creators" style={{ background:"var(--bg2)", padding:"90px 22px" }}>
-        <div className="section-inner">
-          <div className="section-header reveal" ref={addReveal}>
-            <span className="eyebrow">Creators</span>
-            <h2 className="title-lg">{t.creatorsTitle}</h2>
-            <p className="body" style={{ maxWidth:400, margin:"12px auto 0" }}>{t.creatorsSub}</p>
-          </div>
-          <div className="creators-grid reveal" ref={addReveal}>
-            {CREATORS.map((c, i) => (
-              <div key={i} className="creator-card card" style={{ textAlign:"center" }}>
-                <div style={{
-                  width:72, height:72, borderRadius:"50%",
-                  background: c.color + "18",
-                  border:`2px solid ${c.color}40`,
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  fontWeight:700, fontSize:"1.2rem", color:c.color,
-                  margin:"0 auto 16px",
-                }}>
-                  {c.init}
-                </div>
-                <div style={{ fontWeight:600, fontSize:"1rem", color:"var(--text)", marginBottom:4 }}>{c.name}</div>
-                <div style={{ fontSize:"0.82rem", color:"var(--text3)", marginBottom:14 }}>{c.handle} · {c.type}</div>
-                <div style={{ fontWeight:700, fontSize:"1.15rem", color:"var(--accent)", marginBottom:4 }}>{c.raised}</div>
-                <div style={{ fontSize:"0.78rem", color:"var(--text3)", marginBottom:18 }}>{t.raised} · {c.supporters} supporters</div>
-                <button className="btn-primary" style={{ width:"100%", padding:"10px 0" }}>
-                  <i className="bi bi-heart-fill" style={{ marginRight:6, fontSize:"0.85rem" }} />{t.support}
+              <div className="cta-row" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
+                <button onClick={() => navigate("/register")} className="btn-primary" style={{ fontSize: "1rem", padding: "14px 32px" }}>
+                  <i className="bi bi-arrow-right-circle-fill" /> {s.ctaStart}
+                </button>
+                <button className="btn-ghost" style={{ fontSize: "1rem", padding: "14px 24px" }}>
+                  <i className="bi bi-play-circle" /> {s.ctaDemo}
                 </button>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── GALLERY / MOMENTS ─── */}
-      <section id="gallery">
-        <div className="section-inner">
-          <div className="section-header reveal" ref={addReveal}>
-            <span className="eyebrow">Highlights</span>
-            <h2 className="title-lg">{t.galleryTitle}</h2>
-            <p className="body" style={{ maxWidth:400, margin:"12px auto 0" }}>{t.gallerySub}</p>
-          </div>
-          <div className="reveal" ref={addReveal}>
-            <GallerySlider t={t} />
-          </div>
-        </div>
-      </section>
-
-      {/* ─── PAYMENT DIAGRAM ─── */}
-      <section style={{ background:"var(--bg2)", padding:"90px 22px" }}>
-        <div className="section-inner">
-          <div className="section-header reveal" ref={addReveal}>
-            <span className="eyebrow">Payments</span>
-            <h2 className="title-lg">{t.payTitle}</h2>
-            <p className="body" style={{ maxWidth:460, margin:"12px auto 0" }}>{t.paySub}</p>
-          </div>
-          <div className="reveal diagram-wrap" ref={addReveal}>
-            <PaymentDiagram isDark={isDark} />
-          </div>
-          <div style={{ display:"flex", justifyContent:"center", gap:10, flexWrap:"wrap", marginTop:28 }} className="reveal" ref={addReveal}>
-            {["Telebirr","CBE Birr","Awash Bank","Dashen Bank","Zemen Bank","Abyssinia","Nib Bank","Paypal"].map((p,i) => (
-              <div key={i} style={{
-                background:"var(--bg)", border:"1px solid var(--border2)",
-                borderRadius:980, padding:"6px 16px",
-                fontSize:"0.8rem", fontWeight:500, color:"var(--text2)",
-                display:"flex", alignItems:"center", gap:6,
-              }}>
-                <i className="bi bi-check-circle-fill" style={{ color:"var(--accent)", fontSize:"0.8rem" }} />
-                {p}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── COUNTDOWN ─── */}
-      <section style={{ textAlign:"center" }}>
-        <div className="section-inner">
-          <div className="reveal" ref={addReveal}>
-            <span className="eyebrow" style={{ display:"block", marginBottom:14 }}>{t.countSub}</span>
-            <h2 className="title-lg" style={{ marginBottom:48 }}>{t.countTitle}</h2>
-            <div className="countdown-grid">
-              {[
-                { val:timeLeft.days, label:isAmharic?"ቀናት":"Days" },
-                { val:timeLeft.hours, label:isAmharic?"ሰዓቶች":"Hours" },
-                { val:timeLeft.minutes, label:isAmharic?"ደቂቃዎች":"Minutes" },
-              ].map((item,i) => (
-                <div key={i} className="cdown-box">
-                  <div className="cdown-num">{String(item.val).padStart(2,"0")}</div>
-                  <div className="cdown-label">{item.label}</div>
-                </div>
-              ))}
+              <p style={{ fontSize: ".76rem", color: th.faint }}>{s.heroTrust}</p>
             </div>
-            <div style={{ marginTop:40, display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
-              <button className="btn-primary" style={{ padding:"14px 32px", fontSize:"1rem" }} onClick={() => navigate("/register")}>
-                {isAmharic ? "ቀደምት ተጠቃሚ ሁን" : "Join Early Access"}
-              </button>
-              <button className="btn-ghost" style={{ padding:"14px 28px", fontSize:"1rem" }} onClick={() => navigate("/contact")}>
-                {isAmharic ? "ያናግሩን" : "Contact Us"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <section style={{ background:"var(--bg2)", padding:"90px 0", overflow:"hidden" }}>
-        <div style={{ textAlign:"center", padding:"0 22px", marginBottom:44 }}>
-          <span className="eyebrow" style={{ display:"block", marginBottom:14 }}>Community</span>
-          <h2 className="title-lg">{t.testTitle}</h2>
-        </div>
-        <div style={{ position:"relative" }}>
-          <div style={{ position:"absolute", left:0, top:0, bottom:0, width:80, background:"linear-gradient(90deg,var(--bg2),transparent)", zIndex:2, pointerEvents:"none" }} />
-          <div style={{ position:"absolute", right:0, top:0, bottom:0, width:80, background:"linear-gradient(-90deg,var(--bg2),transparent)", zIndex:2, pointerEvents:"none" }} />
-          <div style={{ overflow:"hidden" }}>
-            <div className="test-track">
-              {[...TESTIMONIALS,...TESTIMONIALS].map((tm, i) => (
-                <div key={i} className="test-card">
-                  <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
-                    <div style={{
-                      width:36, height:36, borderRadius:"50%",
-                      background:"var(--accent-light)", color:"var(--accent)",
-                      display:"flex", alignItems:"center", justifyContent:"center",
-                      fontWeight:600, fontSize:"0.85rem",
-                    }}>{tm.init}</div>
+            {/* Right — mockup */}
+            <div className="hide-mobile" style={{ flex: "0 0 340px", position: "relative", animation: "float 7s ease-in-out infinite" }}>
+              <div className="card" style={{ padding: 22 }}>
+                {/* Header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg,${th.accent},${dark?"#40D0FF":"#0044BB"})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <i className="bi bi-controller" style={{ color: "#fff", fontSize: 16 }} />
+                    </div>
                     <div>
-                      <div style={{ fontWeight:600, fontSize:"0.9rem", color:"var(--text)" }}>{tm.name}</div>
-                      <div style={{ fontSize:"0.76rem", color:"var(--text3)" }}>{tm.handle}</div>
+                      <div style={{ fontWeight: 700, fontSize: ".88rem" }}>AbelGaming</div>
+                      <div style={{ fontSize: ".68rem", color: th.faint }}>
+                        <i className="bi bi-circle-fill" style={{ color: "#22C55E", fontSize: ".5rem", marginRight: 4 }} />{s.liveNow} · 2,341
+                      </div>
                     </div>
                   </div>
-                  <p style={{ fontSize:"0.87rem", color:"var(--text2)", lineHeight:1.65 }}>"{tm.text}"</p>
+                  <span style={{ background: th.accentSoft, border: `1px solid ${th.accent}33`, borderRadius: 7, padding: "3px 9px", fontSize: ".68rem", color: th.accent, fontWeight: 700 }}>{s.ttsOn}</span>
+                </div>
+
+                {/* Balance */}
+                <div style={{ background: th.accentSoft, border: `1px solid ${th.accent}22`, borderRadius: 13, padding: "14px 16px", marginBottom: 11 }}>
+                  <div style={{ fontSize: ".68rem", color: th.faint, marginBottom: 2 }}>{s.todayBalance}</div>
+                  <div style={{ fontSize: "1.9rem", fontWeight: 700, color: th.accent, letterSpacing: -1, lineHeight: 1 }}>
+                    ETB {balance.toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: ".68rem", color: "#22C55E", marginTop: 3 }}>
+                    <i className="bi bi-arrow-up-right" /> +18% · {s.viaChapa}
+                  </div>
+                </div>
+
+                {/* TTS wave */}
+                <div style={{ display: "flex", alignItems: "center", gap: 3, background: th.inputBg, border: `1px solid ${th.border}`, borderRadius: 9, padding: "8px 12px", marginBottom: 11 }}>
+                  <i className="bi bi-volume-up-fill" style={{ fontSize: ".8rem", color: th.accent, marginRight: 6 }} />
+                  <span style={{ fontSize: ".68rem", color: th.faint, marginRight: 7 }}>{s.ttsReading}</span>
+                  {[0, 65, 130, 195, 65, 130].map((d, i) => <WaveBar key={i} delay={d} accent={th.accent} />)}
+                </div>
+
+                {/* Feed */}
+                <div style={{ fontSize: ".65rem", color: th.faint, marginBottom: 7, fontWeight: 700, letterSpacing: .7, textTransform: "uppercase" }}>{s.liveFeed}</div>
+                <LiveDonRow name="Tigist A." amount="ETB 500" msg="Keep going! 🔥" emoji="bi-heart-fill" visible={true} accent={th.accent} />
+                <LiveDonRow name="Samuel B." amount="ETB 1,000" msg="Best stream!" emoji="bi-controller" visible={true} accent={th.accent} />
+
+                {/* Pop */}
+                {liveDon && (
+                  <div key={balance} style={{ position: "absolute", bottom: -12, left: -12, background: `linear-gradient(135deg,${th.accent},${dark?"#40AAFF":"#004DB5"})`, borderRadius: 13, padding: "11px 16px", animation: "don-pop 4.5s ease forwards", boxShadow: `0 8px 28px ${th.accent}44`, minWidth: 205 }}>
+                    <div style={{ fontSize: ".7rem", color: "rgba(255,255,255,.75)", marginBottom: 2 }}>
+                      <i className="bi bi-lightning-charge-fill" /> {s.newCheer}
+                    </div>
+                    <div style={{ fontWeight: 700, fontSize: ".9rem", color: "#fff" }}>{liveDon.name} · {liveDon.amount}</div>
+                    <div style={{ fontSize: ".73rem", color: "rgba(255,255,255,.82)" }}>{liveDon.msg}</div>
+                  </div>
+                )}
+              </div>
+              {/* Chip */}
+              <div style={{ position: "absolute", top: -16, right: -16, background: th.surface, border: `1px solid ${th.border}`, borderRadius: 13, padding: "10px 16px", backdropFilter: "blur(16px)", animation: "float2 5.5s ease-in-out infinite", boxShadow: `0 4px 20px ${th.accent}18` }}>
+                <div style={{ fontSize: ".64rem", color: th.faint }}>{s.topSupporter}</div>
+                <div style={{ fontWeight: 700, fontSize: ".86rem" }}>Biruk M. <i className="bi bi-trophy-fill" style={{ color: "#F0A000", fontSize: ".75rem" }} /></div>
+                <div style={{ fontSize: ".78rem", color: th.accent }}>ETB 8,200 total</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ──── CHAPA PAYMENT FLOW ──── */}
+      <section ref={addR} className="reveal">
+        <div className="container">
+          <div style={{ textAlign: "center", marginBottom: 44 }}>
+            <span className="label-tag">{s.paymentPartner || (lang === "am" ? "የክፍያ አጋር" : "Payment Partner")}</span>
+            <h2 style={{ fontSize: "clamp(1.7rem,4vw,2.6rem)", fontWeight: 700, letterSpacing: -.03 * 16, marginBottom: 14 }}>{s.chapaTitle}</h2>
+            <p style={{ fontSize: ".97rem", color: th.muted, maxWidth: 520, margin: "0 auto", lineHeight: 1.75 }}>{s.chapaSub}</p>
+          </div>
+          <PaymentDiagram dark={dark} accent={th.accent} />
+        </div>
+      </section>
+
+      {/* ──── HOW IT WORKS ──── */}
+      <section ref={addR} className="reveal">
+        <div className="container">
+          <div style={{ textAlign: "center", marginBottom: 44 }}>
+            <span className="label-tag">{s.howLabel}</span>
+            <h2 style={{ fontSize: "clamp(1.7rem,4vw,2.6rem)", fontWeight: 700, letterSpacing: -.02 * 16 }}>{s.howTitle}</h2>
+          </div>
+          <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+            {[
+              { num: "01", icon: "bi-credit-card-fill", title: s.s1title, desc: s.s1desc, color: th.accent },
+              { num: "02", icon: "bi-broadcast-pin", title: s.s2title, desc: s.s2desc, color: dark ? "#40C0FF" : "#0055BB" },
+              { num: "03", icon: "bi-bank2", title: s.s3title, desc: s.s3desc, color: "#22C55E" },
+            ].map((st, i) => (
+              <div key={i} className={`card reveal reveal-d${i + 1}`} ref={addR} style={{ padding: 26 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: `${st.color}16`, border: `1px solid ${st.color}28`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <i className={`bi ${st.icon}`} style={{ color: st.color, fontSize: "1.1rem" }} />
+                  </div>
+                  <span style={{ fontSize: ".7rem", fontWeight: 800, color: th.faint, letterSpacing: 1.2 }}>STEP {st.num}</span>
+                </div>
+                <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: 8 }}>{st.title}</h3>
+                <p style={{ fontSize: ".85rem", color: th.muted, lineHeight: 1.65 }}>{st.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ──── TOP CREATORS (Instagram-style mobile slide) ──── */}
+      <section ref={addR} className="reveal">
+        <div style={{ textAlign: "center", marginBottom: 36, padding: "0 24px" }}>
+          <span className="label-tag">{s.creatorsLabel}</span>
+          <h2 style={{ fontSize: "clamp(1.7rem,4vw,2.6rem)", fontWeight: 700, letterSpacing: -.02 * 16 }}>{s.creatorsTitle}</h2>
+        </div>
+        <div className="creators-scroll">
+          {CREATORS.map((c, i) => (
+            <div key={i} className="creator-slide">
+              {/* Top color bar */}
+              <div style={{ height: 4, background: `linear-gradient(90deg,${c.color},${dark ? "#40D0FF" : "#0044BB"})` }} />
+              <div style={{ padding: "22px 20px" }}>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+                  <div style={{ width: 68, height: 68, borderRadius: "50%", background: `${c.color}18`, border: `2px solid ${c.color}40`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <i className={`bi ${c.icon}`} style={{ fontSize: "1.6rem", color: c.color }} />
+                  </div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontWeight: 700, marginBottom: 3 }}>{lang === "am" ? c.nameAm : c.name}</div>
+                  <div style={{ fontSize: ".78rem", color: th.faint, marginBottom: 16 }}>
+                    <i className={`bi ${c.icon}`} style={{ marginRight: 5 }} />{lang === "am" ? c.typeAm : c.type}
+                  </div>
+                  <div style={{ fontSize: ".72rem", color: th.faint, marginBottom: 4 }}>{s.totalRaised}</div>
+                  <div style={{ fontWeight: 800, fontSize: "1.05rem", color: c.color, marginBottom: 18 }}>{c.raised}</div>
+                  <button className="btn-primary" style={{ width: "100%", padding: "10px", fontSize: ".88rem", borderRadius: 12 }}>
+                    <i className="bi bi-heart-fill" /> {s.support}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ──── GALLERY — Biggest Moments (Netflix-style) ──── */}
+      <section ref={addR} className="reveal">
+        <div style={{ textAlign: "center", marginBottom: 36, padding: "0 24px" }}>
+          <span className="label-tag">{s.galleryLabel}</span>
+          <h2 style={{ fontSize: "clamp(1.7rem,4vw,2.6rem)", fontWeight: 700, letterSpacing: -.02 * 16 }}>{s.galleryTitle}</h2>
+        </div>
+        <div className="gallery-track">
+          {YT_VIDEOS.map((src, i) => (
+            <div key={i} className="gallery-item">
+              <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+                <iframe
+                  src={src}
+                  title={`Moment ${i + 1}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none", borderRadius: 16 }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ──── FEATURES ──── */}
+      <section ref={addR} className="reveal">
+        <div className="container">
+          <div style={{ textAlign: "center", marginBottom: 44 }}>
+            <span className="label-tag">{s.featLabel}</span>
+            <h2 style={{ fontSize: "clamp(1.7rem,4vw,2.6rem)", fontWeight: 700, letterSpacing: -.02 * 16 }}>{s.featTitle}</h2>
+          </div>
+          <div className="feat-grid">
+            {feats.map((f, i) => (
+              <div key={i} className={`card reveal reveal-d${(i % 3) + 1}`} ref={addR} style={{ padding: "22px 20px" }}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: th.accentSoft, border: `1px solid ${th.accent}22`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                  <i className={`bi ${f.icon}`} style={{ color: th.accent, fontSize: "1.1rem" }} />
+                </div>
+                <h3 style={{ fontSize: ".98rem", fontWeight: 700, marginBottom: 7 }}>{f.title}</h3>
+                <p style={{ fontSize: ".83rem", color: th.muted, lineHeight: 1.65 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ──── COUNTDOWN ──── */}
+      <section ref={addR} className="reveal" style={{ textAlign: "center" }}>
+        <div className="container" style={{ maxWidth: 720 }}>
+          <span className="label-tag">{s.countLabel}</span>
+          <h2 style={{ fontSize: "clamp(1.6rem,3.5vw,2.4rem)", fontWeight: 700, letterSpacing: -.02 * 16, marginBottom: 44 }}>{s.countTitle}</h2>
+          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 44 }}>
+            {[{ val: timeLeft.days, label: s.days }, { val: timeLeft.hours, label: s.hours }, { val: timeLeft.minutes, label: s.minutes }].map((item, i) => (
+              <div key={i} className="card" style={{ padding: "24px 32px", minWidth: 120, flex: "1 1 100px", maxWidth: 160 }}>
+                <div className="countdown-num">{String(item.val).padStart(2, "0")}</div>
+                <div style={{ fontSize: ".75rem", color: th.faint, marginTop: 7, textTransform: "uppercase", letterSpacing: 1.5 }}>{item.label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="cta-row" style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <button onClick={() => navigate("/register")} className="btn-primary">{s.joinEarly}</button>
+            <button onClick={() => navigate("/contact")} className="btn-ghost">{s.contactUs}</button>
+          </div>
+        </div>
+      </section>
+
+      {/* ──── TESTIMONIALS ──── */}
+      <section ref={addR} className="reveal" style={{ overflow: "hidden", paddingLeft: 0, paddingRight: 0 }}>
+        <div style={{ textAlign: "center", marginBottom: 36, padding: "0 24px" }}>
+          <span className="label-tag">{s.testiLabel}</span>
+          <h2 style={{ fontSize: "clamp(1.7rem,4vw,2.6rem)", fontWeight: 700, letterSpacing: -.02 * 16 }}>{s.testiTitle}</h2>
+        </div>
+        <div style={{ position: "relative" }}>
+          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(90deg,${th.scrollFade},transparent)`, zIndex: 2, pointerEvents: "none" }} />
+          <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(-90deg,${th.scrollFade},transparent)`, zIndex: 2, pointerEvents: "none" }} />
+          <div style={{ overflow: "hidden" }}>
+            <div className="testi-track">
+              {[...testimonials, ...testimonials].map((t, i) => (
+                <div key={i} className="testi-card">
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: th.accentSoft, border: `1px solid ${th.accent}28`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <i className="bi bi-person-fill" style={{ color: th.accent, fontSize: ".95rem" }} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: ".86rem" }}>{t.name}</div>
+                      <div style={{ fontSize: ".72rem", color: th.faint }}>{t.handle}</div>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: ".85rem", color: th.muted, lineHeight: 1.68 }}>"{lang === "am" ? t.am : t.en}"</p>
+                  <div style={{ display: "flex", gap: 2, marginTop: 10 }}>
+                    {[1, 2, 3, 4, 5].map(s => <i key={s} className="bi bi-star-fill" style={{ color: "#F0A000", fontSize: ".72rem" }} />)}
+                  </div>
                 </div>
               ))}
             </div>
@@ -919,81 +1031,106 @@ export default function CheerETHome() {
         </div>
       </section>
 
-      {/* ─── FINAL CTA ─── */}
-      <section style={{ textAlign:"center" }}>
-        <div className="section-inner">
-          <div className="reveal" ref={addReveal} style={{ maxWidth:600, margin:"0 auto" }}>
-            <h2 className="title-lg" style={{ marginBottom:16 }}>{t.ctaFinal}</h2>
-            <p className="body-lg" style={{ marginBottom:40 }}>{t.ctaFinalSub}</p>
-            <button className="btn-primary" style={{ padding:"16px 44px", fontSize:"1.05rem" }} onClick={() => navigate("/register")}>
-              {t.ctaFinalBtn}
-            </button>
-            <p className="caption" style={{ marginTop:20 }}>
-              {isAmharic ? "ነፃ ጀምር · ቻፓ ያስደርሳል · 🇪🇹 ለኢትዮጵያ ፈጣሪዎች" : "Free to start · Powered by Chapa · 🇪🇹 Ethiopian creators"}
-            </p>
+      {/* ──── CTA ──── */}
+      <section ref={addR} className="reveal" style={{ textAlign: "center" }}>
+        <div className="container" style={{ maxWidth: 620 }}>
+          <div style={{ position: "relative", background: `linear-gradient(135deg,${th.accent}18,${th.accentSoft})`, border: `1px solid ${th.accent}28`, borderRadius: 28, padding: "52px 36px", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "80%", height: "80%", background: `radial-gradient(circle,${th.accent}10,transparent 65%)`, pointerEvents: "none" }} />
+            <span className="label-tag" style={{ display: "block", position: "relative" }}>{lang === "am" ? "ዛሬ ጀምሩ" : "Get Started"}</span>
+            <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 700, letterSpacing: -.02 * 16, marginBottom: 12, position: "relative" }}>
+              {s.ctaTitle}
+            </h2>
+            <p style={{ fontSize: ".97rem", color: th.muted, marginBottom: 32, lineHeight: 1.75, position: "relative" }}>{s.ctaSub}</p>
+            <div className="cta-row" style={{ display: "flex", gap: 12, justifyContent: "center", position: "relative" }}>
+              <button onClick={() => navigate("/register")} className="btn-primary" style={{ fontSize: "1rem", padding: "14px 36px" }}>{s.createPage}</button>
+              <button onClick={() => navigate("/contact")} className="btn-ghost" style={{ fontSize: "1rem", padding: "14px 28px" }}>{s.contactUs}</button>
+            </div>
+            <p style={{ fontSize: ".74rem", color: th.faint, marginTop: 18, position: "relative" }}>{s.ctaTrust}</p>
           </div>
         </div>
       </section>
 
-      {/* ─── FOOTER ─── */}
-      <footer>
-        <div className="footer-inner">
-          <div className="footer-grid">
+      {/* ──── FOOTER ──── */}
+      <footer style={{ borderTop: `1px solid ${th.border}`, padding: "56px 0 32px", background: th.bg }}>
+        <div className="container">
+          <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 36, marginBottom: 44 }}>
             <div>
-              <div className="nav-logo" style={{ display:"block", marginBottom:14, fontSize:"1.15rem" }}>
-                Cheer<span style={{ color:"var(--accent)" }}>ET</span>
+              <div style={{ marginBottom: 14 }}>
+                <span className="ce-logo" style={{ fontSize: "1.3rem" }}>Cheer<sup>ET</sup></span>
               </div>
-              <p style={{ fontSize:"0.84rem", color:"var(--text3)", lineHeight:1.75, maxWidth:260, marginBottom:20 }}>
-                {isAmharic ? "ለኢትዮጵያ ፈጣሪዎች — ስትሪምላብስ ባህሪያት በቻፓ ክፍያ።" : "Ethiopia's creator monetization platform — like Streamlabs, built for Ethiopian streamers and powered by Chapa."}
-              </p>
-              <div style={{ display:"flex", gap:10 }}>
+              <p style={{ fontSize: ".84rem", color: th.faint, lineHeight: 1.78, maxWidth: 250, marginBottom: 20 }}>{s.footDesc}</p>
+              <div style={{ display: "flex", gap: 9 }}>
                 {[
-                  { icon:"bi-twitter-x", label:"X" },
-                  { icon:"bi-youtube", label:"YouTube" },
-                  { icon:"bi-instagram", label:"Instagram" },
-                  { icon:"bi-telegram", label:"Telegram" },
-                ].map((s,i) => (
-                  <button key={i} className="btn-icon" title={s.label}>
+                  { icon: "bi-twitter-x", label: "Twitter" },
+                  { icon: "bi-youtube", label: "YouTube" },
+                  { icon: "bi-facebook", label: "Facebook" },
+                  { icon: "bi-instagram", label: "Instagram" },
+                  { icon: "bi-tiktok", label: "TikTok" },
+                ].map((s, i) => (
+                  <button key={i} style={{ width: 32, height: 32, borderRadius: 8, background: th.cardBg, border: `1px solid ${th.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: ".85rem", cursor: "pointer", transition: "all .2s", color: th.muted }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = th.accent + "66"; e.currentTarget.style.color = th.accent; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = th.border; e.currentTarget.style.color = th.muted; }}
+                    title={s.label} aria-label={s.label}
+                  >
                     <i className={`bi ${s.icon}`} />
                   </button>
                 ))}
               </div>
             </div>
             {[
-              { title:isAmharic?"ምርት":"Product", links:[
-                { label:isAmharic?"ባህሪያት":"Features", action:()=>document.getElementById("features")?.scrollIntoView({behavior:"smooth"}) },
-                { label:isAmharic?"ፈጣሪ ገጾች":"Creator Pages", action:()=>navigate("/register") },
-                { label:isAmharic?"ትንታኔ":"Analytics", action:()=>navigate("/dashboard") },
-                { label:isAmharic?"ዋጋ":"Pricing", action:()=>{} },
-              ]},
-              { title:isAmharic?"ኩባንያ":"Company", links:[
-                { label:isAmharic?"ስለ እኛ":"About", action:()=>{} },
-                { label:isAmharic?"ብሎግ":"Blog", action:()=>{} },
-                { label:isAmharic?"ሥራ":"Careers", action:()=>{} },
-                { label:"Contact", action:()=>navigate("/contact") },
-              ]},
-              { title:isAmharic?"ህጋዊ":"Legal", links:[
-                { label:isAmharic?"ግላዊነት":"Privacy", action:()=>{} },
-                { label:isAmharic?"ውሎች":"Terms", action:()=>{} },
-                { label:"Cookies", action:()=>{} },
-              ]},
-            ].map((col,i) => (
+              { title: s.footProduct, links: s.productLinks },
+              { title: s.footCompany, links: s.companyLinks },
+              { title: s.footLegal, links: s.legalLinks },
+            ].map((col, i) => (
               <div key={i}>
-                <div className="footer-col-title">{col.title}</div>
-                {col.links.map((l,j) => (
-                  <a key={j} className="footer-link" onClick={l.action}>{l.label}</a>
+                <div style={{ fontSize: ".72rem", fontWeight: 700, color: th.muted, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 16 }}>{col.title}</div>
+                {col.links.map((l, j) => (
+                  <div key={j} style={{ fontSize: ".84rem", color: th.faint, marginBottom: 11, cursor: "pointer", transition: "color .2s" }}
+                    onClick={() => (l === "Contact" || l === "ያግኙን") && navigate("/contact")}
+                    onMouseEnter={e => e.target.style.color = th.text}
+                    onMouseLeave={e => e.target.style.color = th.faint}
+                  >{l}</div>
                 ))}
               </div>
             ))}
           </div>
-          <div style={{ borderTop:"1px solid var(--border)", paddingTop:24, display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
-            <p className="caption">© 2026 Cheer ET. All rights reserved.</p>
-            <p className="caption">
-              Built for 🇪🇹 by <span style={{ color:"var(--accent)" }}>Kayon Tech</span> · Powered by <span style={{ color:"var(--accent)" }}>Chapa</span>
+          <div style={{ borderTop: `1px solid ${th.border}`, paddingTop: 22, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+            <p style={{ fontSize: ".76rem", color: th.faint }}>{s.footCopy}</p>
+            <p style={{ fontSize: ".76rem", color: th.faint }}>
+              {s.footBuilt} · <span style={{ color: th.accent }}>Chapa</span>
             </p>
           </div>
         </div>
       </footer>
+
+      {/* ──── OFFLINE BANNER ──── */}
+      <div className={`offline-banner${offline ? " show" : ""}`}>
+        <i className="bi bi-wifi-off" style={{ fontSize: "1rem" }} />
+        {s.offlineMsg}
+      </div>
+
+      {/* ──── NOTIFICATION PROMPT ──── */}
+      {showNotif && (
+        <div className="notif-prompt">
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 14 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: th.accentSoft, border: `1px solid ${th.accent}28`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <i className="bi bi-bell-fill" style={{ color: th.accent, fontSize: "1rem" }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: ".9rem", marginBottom: 4 }}>Cheer ET</div>
+              <p style={{ fontSize: ".83rem", color: th.muted, lineHeight: 1.6 }}>{s.notifAsk}</p>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={askNotification} className="btn-primary" style={{ flex: 1, padding: "10px", fontSize: ".85rem", borderRadius: 10 }}>
+              <i className="bi bi-bell-fill" /> {s.notifBtn}
+            </button>
+            <button onClick={() => setShowNotif(false)} className="btn-ghost" style={{ padding: "10px 14px", fontSize: ".85rem", borderRadius: 10 }}>
+              {s.notifDeny}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

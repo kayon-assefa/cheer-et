@@ -13,7 +13,7 @@ import {
 import { doc, onSnapshot, updateDoc, getDoc } from "firebase/firestore";
 import { QRCode } from "react-qr-code";
 import Navbar from "../components/Navbar";
-
+import verifiedIcon from '../assets/verified.png'
 /* ─────────────────────────────────────
    SVG ICONS  (no emoji)
 ───────────────────────────────────── */
@@ -448,7 +448,7 @@ export default function Settings() {
                   {form.username || "Your Name"}
                   {data.verified && (
                     <img
-                      src="/verified.png"
+                      src={verifiedIcon}
                       alt="Verified"
                       className="s-verified-icon"
                     />
