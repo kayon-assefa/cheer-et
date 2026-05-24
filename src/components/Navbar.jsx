@@ -47,22 +47,23 @@ function Navbar() {
 
   return (
     <>
-      {/* Mobile Top Bar */}
-      <div style={styles.mobileTop}>
-        <i className="bi bi-list" style={styles.menuIcon} onClick={() => setOpen(true)}></i>
-        <h3 style={styles.logoMobile}>Cheer ET</h3>
-        <img src={avatarSrc} alt="avatar" style={styles.mobileAvatar} />
-      </div>
+      {/* Floating Hamburger Button */}
+      {!open && (
+        <button style={styles.floatingButton} onClick={() => setOpen(true)}>
+          <i className="bi bi-list" style={styles.menuIcon} />
+        </button>
+      )}
 
       {/* Overlay */}
       {open && <div style={styles.overlay} onClick={() => setOpen(false)} />}
 
       {/* Sidebar */}
-      <div style={{
-        ...styles.navbar,
-        transform: open ? "translateX(0)" : "translateX(-100%)"
-      }}>
-        
+      <div
+        style={{
+          ...styles.navbar,
+          transform: open ? "translateX(0)" : "translateX(-100%)",
+        }}
+      >
         {/* Neon Logo */}
         <div style={styles.header}>
           <h2 style={styles.logo}>CHEER ET</h2>
@@ -122,26 +123,26 @@ function Navbar() {
 }
 
 const styles = {
-  mobileTop: {
+  // Floating Hamburger
+  floatingButton: {
     position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "65px",
+    top: "20px",
+    left: "20px",
+    width: "50px",
+    height: "50px",
     background: "linear-gradient(90deg, #1e3a8a, #3b82f6)",
+    border: "none",
+    borderRadius: "50%",
     display: "flex",
     alignItems: "center",
-    padding: "0 16px",
+    justifyContent: "center",
     zIndex: 1000,
-    color: "white",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+    cursor: "pointer",
   },
-  menuIcon: { fontSize: "30px", cursor: "pointer" },
-  logoMobile: { flex: 1, textAlign: "center", margin: 0, fontSize: "21px", fontWeight: "700" },
-  mobileAvatar: {
-    width: "38px",
-    height: "38px",
-    borderRadius: "50%",
+  menuIcon: {
+    fontSize: "28px",
+    color: "white",
   },
 
   overlay: {
@@ -156,7 +157,7 @@ const styles = {
 
   navbar: {
     position: "fixed",
-    top: "65px",
+    top: 0,                    // Changed from 65px
     left: 0,
     bottom: 0,
     width: "260px",

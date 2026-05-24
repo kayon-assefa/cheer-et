@@ -10,7 +10,7 @@ import Livesub from "./pages/Livesub";
 import Home from "./pages/Home";
 import CreatorPage from "./pages/CreatorPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
-
+import OverlayPage from "./pages/OverlayPage";
 // FIXED: Now importing the proper React JSX component instead of an HTML file
 import NotFound from "./pages/NotFound"; 
 
@@ -26,7 +26,7 @@ function App() {
       <Route path="/withdraw" element={<Withdraw />} />
       <Route path="/livesub" element={<Livesub />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
-      
+      <Route path="/:username/overlays" element={<OverlayPage />} />
       {/* Explicit 404 route */}
       <Route path="/404" element={<NotFound />} />
 

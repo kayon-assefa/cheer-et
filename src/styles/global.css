@@ -1,23 +1,37 @@
-/* global.css */
-
-/* BODY */
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
   color:white;
+
   width:100%;
+
   box-sizing:border-box;
 
-  /* ✅ BACKGROUND */
-  background: radial-gradient(1200px 500px at 20% 0%, rgba(0,122,255,.16), transparent 60%),
-              radial-gradient(900px 450px at 80% 10%, rgba(88,86,214,.14), transparent 55%),
-              linear-gradient(270deg, #0e0542, #1d1941, #020d4d);
-  background-size: 600% 400%;
-  animation: gradientMove 20s ease infinite;
+  background:
+    radial-gradient(1200px 500px at 20% 0%, rgba(0,122,255,.16), transparent 60%),
+    radial-gradient(900px 450px at 80% 10%, rgba(88,86,214,.14), transparent 55%),
+    linear-gradient(270deg, #0e0542, #1d1941, #020d4d);
 
-  /* ✅ SCROLL FIX */
+  background-size:600% 400%;
+
+  animation:gradientMove 20s ease infinite;
+
   overflow-x:hidden;
 }
+/* ✅ BACKGROUND */
+
+
 
 *{ box-sizing:border-box; }
 

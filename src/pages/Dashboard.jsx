@@ -40,7 +40,7 @@ function Dashboard() {
   const [pendingPayout, setPendingPayout] = useState(null);
 
   const [showBalance, setShowBalance] = useState(true);
-
+const [showSubCount, setShowSubCount] = useState(true);
   const prevCount = useRef(0);
   const audio = useRef(null);
 
