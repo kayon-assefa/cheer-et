@@ -6,6 +6,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import "../styles/creator.css";
+import verifiedIcon from '../assets/verified.png'
 
 /* ── GIF banks  (swap with your Giphy API call if preferred) ── */
 const GIFS_BASIC = [
@@ -352,7 +353,7 @@ export default function CreatorPage() {
             <h1>{creator.username}</h1>
             {isVerified && (
               <img
-                src="/verified.png"
+                src={verifiedIcon}
                 alt="Verified"
                 className="verified-icon"
                 title="Verified Creator"
@@ -409,7 +410,7 @@ export default function CreatorPage() {
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="e.g. Abebe"
+                  placeholder="Kebede"
                   value={name}
                   onChange={e => setName(e.target.value)}
                 />
