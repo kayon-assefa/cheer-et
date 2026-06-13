@@ -17,7 +17,10 @@ if (!admin.apps.length) {
       admin.credential.cert(serviceAccount)
 
   });
-
+console.log(
+  "SERVICE ACCOUNT EXISTS:",
+  fs.existsSync("./serviceAccountKey.json")
+);
 }
 
 const db = admin.firestore();
