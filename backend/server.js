@@ -140,12 +140,34 @@ console.log("TRX_REF:", req.query.trx_ref);
     ) {
       console.log("PAYMENT SUCCESS");
 
-      const snap = await db
-        .collection("donations")
-        .where("tx_ref", "==", tx_ref)
-        .get();
+    console.log("ABOUT TO QUERY FIRESTORE");
 
-      console.log("DOCS FOUND:", snap.size);
+try {
+  const snap = await db
+    .collection("donations")
+    .where("tx_ref", "==", tx_ref)
+    .get();
+
+  console.log("FIRESTORE QUERY SUCCESS");
+  console.log("DOCS FOUND:", snap.size);
+
+  if (!snap.empty) {
+    const doc = snap.docs[0];
+
+    await doc.ref.update({
+      paymentStatus: "successful",
+      completedAt: new Date()
+    });
+
+    console.log("UPDATED TO COMPLETED");
+  } else {
+    console.log("DONATION NOT FOUND");
+  }
+
+} catch (fireErr) {
+  console.log("FIRESTORE ERROR:");
+  console.log(fireErr);
+}
 
       if (!snap.empty) {
         const doc = snap.docs[0];
