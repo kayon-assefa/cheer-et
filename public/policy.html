@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cheer ET — Platform Policies</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+    ```css
+*,
+*::before,
+*::after{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg:#040816;
+    --card:#0d1328;
+    --card-2:#121b35;
+
+    --primary:#3b82f6;
+    --primary-light:#60a5fa;
+
+    --text:#ffffff;
+    --muted:#94a3b8;
+
+    --border:rgba(255,255,255,.08);
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'DM Sans',sans-serif;
+    color:var(--text);
+    background:
+    radial-gradient(circle at top right,
+    rgba(59,130,246,.18),
+    transparent 35%),
+
+    radial-gradient(circle at left center,
+    rgba(37,99,235,.12),
+    transparent 40%),
+
+    #040816;
+
+    min-height:100vh;
+    line-height:1.7;
+}
+
+/* NAVBAR */
+
+nav{
+    position:fixed;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+
+    width:92%;
+    max-width:1200px;
+    height:72px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 24px;
+
+    background:rgba(10,15,35,.75);
+    backdrop-filter:blur(20px);
+
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+
+    z-index:999;
+}
+
+.logo{
+    text-decoration:none;
+    color:white;
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    font-family:'Syne',sans-serif;
+    font-size:1.4rem;
+    font-weight:800;
+}
+
+.logo-dot{
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:var(--primary);
+
+    box-shadow:
+    0 0 10px var(--primary),
+    0 0 25px var(--primary),
+    0 0 45px var(--primary);
+}
+
+.nav-tabs{
+    display:flex;
+    list-style:none;
+    gap:8px;
+}
+
+.nav-tabs a{
+    color:var(--muted);
+    text-decoration:none;
+    padding:10px 16px;
+    border-radius:10px;
+    transition:.3s;
+}
+
+.nav-tabs a:hover,
+.nav-tabs a.active{
+    color:white;
+    background:rgba(59,130,246,.12);
+}
+
+/* HERO */
+
+.hero{
+    max-width:1000px;
+    margin:auto;
+    text-align:center;
+    padding:180px 20px 100px;
+}
+
+.hero-eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+
+    background:rgba(59,130,246,.1);
+
+    border:1px solid rgba(59,130,246,.2);
+
+    color:var(--primary-light);
+
+    padding:8px 18px;
+
+    border-radius:999px;
+
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+
+    margin-bottom:30px;
+}
+
+.hero h1{
+    font-family:'Syne',sans-serif;
+    font-size:clamp(3rem,8vw,6rem);
+    font-weight:800;
+    line-height:.95;
+    letter-spacing:-.05em;
+
+    margin-bottom:20px;
+}
+
+.hero h1 span{
+    color:var(--primary-light);
+}
+
+.hero-sub{
+    color:var(--muted);
+    max-width:700px;
+    margin:auto;
+    font-size:1.1rem;
+}
+
+.hero-date{
+    color:#64748b;
+    margin-top:15px;
+}
+
+/* MAIN */
+
+.page-wrap{
+    max-width:1300px;
+    margin:auto;
+    padding:0 20px 120px;
+
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:40px;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    position:sticky;
+    top:110px;
+}
+
+.sidebar-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+
+    color:#64748b;
+
+    margin-bottom:15px;
+}
+
+.sidebar-nav{
+    list-style:none;
+}
+
+.sidebar-nav li{
+    margin-bottom:8px;
+}
+
+.sidebar-nav a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    text-decoration:none;
+    color:var(--muted);
+
+    padding:12px;
+    border-radius:12px;
+
+    transition:.3s;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.current{
+    background:rgba(59,130,246,.08);
+    color:white;
+}
+
+.icon{
+    width:34px;
+    height:34px;
+
+    border-radius:10px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(59,130,246,.12);
+}
+
+/* POLICY CARDS */
+
+.policy-content{
+    margin-bottom:80px;
+}
+
+.policy-block{
+    background:rgba(13,19,40,.75);
+
+    backdrop-filter:blur(18px);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:20px;
+
+    padding:28px;
+
+    margin-bottom:18px;
+
+    transition:.3s;
+}
+
+.policy-block:hover{
+    transform:translateY(-4px);
+
+    border-color:rgba(59,130,246,.4);
+
+    box-shadow:
+    0 0 40px rgba(59,130,246,.15);
+}
+
+.policy-block h3{
+    font-family:'Syne',sans-serif;
+    font-size:1rem;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    margin-bottom:14px;
+}
+
+.num{
+    width:28px;
+    height:28px;
+
+    border-radius:50%;
+
+    background:rgba(59,130,246,.15);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:var(--primary-light);
+}
+
+.policy-block p{
+    color:#cbd5e1;
+}
+
+.policy-block ul{
+    list-style:none;
+    margin-top:15px;
+}
+
+.policy-block li{
+    color:#cbd5e1;
+    padding:8px 0 8px 22px;
+    position:relative;
+}
+
+.policy-block li::before{
+    content:"•";
+    position:absolute;
+    left:0;
+    color:var(--primary-light);
+}
+
+/* TABLES */
+
+.policy-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+.policy-table th{
+    text-align:left;
+    padding:15px;
+    color:#64748b;
+    border-bottom:1px solid var(--border);
+}
+
+.policy-table td{
+    padding:15px;
+    color:#cbd5e1;
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+/* CALLOUTS */
+
+.callout{
+    padding:20px;
+    border-radius:18px;
+    margin:20px 0;
+
+    display:flex;
+    gap:15px;
+}
+
+.callout.warning{
+    background:rgba(245,158,11,.08);
+    border:1px solid rgba(245,158,11,.2);
+}
+
+.callout.danger{
+    background:rgba(239,68,68,.08);
+    border:1px solid rgba(239,68,68,.2);
+}
+
+.callout.info{
+    background:rgba(59,130,246,.08);
+    border:1px solid rgba(59,130,246,.2);
+}
+
+/* SECTION DIVIDER */
+
+.section-sep{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    margin:80px 0;
+}
+
+.section-sep-line{
+    flex:1;
+    height:1px;
+
+    background:
+    linear-gradient(
+    90deg,
+    transparent,
+    rgba(59,130,246,.5),
+    transparent
+    );
+}
+
+.section-sep-dot{
+    width:10px;
+    height:10px;
+
+    border-radius:50%;
+
+    background:var(--primary);
+
+    box-shadow:
+    0 0 15px var(--primary);
+}
+
+/* FOOTER */
+
+footer{
+    border-top:1px solid rgba(255,255,255,.05);
+
+    padding:40px 20px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    color:#64748b;
+}
+
+footer a{
+    color:#94a3b8;
+    text-decoration:none;
+}
+
+footer a:hover{
+    color:white;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+    .page-wrap{
+        grid-template-columns:1fr;
+    }
+
+    .sidebar{
+        display:none;
+    }
+
+    .nav-tabs{
+        display:none;
+    }
+
+    .hero{
+        padding-top:140px;
+    }
+
+    footer{
+        flex-direction:column;
+        gap:15px;
+        text-align:center;
+    }
+}
+```
+
+</style>
+</head>
+<body>
+ 
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-dot"></div>
+    Cheer ET
+  </a>
+  <ul class="nav-tabs">
+    <li><a href="#donation-policy" class="active">Donation</a></li>
+    <li><a href="#payout-policy">Payout</a></li>
+    <li><a href="#abuse-policy">Abuse & Fraud</a></li>
+  </ul>
+</nav>
+ 
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">⚖ Platform Policies</div>
+  <h1>Legal & <span>Platform Rules</span></h1>
+  <p class="hero-sub">These policies govern all financial transactions, creator payouts, and platform conduct on Cheer ET.</p>
+  <p class="hero-date">Effective Date: June 2025 &nbsp;·&nbsp; Maintained by Kayon Tech</p>
+</div>
+ 
+<!-- MAIN LAYOUT -->
+<div class="page-wrap">
+ 
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Policies</div>
+    <ul class="sidebar-nav">
+      <li>
+        <a href="#donation-policy" class="current">
+          <span class="icon icon-orange">💸</span>
+          Donation Policy
+        </a>
+      </li>
+      <li>
+        <a href="#payout-policy">
+          <span class="icon icon-gold">💰</span>
+          Payout Policy
+        </a>
+      </li>
+      <li>
+        <a href="#abuse-policy">
+          <span class="icon icon-red">🚫</span>
+          Abuse & Fraud
+        </a>
+      </li>
+    </ul>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Quick Links</div>
+    <ul class="sidebar-nav">
+      <li><a href="#">Terms of Service</a></li>
+      <li><a href="#">Privacy Policy</a></li>
+      <li><a href="#">Contact Support</a></li>
+    </ul>
+  </aside>
+ 
+  <!-- CONTENT -->
+  <main>
+ 
+    <!-- ═══════════════════════════════ DONATION POLICY ═══════════════════════════════ -->
+    <section id="donation-policy" class="policy-section">
+      <div class="policy-header">
+        <div class="policy-icon orange">💸</div>
+        <div class="policy-header-text">
+          <h2>Donation Policy</h2>
+          <p>Rules governing all fan-to-creator donations on the Cheer ET platform</p>
+        </div>
+      </div>
+ 
+      <div class="policy-content">
+ 
+        <div class="policy-block">
+          <h3><span class="num">1</span> Nature of Donations</h3>
+          <p>All donations made through Cheer ET are <strong>voluntary, one-time gifts</strong> from fans (supporters) to creators. A donation is not a purchase of goods, services, or any form of merchandise. By completing a donation, the supporter acknowledges that they are making a voluntary financial gift with no expectation of return.</p>
+        </div>
+ 
+        <div class="callout danger">
+          <span class="callout-icon">🚫</span>
+          <p><strong>Strictly No Refunds.</strong> All donations are final and non-refundable. Once a donation is processed, it cannot be reversed, recalled, or refunded under any circumstance, including but not limited to: change of mind, technical issues, dissatisfaction with the creator's content, or accidental donations. By donating, you agree to this no-refund policy.</p>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">2</span> Payment Processing</h3>
+          <p>Donations are processed through Cheer ET's integrated payment providers. By making a donation, you confirm that:</p>
+          <ul>
+            <li>You are the authorized owner of the payment method used</li>
+            <li>You are at least 18 years of age, or have parental consent</li>
+            <li>The funds used are lawfully obtained</li>
+            <li>You agree to Cheer ET's no-refund policy before confirming payment</li>
+          </ul>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">3</span> Chargeback & Payment Reversal Policy <span class="badge badge-red">Important</span></h3>
+          <p>If a supporter initiates a chargeback, payment dispute, or reversal through their bank or payment provider:</p>
+          <ul>
+            <li>Cheer ET reserves the right to immediately suspend the supporter's account pending investigation</li>
+            <li>The associated creator account may be placed on a temporary hold during the dispute period</li>
+            <li>Any funds already paid out to the creator may be <strong>clawed back</strong> or deducted from future payouts if the chargeback is upheld</li>
+            <li>Accounts found to abuse the chargeback process will be permanently banned</li>
+            <li>Cheer ET will cooperate with payment processors and law enforcement where fraudulent chargebacks are suspected</li>
+          </ul>
+        </div>
+ 
+        <div class="callout warning">
+          <span class="callout-icon">⚠️</span>
+          <p><strong>Reversed payments do not entitle the supporter to re-donation or credit.</strong> If a bank-initiated reversal occurs due to suspected fraud on the bank's side, Cheer ET will work with the relevant payment processor but cannot guarantee the creator will be compensated for reversed funds.</p>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">4</span> Donation Minimums & Fees</h3>
+          <table class="policy-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Minimum</th>
+                <th>Platform Fee</th>
+                <th>Creator Receives</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Standard Donation</td>
+                <td>10 ETB</td>
+                <td>5%</td>
+                <td>95% of donation</td>
+              </tr>
+              <tr>
+                <td>TTS Alert Donation</td>
+                <td>25 ETB</td>
+                <td>5%</td>
+                <td>95% of donation</td>
+              </tr>
+              <tr>
+                <td>Super Cheer (Live)</td>
+                <td>50 ETB</td>
+                <td>5%</td>
+                <td>95% of donation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">5</span> Prohibited Donation Activity</h3>
+          <p>The following donation behaviors are strictly prohibited:</p>
+          <ul>
+            <li>Donating using stolen, borrowed without consent, or fraudulently obtained payment methods</li>
+            <li>Using donations to send harassment, hate speech, or illegal content via TTS or donation messages</li>
+            <li>Coordinated donation-then-chargeback schemes to harm creators</li>
+            <li>Using donations to launder money or conduct illegal financial activity</li>
+          </ul>
+        </div>
+ 
+      </div>
+    </section>
+ 
+    <div class="section-sep">
+      <div class="section-sep-line"></div>
+      <div class="section-sep-dot"></div>
+      <div class="section-sep-line"></div>
+    </div>
+ 
+    <!-- ═══════════════════════════════ PAYOUT POLICY ═══════════════════════════════ -->
+    <section id="payout-policy" class="policy-section">
+      <div class="policy-header">
+        <div class="policy-icon gold">💰</div>
+        <div class="policy-header-text">
+          <h2>Payout Policy</h2>
+          <p>How and when creators receive their earnings from Cheer ET</p>
+        </div>
+      </div>
+ 
+      <div class="policy-content">
+ 
+        <div class="policy-block">
+          <h3><span class="num">1</span> Payout Eligibility</h3>
+          <p>To be eligible to request a payout, a creator must meet all of the following requirements:</p>
+          <ul>
+            <li>Have a verified Cheer ET creator account in good standing</li>
+            <li>Have completed identity verification (KYC) as required by Cheer ET</li>
+            <li>Have a minimum available balance of <strong>200 ETB</strong> (or equivalent)</li>
+            <li>Have a connected and verified payout method (bank account, mobile money, etc.)</li>
+            <li>Not have any active violations, account holds, or pending fraud reviews</li>
+          </ul>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">2</span> Payout Schedule & Processing Time</h3>
+          <table class="policy-table">
+            <thead>
+              <tr>
+                <th>Payout Method</th>
+                <th>Processing Time</th>
+                <th>Availability</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Telebirr / M-Pesa</td>
+                <td>1–2 business days</td>
+                <td>All verified creators</td>
+              </tr>
+              <tr>
+                <td>CBE / Awash Bank Transfer</td>
+                <td>2–3 business days</td>
+                <td>All verified creators</td>
+              </tr>
+              <tr>
+                <td>Other Ethiopian Banks</td>
+                <td>3–5 business days</td>
+                <td>All verified creators</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">3</span> Payout Holds & Delays <span class="badge badge-gold">Important</span></h3>
+          <p>Cheer ET reserves the right to place a hold on a creator's pending payout for the following reasons:</p>
+          <ul>
+            <li>An active chargeback or payment dispute from a supporter donation</li>
+            <li>Suspicious activity or a fraud review triggered on the creator's account</li>
+            <li>Incomplete identity verification or expired KYC documents</li>
+            <li>Violation of platform policies pending investigation</li>
+            <li>A legal order or regulatory requirement to freeze the account</li>
+          </ul>
+          <p style="margin-top: 12px;">During a hold, Cheer ET will notify the creator via their registered email. The hold will be lifted once the underlying issue is resolved. Cheer ET is not liable for any financial loss resulting from a legitimate hold.</p>
+        </div>
+ 
+        <div class="callout warning">
+          <span class="callout-icon">⚠️</span>
+          <p><strong>Chargebacks affect creator payouts.</strong> If a supporter successfully reverses a donation through their bank after the creator has already been paid out, the disputed amount will be deducted from the creator's next available payout. Repeated chargeback losses may result in a mandatory reserve balance being held on the creator's account.</p>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">4</span> Payout Fees</h3>
+          <p>Cheer ET deducts the following fees from creator payouts:</p>
+          <ul>
+            <li><strong>Platform commission:</strong> 5% is already deducted at the point of donation receipt</li>
+            <li><strong>Payment processing fee:</strong> Actual cost passed through from the payment provider (typically 1–2.5%)</li>
+            <li><strong>No additional withdrawal fee</strong> for standard payout requests</li>
+          </ul>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">5</span> Account Termination & Final Payout</h3>
+          <p>If a creator's account is voluntarily closed, any remaining balance above the minimum payout threshold (200 ETB) will be paid out within 30 business days after account closure is confirmed, subject to no outstanding disputes or violations. Balances below the minimum threshold at the time of closure are forfeited.</p>
+          <p style="margin-top: 10px;">If an account is terminated due to a policy violation, any remaining balance may be held for up to 180 days pending resolution of disputes, chargebacks, or legal claims. Following clearance, remaining funds may be paid out at Cheer ET's sole discretion.</p>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">6</span> Tax Responsibility</h3>
+          <p>Creators are solely responsible for reporting and paying any applicable taxes on income received through Cheer ET in compliance with Ethiopian tax law. Cheer ET does not withhold taxes on creator payouts. Cheer ET may issue transaction summaries upon request but does not provide formal tax documentation.</p>
+        </div>
+ 
+      </div>
+    </section>
+ 
+    <div class="section-sep">
+      <div class="section-sep-line"></div>
+      <div class="section-sep-dot"></div>
+      <div class="section-sep-line"></div>
+    </div>
+ 
+    <!-- ═══════════════════════════════ ABUSE & FRAUD POLICY ═══════════════════════════════ -->
+    <section id="abuse-policy" class="policy-section">
+      <div class="policy-header">
+        <div class="policy-icon red">🚫</div>
+        <div class="policy-header-text">
+          <h2>Abuse & Fraud Policy</h2>
+          <p>Violations, bans, appeals, and enforcement actions on Cheer ET</p>
+        </div>
+      </div>
+ 
+      <div class="policy-content">
+ 
+        <div class="policy-block">
+          <h3><span class="num">1</span> Prohibited Conduct</h3>
+          <p>The following behaviors constitute abuse or fraud and are subject to immediate enforcement action:</p>
+          <ul>
+            <li>Using stolen or unauthorized payment methods for donations</li>
+            <li>Submitting fraudulent chargebacks or intentionally reversing legitimate payments</li>
+            <li>Creating multiple accounts to circumvent bans or platform restrictions</li>
+            <li>Artificially inflating donations (self-donation schemes, money laundering via donations)</li>
+            <li>Sending hate speech, threats, or illegal content through TTS donations or messages</li>
+            <li>Impersonating another creator, user, or Cheer ET staff member</li>
+            <li>Coordinating attacks on a creator's stream through spam donations or abuse</li>
+            <li>Manipulating the platform's systems, exploiting bugs, or unauthorized API access</li>
+            <li>Any activity that constitutes financial fraud under Ethiopian law</li>
+          </ul>
+        </div>
+ 
+        <div class="callout danger">
+          <span class="callout-icon">🔴</span>
+          <p><strong>Account-wide bans are enforced across all associated accounts.</strong> If a user's main account is banned for any policy violation, all secondary or linked accounts belonging to the same individual are also subject to the same ban. This includes accounts identified via shared device, phone number, IP address, payment method, or identity documents. Operating a secondary account to evade a ban is itself a violation and may result in a permanent ban without appeal.</p>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">2</span> Enforcement Actions</h3>
+          <p>Cheer ET may take the following actions depending on the severity of the violation:</p>
+          <table class="policy-table">
+            <thead>
+              <tr>
+                <th>Violation Severity</th>
+                <th>Action Taken</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Minor / First Offense</td>
+                <td>Warning issued, feature restriction</td>
+                <td>7–30 days</td>
+              </tr>
+              <tr>
+                <td>Moderate</td>
+                <td>Temporary account suspension</td>
+                <td>30–90 days</td>
+              </tr>
+              <tr>
+                <td>Severe</td>
+                <td>Permanent account ban</td>
+                <td>Indefinite</td>
+              </tr>
+              <tr>
+                <td>Financial Fraud / Illegal</td>
+                <td>Permanent ban + legal referral</td>
+                <td>Permanent</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">3</span> Ban Scope — All Associated Accounts <span class="badge badge-red">Strict</span></h3>
+          <p>When a ban is issued on an account, it applies to <strong>all accounts associated with that individual</strong>. Cheer ET determines account association by any of the following signals:</p>
+          <ul>
+            <li>Same registered phone number or email address</li>
+            <li>Same device (device fingerprint or identifier)</li>
+            <li>Same IP address or network</li>
+            <li>Same payment method or bank account</li>
+            <li>Same verified identity documents (national ID, passport)</li>
+            <li>Behavioral patterns consistent with the banned account</li>
+          </ul>
+          <p style="margin-top: 12px;">Attempting to create or use a new account after being banned without completing a successful appeal is a separate violation that will result in an automatic <strong>permanent ban</strong> with no further appeal eligibility.</p>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">4</span> Appeal Process</h3>
+          <p>Users who believe their account was banned in error, or who have served their suspension and wish to return to the platform, may submit an appeal. The appeal process works as follows:</p>
+          <ul>
+            <li><strong>Step 1:</strong> Submit an appeal via the Cheer ET support portal at <em>support.cheeret.com/appeal</em> (or the in-app appeal form)</li>
+            <li><strong>Step 2:</strong> Provide your registered account details, the reason you believe the action was incorrect or should be reversed, and any supporting evidence</li>
+            <li><strong>Step 3:</strong> Cheer ET's Trust & Safety team will review the appeal within <strong>7–14 business days</strong></li>
+            <li><strong>Step 4:</strong> You will receive a final decision via email. The decision is binding</li>
+          </ul>
+          <p style="margin-top: 12px;">Appeals for permanent bans due to financial fraud, payment abuse, or illegal activity will only be considered under exceptional circumstances and require additional documentation. Cheer ET's decision on all appeals is final.</p>
+        </div>
+ 
+        <div class="callout info">
+          <span class="callout-icon">ℹ️</span>
+          <p><strong>Banned accounts may not donate or receive donations</strong> during the suspension period. Any donations made from a banned account may be held and not passed to the creator until the account's status is resolved. Banned creators cannot withdraw pending balances until the ban appeal is resolved and the account is reinstated.</p>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">5</span> Reporting Abuse</h3>
+          <p>If you witness or experience abuse, fraud, or policy violations on Cheer ET, please report it immediately:</p>
+          <ul>
+            <li>Use the <strong>Report</strong> button on any donation, stream, or creator profile page</li>
+            <li>Email the Trust & Safety team at <em>safety@cheeret.com</em></li>
+            <li>For urgent financial fraud, contact <em>fraud@cheeret.com</em> with transaction details</li>
+          </ul>
+          <p style="margin-top: 12px;">Cheer ET takes all reports seriously and investigates every submission. False or malicious reports made to target a creator or user are themselves a violation of this policy.</p>
+        </div>
+ 
+        <div class="policy-block">
+          <h3><span class="num">6</span> Law Enforcement Cooperation</h3>
+          <p>Cheer ET will cooperate fully with Ethiopian law enforcement authorities and relevant regulatory bodies in cases involving financial fraud, money laundering, identity theft, or other criminal activity. This includes providing transaction records, account information, and communication logs as required by law. Users agree to this as a condition of using the Cheer ET platform.</p>
+        </div>
+ 
+      </div>
+    </section>
+ 
+  </main>
+</div>
+ 
+<!-- FOOTER -->
+<footer>
+  <div>© 2025 Kayon Tech · Cheer ET Platform</div>
+  <div style="display: flex; gap: 24px;">
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Contact Us</a>
+  </div>
+</footer>
+ 
+<script>
+  // Active sidebar highlight on scroll
+  const sections = document.querySelectorAll('.policy-section');
+  const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+  const navLinks = document.querySelectorAll('.nav-tabs a');
+ 
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        sidebarLinks.forEach(a => {
+          a.classList.toggle('current', a.getAttribute('href') === '#' + id);
+        });
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-100px 0px -60% 0px' });
+ 
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

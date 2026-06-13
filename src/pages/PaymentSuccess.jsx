@@ -33,7 +33,7 @@ export default function PaymentSuccess() {
           marginBottom: "10px"
         }}
       >
-        🎉
+        
       </h1>
 
       <h2>Donation Successful</h2>

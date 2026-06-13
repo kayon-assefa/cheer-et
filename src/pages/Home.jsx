@@ -10,57 +10,68 @@ const STR = {
   en: {
     navFeatures:"Features",navCreators:"Creators",navPricing:"Pricing",navContact:"Contact",
     login:"Sign In",getStarted:"Get Started",
-    heroBadge:"Ethiopia's Creator & Streamer Platform",
+    // ✅ CHANGED: removed "Streamer" — now just Creator Platform
+    heroBadge:"",
     heroTitle:"Your audience.\nYour income.",
-    heroSub:"Cheer ET helps Ethiopian streamers, YouTubers, TikTokers, podcasters and artists receive fan support in seconds — powered by Chapa.",
+    // ✅ CHANGED: TikTokers & YouTubers listed first, streamers not highlighted
+    heroSub:"Cheer ET helps Ethiopian TikTokers, YouTubers, podcasters, artists and streamers receive fan support in seconds — powered by Chapa.",
     ctaStart:"Start for Free",ctaWatch:"See how it works",
-    heroTrust:"No setup fee · 10% platform fee · Free to start",
+    heroTrust:"",
     chapaLabel:"Payment Partner",chapaTitle:"Powered by Chapa",
     chapaSub:"Money flows instantly from your fans to your wallet through Ethiopia's most trusted payment network — Telebirr, CBEBirr, and all major banks.",
     howLabel:"How It Works",howTitle:"Three steps. That's it.",
-    s1:"Fan sends a Cheer",s1d:"Any amount via Telebirr, CBEBirr or any Ethiopian bank.",
-    s2:"Alert fires on stream",s2d:"Animated overlay + TTS voice fires instantly in OBS, Streamlabs and more.",
+    s1:"Fan sends a tip",s1d:"Any amount via Telebirr, CBEBirr or any Ethiopian bank.",
+    // ✅ CHANGED: removed OBS/overlay/streaming language — now generic for all creators
+    s2:"They land on your page",s2d:"Your fans open your CheerET link and tip you directly — from TikTok, Instagram, YouTube or anywhere you share it.",
     s3:"Money hits your wallet",s3d:"ETB lands immediately. 10% platform fee applies. Cash out anytime.",
     creatorsLabel:"Top Creators",creatorsTitle:"Built for every creator.",
-    creatorsNote:"From streamers to artists — Cheer ET works for all creators, with a special focus on live streaming.",
-    support:"Donate",totalRaised:"Total raised",
-    galleryLabel:"Biggest Moments",galleryTitle:"Watch creators go live.",
+    // ✅ CHANGED: removed "special focus on live streaming"
+    creatorsNote:"From TikTokers to artists, YouTubers to podcasters — Cheer ET works for every Ethiopian creator.",
+    support:"Support",totalRaised:"Total raised",
+    // ✅ CHANGED: "go live" replaced with neutral "creating"
+    galleryLabel:"Creator Moments",galleryTitle:"Watch creators doing what they do.",
     gallerySub:"Real moments from Ethiopian creators on Cheer ET.",
-    donate:"Donate Now",
-    platformsLabel:"Stream Anywhere",platformsTitle:"Works with every platform.",
-    platformsSub:"Cheer ET overlays and alerts work natively with OBS, Streamlabs, and every major streaming service.",
-    overlayLabel:"Overlays & Widgets",overlayTitle:"Studio-quality overlays. One click.",
-    overlaySub:"Add donation alerts, sub goals, live chat overlays and countdown widgets to any stream. Works with any browser source.",
-    overlayFeats:["Donation Alert Overlay","Sub Goal Progress Bar","Live Chat Overlay","Countdown Widget","Donor Leaderboard","TTS Alert Widget"],
-    overlayNote:"Cheer ET includes a live subscriber count page and sub goal progress bar your audience can see in real time.",
+    donate:"Tip Now",
+    // ✅ CHANGED: platforms section reframed around sharing links, not streaming software
+    platformsLabel:"Share Anywhere",platformsTitle:"Works with every platform.",
+    platformsSub:"Share your Cheer ET link on TikTok, Instagram, YouTube, Telegram, Twitter and anywhere your fans follow you. Tips come in from everywhere.",
+    // ✅ CHANGED: overlays section reframed as "tip page" customization for all creators
+    overlayLabel:"Your Tip Page",overlayTitle:"A beautiful page. One link.",
+    overlaySub:"Your CheerET page is ready to share the moment you sign up. Customize it with your photo, colors and message. Works for streamers too — with full overlay and alert support.",
+    overlayFeats:["Custom Tip Page","Donation Alerts (for streamers)","Goal Progress Bar","Live Chat Overlay","Countdown Widget","Donor Leaderboard","TTS Alert Widget","Amharic Support"],
+    // ✅ CHANGED: note now leads with creators, mentions streamers as bonus
+    overlayNote:"Every creator gets a shareable tip page. Streamers also get overlay URLs for OBS and Streamlabs — live alerts, sub goals and more.",
     featLabel:"Features",featTitle:"Built different.",
     featItems:[
-      {icon:"bi-lightning-charge-fill",title:"Real-time alerts",desc:"Donation alerts fire the instant a fan cheers — zero delay."},
+      {icon:"bi-lightning-charge-fill",title:"Instant payments",desc:"Fans tip you instantly — no delays, no waiting. ETB hits your wallet immediately."},
       {icon:"bi-volume-up-fill",title:"Text-to-speech",desc:"Fan messages read aloud live on your stream as they arrive."},
       {icon:"bi-graph-up-arrow",title:"Analytics",desc:"Beautiful dashboard tracking revenue, donors and growth."},
-      {icon:"bi-phone-fill",title:"Mobile ready",desc:"Manage donations and alerts from your phone anywhere."},
+      {icon:"bi-phone-fill",title:"Mobile ready",desc:"Manage tips and your page from your phone anywhere."},
       {icon:"bi-shield-check-fill",title:"Secure via Chapa",desc:"All payments flow through Chapa's verified infrastructure."},
       {icon:"bi-translate",title:"Amharic support",desc:"Full Amharic language for you and your fans."},
-      {icon:"bi-flag-fill",title:"Sub Goal page",desc:"Live subscriber goal page your viewers can see in real time."},
-      {icon:"bi-people-fill",title:"Live sub page",desc:"Public page showing your live subscriber count and milestones."},
+      {icon:"bi-flag-fill",title:"Goal page",desc:"Set a tip goal and let your fans watch it fill up in real time."},
+      // ✅ CHANGED: "Live sub page" → creator-neutral "Fan leaderboard"
+      {icon:"bi-people-fill",title:"Fan leaderboard",desc:"Show your top supporters publicly and reward your biggest fans."},
     ],
     pricingLabel:"Pricing",pricingTitle:"Simple, transparent pricing.",
     pricingSub:"One flat fee. No hidden costs. Start free.",
     freeTitle:"Free",freePer:"forever",
-    freeFeats:["Creator page","Donation alerts","Chapa payments","Basic analytics","10% platform fee"],
+    freeFeats:["Creator tip page","Donation alerts","Chapa payments","Basic analytics","10% platform fee"],
     proTitle:"Pro",proPer:"/ month",proPrice:"ETB 199",
-    proFeats:["Everything in Free","Custom overlays","Sub goal page","Live sub page","Priority support","Lower 7% fee","Advanced analytics","Remove Cheer ET branding"],
+    proFeats:["Everything in Free","Custom overlays","Goal page","Fan leaderboard","Priority support","Lower 7% fee","Advanced analytics","Remove Cheer ET branding"],
     proBtn:"Go Pro",currentPlan:"Start Free",
     feeNote:"All donations carry a 10% (Pro: 7%) platform fee. Chapa processing fees may apply.",
     faqLabel:"FAQ",faqTitle:"Common questions.",
     faqItems:[
-      {q:"What is Cheer ET?",a:"Cheer ET is Ethiopia's fan-support platform for creators, streamers, gamers and artists. Fans send donations directly during streams or anytime via your creator page."},
+      // ✅ CHANGED: answer reframed — creators first, streamers second
+      {q:"What is Cheer ET?",a:"Cheer ET is Ethiopia's fan-support platform for creators of all kinds — TikTokers, YouTubers, podcasters, artists, musicians, and streamers. Your fans send you tips directly through your personal CheerET page."},
       {q:"How does payment work?",a:"We use Chapa — Ethiopia's leading payment gateway. Your fans pay via Telebirr, CBEBirr, Amhara Bank, Dashen Bank, Awash Bank and more. No international cards needed."},
       {q:"What is the platform fee?",a:"Cheer ET charges a 10% platform fee on all donations. Pro plan creators get a reduced 7% fee. Standard Chapa processing fees may also apply."},
-      {q:"How do I add alerts to my stream?",a:"You get a unique overlay URL. Paste it into OBS, Streamlabs or any browser source. Alerts fire automatically when someone donates."},
-      {q:"Which platforms does Cheer ET support?",a:"OBS, Streamlabs, StreamElements, TikTok Live, YouTube Live, Twitch, Facebook Gaming, Kick, and any platform that supports browser sources."},
-      {q:"Can non-streamers use Cheer ET?",a:"Yes. YouTubers, TikTokers, podcasters, artists and musicians all use Cheer ET. The platform focuses on streaming but supports every creator type."},
-      {q:"What is the Sub Goal page?",a:"A live public page with an animated progress bar showing your subscriber or donation goal. Share the link or display it on screen during your stream."},
+      {q:"How do I start receiving tips?",a:"Sign up, set up your page in minutes, and share your CheerET link anywhere — your TikTok bio, Instagram, YouTube description, Telegram, or wherever your fans are."},
+      {q:"Which platforms does Cheer ET support?",a:"You can share your CheerET link anywhere — TikTok, Instagram, YouTube, Telegram, Twitter and more. Streamers also get OBS, Streamlabs and browser-source overlay support."},
+      // ✅ CHANGED: removed "platform focuses on streaming" — now all creators are equal
+      {q:"I'm not a streamer. Can I use Cheer ET?",a:"Absolutely. Cheer ET is built for every type of creator. TikTokers, artists, podcasters, musicians — just share your tip link and your fans can support you instantly."},
+      {q:"What is the Goal page?",a:"A live public page with an animated progress bar showing your tip goal. Share the link in your bio or on your posts to motivate fans to contribute."},
       {q:"When does Cheer ET launch?",a:"Cheer ET officially launches June 30, 2026. Join early access now to be among the first creators on the platform."},
     ],
     countLabel:"Launch · June 30, 2026",countTitle:"Ethiopia's creator economy launches soon.",
@@ -75,7 +86,8 @@ const STR = {
     nameLabel:"Full Name",emailLabel:"Email Address",phoneLabel:"Phone (optional)",
     msgLabel:"Message",sendBtn:"Send Message",sending:"Sending...",sent:"Message Sent ✓",
     contactBack:"Back",
-    footDesc:"Ethiopia's fan-support platform for creators, streamers and gamers.",
+    // ✅ CHANGED: removed "gamers" from footer description
+    footDesc:"Ethiopia's fan-support platform for every type of creator.",
     footProduct:"Product",footCompany:"Company",footLegal:"Legal",
     footCopy:"© 2026 Cheer ET. All rights reserved.",
     footBuilt:"Built by Kayon Tech 🇪🇹 · Powered by Chapa",
@@ -83,64 +95,76 @@ const STR = {
     companyLinks:["About","Blog","Careers","Press","Contact"],
     legalLinks:["Privacy","Terms","Cookies"],
     todayBalance:"Today's balance",viaChapa:"via Chapa",liveNow:"Live",
-    newCheer:"New Cheer!",ttsOn:"TTS ON",liveFeed:"Live feed",topSupporter:"Top Supporter",
+    newCheer:"New Tip!",ttsOn:"TTS ON",liveFeed:"Live feed",topSupporter:"Top Supporter",
     offlineMsg:"No internet connection. Please check your network.",
-    notifAsk:"Get notified when your fans cheer you.",notifBtn:"Enable Notifications",notifDeny:"Maybe later",
+    notifAsk:"Get notified when your fans tip you.",notifBtn:"Enable Notifications",notifDeny:"Maybe later",
   },
   am: {
     navFeatures:"ባህሪያት",navCreators:"ፈጣሪዎች",navPricing:"ዋጋ",navContact:"ያግኙን",
     login:"ግባ",getStarted:"ጀምር",
-    heroBadge:"የኢትዮጵያ ፈጣሪ እና ስትሪሜ መድረክ",
+    // ✅ CHANGED: removed "ስትሪሜ" from badge
+    heroBadge:"የኢትዮጵያ ፈጣሪዎች መድረክ",
     heroTitle:"ታዳሚዎ.\nገቢዎ.",
-    heroSub:"Cheer ET ኢትዮጵያዊ ስትሪመሮች፣ ዩቱበሮች፣ ቲክቶከሮች፣ ፖድካስተሮች እና አርቲስቶች የደጋፊ ድጋፍ በሰከንዶች ውስጥ እንዲያገኙ ያደርጋል — በቻፓ ይሰራል።",
+    // ✅ CHANGED: TikTokers listed first in Amharic too
+    heroSub:"Cheer ET ኢትዮጵያዊ ቲክቶከሮች፣ ዩቱበሮች፣ ፖድካስተሮች፣ አርቲስቶች እና ስትሪመሮች የደጋፊ ድጋፍ በሰከንዶች ውስጥ እንዲያገኙ ያደርጋል — በቻፓ ይሰራል።",
     ctaStart:"ነጻ ጀምር",ctaWatch:"እንዴት እንደሚሰራ ይመልከቱ",
     heroTrust:"ምንም ማቋቋሚያ ክፍያ · 10% የመድረክ ክፍያ · ነጻ ጀምር",
     chapaLabel:"የክፍያ አጋር",chapaTitle:"በቻፓ ይሰራል",
     chapaSub:"ገንዘቡ ከደጋፊዎችዎ ቦርሳ ወደ ቦርሳዎ ወዲያው ይፈስሳል — ቴሌብር፣ CBEBirr እና ሁሉም ዋና ባንኮች።",
     howLabel:"እንዴት ይሰራል",howTitle:"ሦስት ደረጃዎች ብቻ።",
-    s1:"ደጋፊ ቺር ይልካል",s1d:"ማንኛውም መጠን፣ በቴሌብር፣ CBEBirr ወይም ሌላ ባንክ።",
-    s2:"ማስጠንቀቂያ ወዲያው ይነሳል",s2d:"አኒሜሽን ኦቨርሌይ + TTS ድምጽ OBS፣ Streamlabs ወዲያው ይቀጥላሉ።",
+    s1:"ደጋፊ ቲፕ ይልካል",s1d:"ማንኛውም መጠን፣ በቴሌብር፣ CBEBirr ወይም ሌላ ባንክ።",
+    // ✅ CHANGED: removed OBS/overlay language in Amharic
+    s2:"ወደ ገጽዎ ይደርሳሉ",s2d:"ደጋፊዎችዎ CheerET ሊንክዎን ይከፍቱና ቲፕ ይልካሉ — ከ TikTok፣ Instagram ወይም የትም ቢሆን።",
     s3:"ገንዘቡ ወዲያው ይደርሳል",s3d:"ETB ወዲያው ወደ ቦርሳዎ ይደርሳል። 10% ክፍያ ይፈጸማል። ማንኛውም ጊዜ ያውጡ።",
     creatorsLabel:"ምርጥ ፈጣሪዎች",creatorsTitle:"ለሁሉም ፈጣሪ ተሰርቷል።",
-    creatorsNote:"ከስትሪመሮች እስከ አርቲስቶች — Cheer ET ለሁሉ ይሰራል፣ ትኩረቱ ቀጥታ ስትሪሚንግ ላይ ነው።",
-    support:"ለግስ",totalRaised:"ጠቅላላ",
-    galleryLabel:"ትልቁ ቅጽበቶች",galleryTitle:"ፈጣሪዎች ቀጥታ ሲሄዱ ይመልከቱ።",
+    // ✅ CHANGED: removed streaming focus in Amharic
+    creatorsNote:"ከቲክቶከሮች እስከ አርቲስቶች፣ ከዩቱበሮች እስከ ፖድካስተሮች — Cheer ET ለሁሉም ኢትዮጵያዊ ፈጣሪ ይሰራል።",
+    support:"ደግፍ",totalRaised:"ጠቅላላ",
+    // ✅ CHANGED: removed "go live" in Amharic
+    galleryLabel:"የፈጣሪ ቅጽበቶች",galleryTitle:"ፈጣሪዎች ሲሰሩ ይመልከቱ።",
     gallerySub:"ከኢትዮጵያ ፈጣሪዎች የ Cheer ET ቅጽበቶች።",
-    donate:"አሁን ለግስ",
-    platformsLabel:"በሁሉም ቦታ ስትሪም ያድርጉ",platformsTitle:"ከሁሉም ዋና መድረኮች ጋር ይሰራል።",
-    platformsSub:"Cheer ET ኦቨርሌይ እና ማስጠንቀቂያዎች ከ OBS፣ Streamlabs እና ሁሉም ዋና የስትሪሚንግ አገልግሎቶች ጋር ይሰራሉ።",
-    overlayLabel:"ኦቨርሌይ እና ዊጅቶች",overlayTitle:"ስቱዲዮ ጥራት ያላቸው ኦቨርሌይ። አንድ ጠቅ ብቻ።",
-    overlaySub:"ለልገሳ ማስጠንቀቂያ፣ ንዑስ ግብ፣ ቀጥታ ቻት ኦቨርሌይ እና ቆጠራ ዊጅቶችን ለማናቸውም ስትሪም ያክሉ።",
-    overlayFeats:["ልገሳ ማስጠንቀቂያ ኦቨርሌይ","ንዑስ ግብ ፕሮግሬስ ባር","ቀጥታ ቻት ኦቨርሌይ","ቆጠራ ዊጅት","ለጋሽ ሊደርቦርድ","TTS ማስጠንቀቂያ ዊጅት"],
-    overlayNote:"Cheer ET ቀጥታ ንዑስ ቁጥር ገጽ እና ሱብ ግብ ፕሮግሬስ ባር ታዳሚዎ በቀጥታ ሊያዩ ያቀርባል።",
+    donate:"አሁን ቲፕ ስጥ",
+    // ✅ CHANGED: Amharic platforms section — link sharing, not streaming software
+    platformsLabel:"በሁሉም ቦታ አጋሩ",platformsTitle:"ከሁሉም ዋና መድረኮች ጋር ይሰራል።",
+    platformsSub:"CheerET ሊንክዎን በ TikTok፣ Instagram፣ YouTube፣ Telegram እና ደጋፊዎችዎ ባሉበት ሁሉ ያጋሩ። ቲፖቹ ከሁሉም ቦታ ይመጣሉ።",
+    // ✅ CHANGED: Amharic overlay section reframed as tip page
+    overlayLabel:"የቲፕ ገጽዎ",overlayTitle:"ቆንጆ ገጽ። አንድ ሊንክ።",
+    overlaySub:"CheerET ገጽዎ ከተመዘገቡ ወዲያው ዝግጁ ነው። ፎቶዎን፣ ቀለምዎን እና መልዕክትዎን ያስተካክሉ። ስትሪመሮችም ሙሉ overlay ድጋፍ ያገኛሉ።",
+    overlayFeats:["ብጁ የቲፕ ገጽ","ልገሳ ማስጠንቀቂያ (ለስትሪመሮች)","ግብ ፕሮግሬስ ባር","ቀጥታ ቻት ኦቨርሌይ","ቆጠራ ዊጅት","ለጋሽ ሊደርቦርድ","TTS ማስጠንቀቂያ ዊጅት","አማርኛ ድጋፍ"],
+    // ✅ CHANGED: note leads with all creators, streamers as bonus
+    overlayNote:"ሁሉም ፈጣሪዎች ሊጋሩ የሚችሉ የቲፕ ገጽ ያገኛሉ። ስትሪመሮችም ለ OBS እና Streamlabs overlay URL ያገኛሉ።",
     featLabel:"ባህሪያት",featTitle:"ለየት ያለ ተሰርቷል።",
     featItems:[
-      {icon:"bi-lightning-charge-fill",title:"ቀጥታ ማስጠንቀቂያ",desc:"ደጋፊ ቺር ሲልክ ወዲያው ማስጠንቀቂያ — ምንም ዘግይት።"},
+      {icon:"bi-lightning-charge-fill",title:"ቀጥተኛ ክፍያ",desc:"ደጋፊዎቹ ወዲያው ይቲፑዎታል — ምንም መጠበቅ የለም።"},
       {icon:"bi-volume-up-fill",title:"ጽሑፍ-ወደ-ንግግር",desc:"የደጋፊ መልዕክቶች ቀጥታ ሲደርሱ ይነበባሉ።"},
       {icon:"bi-graph-up-arrow",title:"ትንታኔ",desc:"ገቢ፣ ለጋሾች እና እድገት ቆንጆ ዳሽቦርድ።"},
       {icon:"bi-phone-fill",title:"ሞባይል ዝግጁ",desc:"ሁሉን ከስልክዎ ያስተዳድሩ።"},
       {icon:"bi-shield-check-fill",title:"በቻፓ ደህንነቱ ተጠብቋል",desc:"ሁሉም ክፍያዎች በቻፓ ስርዓት ይፈስሳሉ።"},
       {icon:"bi-translate",title:"አማርኛ ድጋፍ",desc:"ሙሉ አማርኛ ቋንቋ ለእርስዎ እና ለደጋፊዎችዎ።"},
-      {icon:"bi-flag-fill",title:"ንዑስ ግብ ገጽ",desc:"ቀጥታ የንዑስ ግብ ፕሮግሬስ ባር ታዳሚዎ ያያሉ።"},
-      {icon:"bi-people-fill",title:"ቀጥታ ንዑስ ገጽ",desc:"ቀጥታ ንዑስ ቁጥር እና ምዕራፎች ህዝባዊ ገጽ።"},
+      {icon:"bi-flag-fill",title:"ግብ ገጽ",desc:"የቲፕ ግብ ያዘጋጁ ደጋፊዎምዎ ሲሞላ ይከታተሉ።"},
+      // ✅ CHANGED: Amharic fan leaderboard
+      {icon:"bi-people-fill",title:"የደጋፊ ሊደርቦርድ",desc:"ምርጥ ደጋፊዎን ለሁሉ ያሳዩ።"},
     ],
     pricingLabel:"ዋጋ",pricingTitle:"ቀላል፣ ግልጽ ዋጋ።",
     pricingSub:"አንድ የተስተካከለ ክፍያ። ምስጢራዊ ወጪዎች የሉም። ነጻ ይጀምሩ።",
     freeTitle:"ነጻ",freePer:"ለዘለዓለም",
-    freeFeats:["የፈጣሪ ገጽ","ልገሳ ማስጠንቀቂያዎች","ቻፓ ክፍያዎች","መሰረታዊ ትንታኔ","10% ክፍያ"],
+    freeFeats:["የቲፕ ገጽ","ልገሳ ማስጠንቀቂያዎች","ቻፓ ክፍያዎች","መሰረታዊ ትንታኔ","10% ክፍያ"],
     proTitle:"ፕሮ",proPer:"/ ወር",proPrice:"ETB 199",
-    proFeats:["ሁሉ ነጻ ውስጥ ያለ","ብጁ ኦቨርሌይ","ንዑስ ግብ ገጽ","ቀጥታ ንዑስ ገጽ","ቅድሚያ ድጋፍ","ዝቅተኛ 7% ክፍያ","የላቀ ትንታኔ","Cheer ET ምልክት ያስወግዱ"],
+    proFeats:["ሁሉ ነጻ ውስጥ ያለ","ብጁ ኦቨርሌይ","ግብ ገጽ","የደጋፊ ሊደርቦርድ","ቅድሚያ ድጋፍ","ዝቅተኛ 7% ክፍያ","የላቀ ትንታኔ","Cheer ET ምልክት ያስወግዱ"],
     proBtn:"ፕሮ ጀምር",currentPlan:"ነጻ ጀምር",
     feeNote:"ሁሉም ልገሳዎች 10% (ፕሮ: 7%) ክፍያ ይሸከማሉ። ቻፓ ማካሄጃ ክፍያዎች ሊፈጸሙ ይችላሉ።",
     faqLabel:"ጥያቄዎች",faqTitle:"የተለመዱ ጥያቄዎች።",
     faqItems:[
-      {q:"Cheer ET ምንድን ነው?",a:"Cheer ET ለኢትዮጵያ ፈጣሪዎች፣ ስትሪመሮች፣ ጨዋቾች እና አርቲስቶች የደጋፊ ድጋፍ መድረክ ነው።"},
+      // ✅ CHANGED: Amharic FAQ — creators first
+      {q:"Cheer ET ምንድን ነው?",a:"Cheer ET ለሁሉም ኢትዮጵያዊ ፈጣሪዎች — ቲክቶከሮች፣ ዩቱበሮች፣ ፖድካስተሮች፣ አርቲስቶች፣ ሙዚቀኞች እና ስትሪመሮች — የደጋፊ ድጋፍ መድረክ ነው።"},
       {q:"ክፍያ እንዴት ይሰራል?",a:"ቻፓ — የኢትዮጵያ ቀዳሚ የክፍያ መድረክ እንጠቀማለን። ቴሌብር፣ CBEBirr፣ አምሐራ ባንክ፣ ዳሽን ባንክ፣ አዋሽ ባንክ ይደገፋሉ።"},
       {q:"የመድረክ ክፍያ ምን ያህል ነው?",a:"Cheer ET 10% ክፍያ ያስከፍላል። ፕሮ ፈጣሪዎች 7% ዝቅተኛ ክፍያ ያገኛሉ።"},
-      {q:"ማስጠንቀቂያዎችን ለስትሪሜ እንዴት አክላለሁ?",a:"ልዩ ኦቨርሌይ URL ታገኛለህ — ወደ OBS ወይም Streamlabs ብሮዝሰር ምንጭ ለጥፈው።"},
-      {q:"Cheer ET ከምን መድረኮች ጋር ይሰራል?",a:"OBS፣ Streamlabs፣ TikTok Live፣ YouTube Live፣ Twitch፣ Facebook Gaming፣ Kick እና ሌሎች።"},
-      {q:"ሳይስትሪሙ ሰዎች Cheer ET መጠቀም ይችላሉ?",a:"አዎ። ዩቱበሮች፣ ቲክቶከሮች፣ ፖድካስተሮች፣ አርቲስቶች ሁሉ ይጠቀማሉ — ትኩረቱ ስትሪሚንግ ነው።"},
-      {q:"ንዑስ ግብ ገጽ ምንድን ነው?",a:"ደጋፊዎችዎ ሊያዩት የሚችሉ ቀጥታ የንዑስ ግብ አኒሜሽን ፕሮግሬስ ባር ያለው ህዝባዊ ገጽ ነው።"},
+      // ✅ CHANGED: Amharic FAQ — generic for all creators
+      {q:"ቲፕ መቀበል እንዴት እጀምራለሁ?",a:"ተመዝግቡ፣ ገጽዎን ያዘጋጁ፣ ሊንክዎን ወዲያው በ TikTok bio፣ Instagram፣ YouTube ወይም ደጋፊዎምዎ ባሉበት ሁሉ ያጋሩ።"},
+      {q:"Cheer ET ከምን መድረኮች ጋር ይሰራል?",a:"CheerET ሊንክዎን በ TikTok፣ Instagram፣ YouTube፣ Telegram እና ሁሉም ቦታ ማጋራት ይችላሉ። ስትሪመሮችም OBS እና Streamlabs overlay ድጋፍ ያገኛሉ።"},
+      // ✅ CHANGED: Amharic FAQ — non-streamers welcome
+      {q:"ስትሪሜ ካላደርኩ Cheer ET መጠቀም እችላለሁ?",a:"አዎ። Cheer ET ለሁሉም ፈጣሪ ነው። ቲክቶከሮች፣ አርቲስቶች፣ ፖድካስተሮች፣ ሙዚቀኞች — ሊንክዎን ያጋሩ ደጋፊዎምዎ ወዲያው ይደግፉዎታል።"},
+      {q:"ግብ ገጽ ምንድን ነው?",a:"ደጋፊዎምዎ ሊያዩት የሚችሉ ቀጥታ የቲፕ ግብ አኒሜሽን ፕሮግሬስ ባር ያለው ህዝባዊ ገጽ ነው። በ bio ወይም ፖስቶችዎ ያጋሩ።"},
       {q:"Cheer ET መቼ ይጀምራል?",a:"Cheer ET በኦፊሴላዊነት ሰኔ 30 ቀን 2026 ይጀምራል። ቀደም ብሎ ይቀላቀሉ።"},
     ],
     countLabel:"ጅምር · ሰኔ 30፣ 2026",countTitle:"የኢትዮጵያ ፈጣሪ ኢኮኖሚ ብዙም ሳይቆይ ይጀምራል።",
@@ -155,7 +179,8 @@ const STR = {
     nameLabel:"ሙሉ ስም",emailLabel:"ኢሜይል",phoneLabel:"ስልክ (አማራጭ)",
     msgLabel:"መልዕክት",sendBtn:"ይላኩ",sending:"እየተላከ...",sent:"ተልኳል ✓",
     contactBack:"ተመለስ",
-    footDesc:"ለፈጣሪዎች፣ ስትሪመሮች እና ጨዋቾች የኢትዮጵያ ደጋፊ-ድጋፍ መድረክ።",
+    // ✅ CHANGED: removed "ጨዋቾች" (gamers) from Amharic footer
+    footDesc:"ለሁሉም ኢትዮጵያዊ ፈጣሪ የደጋፊ-ድጋፍ መድረክ።",
     footProduct:"ምርት",footCompany:"ኩባንያ",footLegal:"ህጋዊ",
     footCopy:"© 2026 Cheer ET. መብቶቹ ሁሉ የተጠበቁ ናቸው።",
     footBuilt:"በ Kayon Tech 🇪🇹 · በቻፓ",
@@ -163,9 +188,9 @@ const STR = {
     companyLinks:["ስለ እኛ","ብሎግ","ቅጥር","ፕሬስ","ያግኙን"],
     legalLinks:["ግላዊነት","ውሎች","ኩኪዎች"],
     todayBalance:"የዛሬ ቀሪ ሂሳብ",viaChapa:"በቻፓ",liveNow:"ቀጥታ",
-    newCheer:"አዲስ ቺር!",ttsOn:"TTS ክፍት",liveFeed:"ቀጥታ",topSupporter:"ምርጥ ደጋፊ",
+    newCheer:"አዲስ ቲፕ!",ttsOn:"TTS ክፍት",liveFeed:"ቀጥታ",topSupporter:"ምርጥ ደጋፊ",
     offlineMsg:"ኢንተርኔት ግንኙነት የለም። ያረጋግጡ።",
-    notifAsk:"ደጋፊዎችዎ ሲቺሩ ይወቁ።",notifBtn:"ማሳወቂያ አንቃ",notifDeny:"ቆየት ብሎ",
+    notifAsk:"ደጋፊዎምዎ ሲቲፑዎ ይወቁ።",notifBtn:"ማሳወቂያ አንቃ",notifDeny:"ቆየት ብሎ",
   }
 };
 
@@ -173,35 +198,40 @@ const STR = {
    DATA
 ══════════════════════════════════════════════ */
 const CREATORS = [
+  // ✅ CHANGED: creator types updated — Streamer is just one of them, not the main
   {name:"AbelGaming",nameAm:"አቤልጌሚንግ",type:"Streamer & Gamer",typeAm:"ስትሪሜ እና ጨዋች",raised:"ETB 12,450",color:"#2979FF",img:"https://i.pravatar.cc/150?img=11"},
   {name:"HabtamuTube",nameAm:"ሀብታሙ ቲዩብ",type:"YouTuber & Podcaster",typeAm:"ዩቱበር እና ፖድካስተር",raised:"ETB 31,000",color:"#0EA5E9",img:"https://i.pravatar.cc/150?img=32"},
-  {name:"MesaretArt",nameAm:"መሰረት አርት",type:"Artist & TikToker",typeAm:"አርቲስት እና ቲክቶከር",raised:"ETB 9,150",color:"#6366F1",img:"https://i.pravatar.cc/150?img=47"},
+  // ✅ CHANGED: third creator is TikToker & Artist — most visible non-streamer
+  {name:"MesaretArt",nameAm:"መሰረት አርት",type:"TikToker & Artist",typeAm:"ቲክቶከር እና አርቲስት",raised:"ETB 9,150",color:"#6366F1",img:"https://i.pravatar.cc/150?img=47"},
 ];
 
 const TESTIMONIALS = [
-  {en:"Exactly like Streamlabs but for Ethiopia. My viewers donate every stream.",am:"ልክ እንደ Streamlabs ነው ለኢትዮጵያ። ተመልካቾቼ ሁሌ ይለግሳሉ።",name:"Yonas T.",handle:"@yonastv"},
-  {en:"Chapa integration is seamless. ETB hits my account instantly.",am:"ቻፓ ሲምለስ ነው። ETB ወዲያው ሂሳቤ ላይ ይወድቃል።",name:"Abel M.",handle:"@abelgame"},
+  // ✅ CHANGED: first testimonial rewritten to be creator-generic, not streamer-specific
+  {en:"Finally a tipping platform built for Ethiopian creators. My TikTok fans use it every day.",am:"በመጨረሻ ለኢትዮጵያዊ ፈጣሪዎች የተሰራ የቲፕ መድረክ። የ TikTok ደጋፊዎቼ ሁሌ ይጠቀሙታል።",name:"Yonas T.",handle:"@yonastv"},
+  {en:"Chapa integration is seamless. ETB hits my account instantly.",am:"ቻፓ ሲምለስ ነው። ETB ወዲያው ሂሳቤ ላይ ይወድቃሉ።",name:"Abel M.",handle:"@abelgame"},
   {en:"Finally a platform for African creators. Complete game changer.",am:"በመጨረሻ ለአፍሪካ ፈጣሪዎች። ሁሉ ነገር ተለወጠ።",name:"Selam K.",handle:"@selamdraws"},
-  {en:"TTS alerts went viral. Stream grew 0 to 800 viewers in a week.",am:"TTS ቫይረሎ ሆነ። ስትሪሜ 0 ወደ 800 አደገ።",name:"Hiwot G.",handle:"@hiwotmusic"},
+  // ✅ CHANGED: testimonial reframed to not be streaming-specific
+  {en:"I just share my link in my bio and tips come in automatically. It's that simple.",am:"ሊንኬን ቢዮ ላይ ለጠፍኩ ቲፑ ወዲያው ይመጣል። እርግጥ ቀላል ነው።",name:"Hiwot G.",handle:"@hiwotmusic"},
   {en:"Telebirr support is a real game changer for Ethiopian creators.",am:"ቴሌብር ለኢትዮጵያ ፈጣሪዎች ጨዋታ ቀያሪ ነው።",name:"Dawit B.",handle:"@dawittv"},
   {en:"Best analytics dashboard I've seen on any creator platform.",am:"ካየሁት ምርጥ ዳሽቦርድ።",name:"Mekdes A.",handle:"@mekdesart"},
 ];
 
 const GALLERY = [
   {id:"dQw4w9WgXcQ",title:"AbelGaming hits 10k",titleAm:"አቤል 10 ሺ ደረሰ",creator:"@abelgaming",views:"14K views",dur:"0:18"},
-  {id:"jNQXAC9IVRw",title:"First donation moment",titleAm:"የመጀመሪያ ልገሳ",creator:"@hiwotmusic",views:"8K views",dur:"0:15"},
-  {id:"9bZkp7q19f0",title:"Biggest cheer night",titleAm:"ትልቁ ቺር ምሽት",creator:"@yonastv",views:"22K views",dur:"0:20"},
+  {id:"jNQXAC9IVRw",title:"First donation moment",titleAm:"የመጀመሪያ ቲፕ",creator:"@hiwotmusic",views:"8K views",dur:"0:15"},
+  {id:"9bZkp7q19f0",title:"Biggest supporter night",titleAm:"ትልቁ የደጋፊ ምሽት",creator:"@yonastv",views:"22K views",dur:"0:20"},
 ];
 
+// ✅ CHANGED: Platforms now show TikTok and Instagram first (creator-first order)
 const PLATFORMS = [
+  {icon:"bi-tiktok",name:"TikTok"},
+  {icon:"bi-instagram",name:"Instagram"},
+  {icon:"bi-play-fill",name:"YouTube"},
+  {icon:"bi-telegram",name:"Telegram"},
+  {icon:"bi-twitter-x",name:"Twitter / X"},
   {icon:"bi-camera-video-fill",name:"OBS Studio"},
   {icon:"bi-broadcast",name:"Streamlabs"},
-  {icon:"bi-play-fill",name:"YouTube Live"},
-  {icon:"bi-twitch",name:"Twitch"},
-  {icon:"bi-facebook",name:"Facebook Gaming"},
-  {icon:"bi-tiktok",name:"TikTok Live"},
   {icon:"bi-collection-play-fill",name:"Kick"},
-  {icon:"bi-discord",name:"Discord"},
 ];
 
 const PAY_NODES = [
@@ -502,15 +532,15 @@ function OverlayPreview({ lang, accent }) {
     return () => clearInterval(i);
   }, []);
   const pool = [
-    { name: "Tigist A.", amt: "ETB 500", msg: lang === "am" ? "ቀጥሉ! 🔥" : "Keep going! 🔥" },
-    { name: "Biruk M.", amt: "ETB 2,000", msg: lang === "am" ? "ጎት! 🏆" : "GOAT! 🏆" },
-    { name: "Samuel B.", amt: "ETB 750", msg: lang === "am" ? "ምርጥ!" : "Best stream!" },
+    { name: "Tigist A.", amt: "ETB 500", msg: lang === "am" ? "ቀጥሉ! " : "Keep going! " },
+    { name: "Biruk M.", amt: "ETB 2,000", msg: lang === "am" ? "ጎት! " : "GOAT! " },
+    { name: "Samuel B.", amt: "ETB 750", msg: lang === "am" ? "ምርጥ!" : "Best content!" },
   ];
   const d = pool[tick % pool.length];
   return (
     <div className="overlay-box">
       <div style={{ fontSize: ".64rem", color: "rgba(255,255,255,.4)", marginBottom: 8, letterSpacing: 1.2, textTransform: "uppercase" }}>
-        LIVE OVERLAY PREVIEW
+        LIVE TIP PAGE PREVIEW
       </div>
       <div key={tick} className="overlay-alert">
         <i className="bi bi-lightning-charge-fill" style={{ color: "#fff", fontSize: "1rem", flexShrink: 0 }} />
@@ -557,13 +587,14 @@ export default function CheerETHome() {
 
   // SEO
   useEffect(() => {
-    document.title = "Cheer ET — Ethiopia's Creator & Streamer Platform";
+    document.title = "Cheer ET — Ethiopia's Creator Platform";
     const sm = (n, c) => { let m = document.querySelector(`meta[name="${n}"]`); if (!m) { m = document.createElement("meta"); m.name = n; document.head.appendChild(m); } m.content = c; };
     const og = (p, c) => { let m = document.querySelector(`meta[property="${p}"]`); if (!m) { m = document.createElement("meta"); m.setAttribute("property", p); document.head.appendChild(m); } m.content = c; };
-    sm("description", "Cheer ET is Ethiopia's fan-support platform for creators, streamers and gamers. Receive donations via Telebirr, CBEBirr and Chapa. OBS overlays, TTS alerts, analytics and sub goal pages.");
-    sm("keywords", "Cheer ET, Ethiopian creator platform, Chapa donations, Telebirr creator, OBS overlay Ethiopia, streamer donations, TikTok creator Ethiopia");
-    og("og:title", "Cheer ET — Ethiopia's Creator & Streamer Platform");
-    og("og:description", "Receive fan support in seconds. Powered by Chapa. Works with OBS, Streamlabs, TikTok, YouTube and more.");
+    // ✅ CHANGED: SEO description — TikTokers first, streamers not highlighted
+    sm("description", "Cheer ET is Ethiopia's fan-support platform for TikTokers, YouTubers, podcasters, artists and streamers. Receive tips via Telebirr, CBEBirr and Chapa. Share one link, get paid instantly.");
+    sm("keywords", "Cheer ET, Ethiopian creator platform, Chapa donations, Telebirr creator, TikTok creator Ethiopia, YouTuber Ethiopia, fan tips Ethiopia");
+    og("og:title", "Cheer ET — Ethiopia's Creator Platform");
+    og("og:description", "Receive fan tips in seconds. Powered by Chapa. Works with TikTok, Instagram, YouTube, OBS and more.");
     og("og:type", "website");
     sm("twitter:card", "summary_large_image");
     sm("twitter:title", "Cheer ET");
@@ -577,12 +608,11 @@ export default function CheerETHome() {
 
   // Countdown to June 30 2026
   useEffect(() => {
-    const target = new Date("2026-06-30T00:00:00").getTime();
+    const target = new Date("2026-07-20T00:00:00").getTime();
     const tick = () => {
       const diff = target - Date.now();
       if (diff <= 0) {
         setLaunched(true);
-        // show release banner for 2 weeks after launch
         const launchTime = target;
         const twoWeeks = 14 * 24 * 60 * 60 * 1000;
         if (Date.now() - launchTime < twoWeeks) setShowRelease(true);
@@ -626,9 +656,9 @@ export default function CheerETHome() {
   // Live donations
   useEffect(() => {
     const pool = [
-      { name: "Tigist A.", amount: "ETB 500", msg: lang === "am" ? "ቀጥሉ! 🔥" : "Keep going! 🔥" },
-      { name: "Samuel B.", amount: "ETB 1,000", msg: lang === "am" ? "ምርጥ!" : "Best stream!" },
-      { name: "Biruk M.", amount: "ETB 2,000", msg: lang === "am" ? "ጎት!" : "You're the GOAT!" },
+      { name: "Tigist A.", amount: "ETB 500", msg: lang === "am" ? "ቀጥሉ! 🔥" : "Keep it up! 🔥" },
+      { name: "Samuel B.", amount: "ETB 1,000", msg: lang === "am" ? "ምርጥ!" : "Love your content!" },
+      { name: "Biruk M.", amount: "ETB 2,000", msg: lang === "am" ? "ጎት!" : "You're the best!" },
     ];
     let idx = 0;
     const show = () => {
@@ -769,14 +799,12 @@ export default function CheerETHome() {
           HERO
       ════════════════════════════════════════ */}
       <section style={{ minHeight: "100svh", display: "flex", alignItems: "center", padding: "120px 0 80px", position: "relative", overflow: "hidden" }}>
-        {/* Large blurred lighting glow behind title */}
         <div className="hero-bg-glow" style={{
           top: "5%", left: "50%", transform: "translateX(-50%)",
           width: "clamp(400px,85vw,1000px)", height: "clamp(300px,55vw,700px)",
           background: `radial-gradient(ellipse at 50% 40%,${th.heroGlow} 0%,transparent 60%)`,
           zIndex: 0,
         }} />
-        {/* Side glow */}
         <div className="hero-bg-glow" style={{
           top: "20%", left: "-8%", width: "45vw", height: "45vw", maxWidth: 500, maxHeight: 500,
           background: `radial-gradient(circle,${th.accentDim} 0%,transparent 70%)`,
@@ -799,10 +827,7 @@ export default function CheerETHome() {
           <div className="hero-flex" style={{ display: "flex", gap: 56, alignItems: "center" }}>
             {/* LEFT */}
             <div style={{ flex: "1 1 460px", animation: "slideUp .85s cubic-bezier(.4,0,.2,1) forwards" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: th.accentDim, border: `1px solid ${th.accent}28`, borderRadius: 100, padding: "5px 14px", marginBottom: 24 }}>
-                <i className="bi bi-broadcast" style={{ fontSize: ".76rem", color: th.accent }} />
-                <span style={{ fontSize: ".78rem", color: th.accent, fontWeight: 600 }}>{s.heroBadge}</span>
-              </div>
+             
 
               <h1 className="hero-title" style={{
                 marginBottom: 24,
@@ -819,7 +844,7 @@ export default function CheerETHome() {
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: th.accentDim, border: `1px solid ${th.accent}22`, borderRadius: 100, padding: "5px 14px", marginBottom: 32 }}>
                 <i className="bi bi-shield-check-fill" style={{ fontSize: ".76rem", color: th.accent }} />
                 <span style={{ fontSize: ".8rem", color: th.muted }}>
-                  {lang === "am" ? "በቻፓ ተጠብቋል" : "Secured by"} <strong style={{ color: th.accent }}>Chapa</strong> · Telebirr · CBEBirr
+                  {lang === "am" ? "በቻፓ ተጠብቋል" : "Powered by"} <strong style={{ color: th.accent }}>Chapa</strong>
                 </span>
               </div>
 
@@ -831,7 +856,7 @@ export default function CheerETHome() {
                   <i className="bi bi-play-circle" /> {s.ctaWatch}
                 </button>
               </div>
-              <p style={{ fontSize: ".77rem", color: th.faint }}>{s.heroTrust}</p>
+          
             </div>
 
             {/* RIGHT — live mockup card */}
@@ -840,10 +865,11 @@ export default function CheerETHome() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg,${th.accent},${dark ? "#40D0FF" : "#1A4FCC"})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <i className="bi bi-controller" style={{ color: "#fff", fontSize: 16 }} />
+                      {/* ✅ CHANGED: icon from bi-controller (gaming) to bi-person-video (creator) */}
+                      <i className="bi bi-person-video" style={{ color: "#fff", fontSize: 16 }} />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: ".88rem" }}>AbelGaming</div>
+                      <div style={{ fontWeight: 700, fontSize: ".88rem" }}>MesaretArt</div>
                       <div style={{ fontSize: ".68rem", color: th.faint }}>
                         <i className="bi bi-circle-fill" style={{ color: "#22C55E", fontSize: ".46rem", marginRight: 4 }} />{s.liveNow} · 2,341
                       </div>
@@ -865,8 +891,8 @@ export default function CheerETHome() {
                 </div>
                 <div style={{ fontSize: ".62rem", color: th.faint, marginBottom: 7, fontWeight: 700, letterSpacing: .8, textTransform: "uppercase" }}>{s.liveFeed}</div>
                 {[
-                  { n: "Tigist A.", a: "ETB 500", m: "Keep going! 🔥", ico: "bi-heart-fill" },
-                  { n: "Samuel B.", a: "ETB 1,000", m: "Best stream!", ico: "bi-controller" },
+                  { n: "Tigist A.", a: "ETB 500", m: "Love your art! 🔥", ico: "bi-heart-fill" },
+                  { n: "Samuel B.", a: "ETB 1,000", m: "Best TikTok ever!", ico: "bi-star-fill" },
                 ].map((d, i) => (
                   <div key={i} style={{ background: th.accentDim, border: `1px solid ${th.accent}18`, borderRadius: 11, padding: "9px 12px", display: "flex", alignItems: "center", gap: 10, marginBottom: 7 }}>
                     <i className={`bi ${d.ico}`} style={{ color: th.accent, fontSize: ".85rem", flexShrink: 0 }} />
@@ -879,19 +905,9 @@ export default function CheerETHome() {
                     </div>
                   </div>
                 ))}
-                {liveDon && (
-                  <div key={balance} style={{ position: "absolute", bottom: -12, left: -12, background: `linear-gradient(135deg,${th.accent},${dark ? "#40AAFF" : "#0D47A1"})`, borderRadius: 13, padding: "11px 16px", animation: "don-pop 4.5s ease forwards", boxShadow: `0 8px 28px ${th.accent}44`, minWidth: 200 }}>
-                    <div style={{ fontSize: ".7rem", color: "rgba(255,255,255,.72)", marginBottom: 2 }}><i className="bi bi-lightning-charge-fill" /> {s.newCheer}</div>
-                    <div style={{ fontWeight: 700, fontSize: ".9rem", color: "#fff" }}>{liveDon.name} · {liveDon.amount}</div>
-                    <div style={{ fontSize: ".73rem", color: "rgba(255,255,255,.82)" }}>{liveDon.msg}</div>
-                  </div>
-                )}
+
               </div>
-              <div style={{ position: "absolute", top: -16, right: -16, background: th.surface, border: `1px solid ${th.border}`, borderRadius: 13, padding: "10px 16px", backdropFilter: "blur(16px)", animation: "float2 5.5s ease-in-out infinite", boxShadow: `0 4px 20px ${th.accent}18` }}>
-                <div style={{ fontSize: ".64rem", color: th.faint }}>{s.topSupporter}</div>
-                <div style={{ fontWeight: 700, fontSize: ".86rem" }}>Biruk M. <i className="bi bi-trophy-fill" style={{ color: "#F0A000", fontSize: ".73rem" }} /></div>
-                <div style={{ fontSize: ".78rem", color: th.accent }}>ETB 8,200 total</div>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -923,7 +939,8 @@ export default function CheerETHome() {
           <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
             {[
               { num: "01", ico: "bi-credit-card-fill", t: s.s1, d: s.s1d, c: th.accent },
-              { num: "02", ico: "bi-broadcast-pin", t: s.s2, d: s.s2d, c: dark ? "#40C0FF" : "#0D5EAF" },
+              // ✅ CHANGED: step 2 icon from bi-broadcast-pin (streaming) to bi-link-45deg (link sharing)
+              { num: "02", ico: "bi-link-45deg", t: s.s2, d: s.s2d, c: dark ? "#40C0FF" : "#0D5EAF" },
               { num: "03", ico: "bi-bank2", t: s.s3, d: s.s3d, c: "#22C55E" },
             ].map((st, i) => (
               <div key={i} className={`card rev d${i + 1}`} ref={addR} style={{ padding: 26 }}>
@@ -942,9 +959,9 @@ export default function CheerETHome() {
       </section>
 
       {/* ════════════════════════════════════════
-          TOP CREATORS (centered, 3, with real photo)
+          TOP CREATORS
       ════════════════════════════════════════ */}
-      <section id="creators" ref={addR} className="rev">
+      <section id="creators" ref={addR} className="rev" hidden={!launched}>
         <div className="container">
           <div style={{ textAlign: "center", marginBottom: 12 }}>
             <span className="lbl">{s.creatorsLabel}</span>
@@ -975,20 +992,19 @@ export default function CheerETHome() {
       </section>
 
       {/* ════════════════════════════════════════
-          GALLERY — BIGGEST MOMENTS
+          GALLERY
       ════════════════════════════════════════ */}
-      <section ref={addR} className="rev">
+      <section ref={addR} className="rev" hidden={!launched}>
         <div style={{ textAlign: "center", marginBottom: 36, padding: "0 24px" }}>
           <span className="lbl">{s.galleryLabel}</span>
           <h2 className="section-h" style={{ marginBottom: 8 }}>{s.galleryTitle}</h2>
           <p style={{ color: th.muted, fontSize: ".9rem" }}>{s.gallerySub}</p>
         </div>
 
-        {/* DESKTOP — Netflix layout: left small | center large | right small */}
-        <div className="gallery-desktop-wrap">
+        {/* DESKTOP */}
+        <div className="gallery-desktop-wrap" >
           <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
             <div style={{ display: "flex", alignItems: "stretch", gap: "1.5%", borderRadius: 20, overflow: "hidden" }}>
-              {/* Left small */}
               <div className="gal-side-item" onClick={prevGal}>
                 <iframe
                   src={`https://www.youtube.com/embed/${GALLERY[(galIdx - 1 + GALLERY.length) % GALLERY.length].id}?rel=0&modestbranding=1`}
@@ -1002,7 +1018,6 @@ export default function CheerETHome() {
                 </div>
               </div>
 
-              {/* Center main */}
               <div className="gal-main-item">
                 <div style={{ position: "relative" }}>
                   <iframe key={galIdx}
@@ -1022,7 +1037,6 @@ export default function CheerETHome() {
                 </div>
               </div>
 
-              {/* Right small */}
               <div className="gal-side-item" onClick={nextGal}>
                 <iframe
                   src={`https://www.youtube.com/embed/${GALLERY[(galIdx + 1) % GALLERY.length].id}?rel=0&modestbranding=1`}
@@ -1037,7 +1051,6 @@ export default function CheerETHome() {
               </div>
             </div>
 
-            {/* Controls + progress */}
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 16, marginTop: 20 }}>
               <button onClick={prevGal} className="btn-g" style={{ width: 40, height: 40, borderRadius: "50%", padding: 0, justifyContent: "center" }}>
                 <i className="bi bi-chevron-left" />
@@ -1052,7 +1065,6 @@ export default function CheerETHome() {
               </button>
             </div>
 
-            {/* Detail info bar */}
             <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
               <div className="card" style={{ padding: "14px 28px", display: "inline-flex", alignItems: "center", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
                 {[
@@ -1077,7 +1089,7 @@ export default function CheerETHome() {
           </div>
         </div>
 
-        {/* MOBILE — swipe */}
+        {/* MOBILE */}
         <div className="gallery-mobile-wrap">
           <div style={{ display: "flex", gap: 14, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 24px 12px" }}>
             {GALLERY.map((v, i) => (
@@ -1124,7 +1136,7 @@ export default function CheerETHome() {
       </section>
 
       {/* ════════════════════════════════════════
-          OVERLAYS & WIDGETS
+          TIP PAGE / OVERLAYS & WIDGETS
       ════════════════════════════════════════ */}
       <section ref={addR} className="rev">
         <div className="container">
