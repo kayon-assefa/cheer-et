@@ -178,7 +178,7 @@ console.log("MESSAGE:", err.message);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
+  console.log(`Backend running on porta ${PORT}`);
 });
 /* =========================
    VERIFY (CHAPA CALLBACK)
