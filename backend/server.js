@@ -103,7 +103,8 @@ app.get("/api/verify", async (req, res) => {
 
     console.log("TX_REF:", tx_ref);
     console.log("TRX_REF:", req.query.trx_ref);
-
+console.log("TX_REF:", req.query.tx_ref);
+console.log("TRX_REF:", req.query.trx_ref);
     if (!tx_ref) {
       console.log("NO TX_REF FOUND");
       return res.status(200).json({
