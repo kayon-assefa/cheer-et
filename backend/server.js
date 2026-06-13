@@ -166,15 +166,9 @@ app.get("/api/verify", async (req, res) => {
 
   } catch (err) {
     console.log("========== VERIFY ERROR ==========");
-
-    console.log(
-      "ERROR RESPONSE:",
-      JSON.stringify(err.response?.data, null, 2)
-    );
-
-    console.log("ERROR MESSAGE:", err.message);
-
-    return res.status(500).send("ERROR");
+console.log("STATUS:", err.response?.status);
+console.log("DATA:", JSON.stringify(err.response?.data, null, 2));
+console.log("MESSAGE:", err.message);
   }
 });
 /* =========================
