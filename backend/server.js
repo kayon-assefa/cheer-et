@@ -89,38 +89,54 @@ console.log(
 
 app.get("/api/verify", async (req, res) => {
   try {
-
     console.log("========== VERIFY CALLBACK ==========");
-    console.log(req.query);
+    console.log("QUERY:", JSON.stringify(req.query, null, 2));
+
+    console.log(
+      "SECRET PREFIX:",
+      process.env.CHAPA_SECRET?.substring(0, 15)
+    );
 
     const tx_ref =
       req.query.tx_ref ||
       req.query.trx_ref;
 
     console.log("TX_REF:", tx_ref);
+    console.log("TRX_REF:", req.query.trx_ref);
 
     if (!tx_ref) {
-      return res.status(200).json({ message: "No tx_ref" });
+      console.log("NO TX_REF FOUND");
+      return res.status(200).json({
+        message: "No tx_ref"
+      });
     }
 
+    const verifyUrl =
+      `https://api.chapa.co/v1/transaction/verify/${tx_ref}`;
+
+    console.log("VERIFY URL:", verifyUrl);
+
     const verify = await axios.get(
-      `https://api.chapa.co/v1/transaction/verify/${tx_ref}`,
+      verifyUrl,
       {
         headers: {
-          Authorization: `Bearer ${process.env.CHAPA_SECRET}`
+          Authorization: `Bearer ${process.env.CHAPA_SECRET}`,
+          "Content-Type": "application/json"
         }
       }
     );
 
-    console.log("VERIFY RESPONSE:", verify.data);
+    console.log(
+      "VERIFY RESPONSE:",
+      JSON.stringify(verify.data, null, 2)
+    );
 
     const paymentData = verify.data;
 
     if (
       paymentData.status === "success" &&
-      paymentData.data.status === "success"
+      paymentData.data?.status === "success"
     ) {
-
       console.log("PAYMENT SUCCESS");
 
       const snap = await db
@@ -142,7 +158,6 @@ app.get("/api/verify", async (req, res) => {
       } else {
         console.log("DONATION NOT FOUND");
       }
-
     } else {
       console.log("PAYMENT FAILED");
     }
@@ -150,13 +165,18 @@ app.get("/api/verify", async (req, res) => {
     return res.status(200).send("OK");
 
   } catch (err) {
-    console.log("VERIFY ERROR:");
-    console.log(err.response?.data || err.message);
+    console.log("========== VERIFY ERROR ==========");
+
+    console.log(
+      "ERROR RESPONSE:",
+      JSON.stringify(err.response?.data, null, 2)
+    );
+
+    console.log("ERROR MESSAGE:", err.message);
 
     return res.status(500).send("ERROR");
   }
 });
-
 /* =========================
    START SERVER (RENDER FIX)
 ========================= */
@@ -166,3 +186,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
+/* =========================
+   VERIFY (CHAPA CALLBACK)
+========================= */
