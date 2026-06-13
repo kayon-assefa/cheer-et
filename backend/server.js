@@ -62,7 +62,11 @@ app.post("/api/create-payment", async (req, res) => {
         }
       }
     );
-
+console.log("SECRET EXISTS:", !!process.env.CHAPA_SECRET);
+console.log(
+  "SECRET PREFIX:",
+  process.env.CHAPA_SECRET?.substring(0, 12)
+);
     console.log("CHAPA SUCCESS");
 
     res.json({
