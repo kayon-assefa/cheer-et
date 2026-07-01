@@ -1,208 +1,177 @@
 import express from "express";
-import cors from "cors";
 import axios from "axios";
-import dotenv from "dotenv";
-
-import { db } from "./firebaseAdmin.js";
-
-dotenv.config();
+import cors from "cors";
+import admin from "firebase-admin";
 
 const app = express();
-
-/* =========================
-   MIDDLEWARE
-========================= */
-
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-/* =========================
-   TEST ROUTE
-========================= */
+/**
+ * =========================
+ * FIREBASE INIT (FIXED)
+ * =========================
+ */
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    }),
+  });
+}
 
-app.get("/", (req, res) => {
-  res.send("Cheer ET Backend Running");
-});
+const db = admin.firestore();
 
-/* =========================
-   CREATE PAYMENT
-========================= */
+/**
+ * =========================
+ * CHAPA SECRET
+ * =========================
+ */
+const CHAPA_SECRET = process.env.CHAPA_SECRET;
 
-app.post("/api/create-payment", async (req, res) => {
+/**
+ * =========================
+ * CREATE DONATION
+ * =========================
+ */
+app.post("/api/donate", async (req, res) => {
   try {
-    const { amount, name, tx_ref } = req.body;
+    const {
+      amount,
+      donorName,
+      message,
+      creatorUsername,
+      streamerId,
+      email
+    } = req.body;
 
-    console.log("CREATE PAYMENT:", tx_ref);
+    const tx_ref = `CHEER-${Date.now()}`;
 
-    const response = await axios.post(
+    // Save donation
+    await db.collection("donations").doc(tx_ref).set({
+      amount,
+      donorName,
+      message: message || "",
+      creatorUsername,
+      streamerId,
+      paymentStatus: "pending",
+      tx_ref,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Send to Chapa
+    const chapa = await axios.post(
       "https://api.chapa.co/v1/transaction/initialize",
       {
         amount,
         currency: "ETB",
-        email: "cheeret@gmail.com",
-        first_name: name,
-        last_name: "Supporter",
+        email: email || "test@example.com",
         tx_ref,
-
-        callback_url:
-          "https://cheerapi.onrender.com/api/verify",
-
-        return_url:
-          "https://cheer-et.web.app/payment-success",
-
-        customization: {
-          title: "CheerET",
-          description: "Support creator"
-        }
+        callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
+        return_url: "https://your-frontend.com/success",
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.CHAPA_SECRET}`,
-          "Content-Type": "application/json"
-        }
+          Authorization: `Bearer ${CHAPA_SECRET}`,
+        },
       }
     );
-console.log("SECRET EXISTS:", !!process.env.CHAPA_SECRET);
-console.log(
-  "SECRET PREFIX:",
-  process.env.CHAPA_SECRET?.substring(0, 12)
-);
-    console.log("CHAPA SUCCESS");
 
-    res.json({
-      checkout_url: response.data.data.checkout_url
-    });
+    console.log("CHAPA INIT SUCCESS:", tx_ref);
+
+    res.json(chapa.data);
 
   } catch (err) {
-    console.log("CREATE PAYMENT ERROR:");
-    console.log(err.response?.data || err.message);
-
-    res.status(500).json({
-      error: "Payment failed"
-    });
+    console.error("DONATE ERROR:", err.response?.data || err.message);
+    res.status(500).json({ error: "Donation failed" });
   }
 });
 
-/* =========================
-   VERIFY (CHAPA CALLBACK)
-========================= */
-
-app.get("/api/verify", async (req, res) => {
+/**
+ * =========================
+ * VERIFY PAYMENT (MAIN FIX)
+ * =========================
+ */
+app.get("/api/chapa/verify", async (req, res) => {
   try {
-    console.log("========== VERIFY CALLBACK ==========");
-    console.log("QUERY:", JSON.stringify(req.query, null, 2));
+    const { trx_ref } = req.query;
 
-    console.log(
-      "SECRET PREFIX:",
-      process.env.CHAPA_SECRET?.substring(0, 15)
-    );
-
-    const tx_ref =
-      req.query.tx_ref ||
-      req.query.trx_ref;
-
-    console.log("TX_REF:", tx_ref);
-    console.log("TRX_REF:", req.query.trx_ref);
-console.log("TX_REF:", req.query.tx_ref);
-console.log("TRX_REF:", req.query.trx_ref);
-    if (!tx_ref) {
-      console.log("NO TX_REF FOUND");
-      return res.status(200).json({
-        message: "No tx_ref"
-      });
-    }
-
-    const verifyUrl =
-      `https://api.chapa.co/v1/transaction/verify/${tx_ref}`;
-
-    console.log("VERIFY URL:", verifyUrl);
+    console.log("VERIFY START:", trx_ref);
 
     const verify = await axios.get(
-      verifyUrl,
+      `https://api.chapa.co/v1/transaction/verify/${trx_ref}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.CHAPA_SECRET}`,
-          "Content-Type": "application/json"
-        }
+          Authorization: `Bearer ${CHAPA_SECRET}`,
+        },
       }
     );
 
-    console.log(
-      "VERIFY RESPONSE:",
-      JSON.stringify(verify.data, null, 2)
-    );
+    const data = verify.data.data;
 
-    const paymentData = verify.data;
+    console.log("CHAPA STATUS:", data.status);
 
-    if (
-      paymentData.status === "success" &&
-      paymentData.data?.status === "success"
-    ) {
-      console.log("PAYMENT SUCCESS");
-
-    console.log("ABOUT TO QUERY FIRESTORE");
-
-try {
-  const snap = await db
-    .collection("donations")
-    .where("tx_ref", "==", tx_ref)
-    .get();
-
-  console.log("FIRESTORE QUERY SUCCESS");
-  console.log("DOCS FOUND:", snap.size);
-
-  if (!snap.empty) {
-    const doc = snap.docs[0];
-
-    await doc.ref.update({
-      paymentStatus: "successful",
-      completedAt: new Date()
-    });
-
-    console.log("UPDATED TO COMPLETED");
-  } else {
-    console.log("DONATION NOT FOUND");
-  }
-
-} catch (fireErr) {
-  console.log("FIRESTORE ERROR:");
-  console.log(fireErr);
-}
-
-      if (!snap.empty) {
-        const doc = snap.docs[0];
-
-        await doc.ref.update({
-          paymentStatus: "successful",
-          completedAt: new Date()
-        });
-
-        console.log("UPDATED TO COMPLETED");
-      } else {
-        console.log("DONATION NOT FOUND");
-      }
-    } else {
-      console.log("PAYMENT FAILED");
+    if (data.status !== "success") {
+      return res.send("Payment failed");
     }
 
-    return res.status(200).send("OK");
+    const docRef = db.collection("donations").doc(trx_ref);
+    const snap = await docRef.get();
+
+    if (!snap.exists) {
+      return res.status(404).send("Donation not found");
+    }
+
+    const donation = snap.data();
+
+    if (donation.paymentStatus === "completed") {
+      return res.send("Already processed");
+    }
+
+    console.log("UPDATING FIRESTORE...");
+
+    // UPDATE DONATION
+    await docRef.update({
+      paymentStatus: "completed",
+      paidAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // UPDATE USER BALANCE
+    await db.collection("users").doc(donation.streamerId).set(
+      {
+        balance: admin.firestore.FieldValue.increment(Number(donation.amount)),
+      },
+      { merge: true }
+    );
+
+    console.log("DONE SUCCESS");
+
+    res.send("Payment completed successfully");
 
   } catch (err) {
-    console.log("========== VERIFY ERROR ==========");
-console.log("STATUS:", err.response?.status);
-console.log("DATA:", JSON.stringify(err.response?.data, null, 2));
-console.log("MESSAGE:", err.message);
+    console.error("VERIFY ERROR:", err.message);
+    res.status(500).send("Server error");
   }
 });
-/* =========================
-   START SERVER (RENDER FIX)
-========================= */
 
+/**
+ * =========================
+ * START SERVER
+ * =========================
+ */
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
-  console.log(`Backend running on porta ${PORT}`);
+  console.log("Server running on port", PORT);
 });
-/* =========================
-   VERIFY (CHAPA CALLBACK)
-========================= */
+console.log("FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
+console.log("FIREBASE_CLIENT_EMAIL:", process.env.FIREBASE_CLIENT_EMAIL);
+console.log(
+  "PRIVATE KEY EXISTS:",
+  !!process.env.FIREBASE_PRIVATE_KEY
+);
+console.log(
+  "PRIVATE KEY START:",
+  process.env.FIREBASE_PRIVATE_KEY?.slice(0, 30)
+);
