@@ -58,7 +58,7 @@ app.post("/api/donate", async (req, res) => {
     const chapaPayload = {
       amount: Number(amount),
       currency: "ETB",
-      email: "cheer@cheeret.com",           // Fixed email
+      email: "cheer-et1@cheeret.com",           // Fixed email
       first_name: donorName.split(" ")[0] || "Cheer",
       last_name: "Donor",
       tx_ref: tx_ref,
