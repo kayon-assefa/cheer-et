@@ -58,12 +58,12 @@ app.post("/api/donate", async (req, res) => {
     const chapaPayload = {
       amount: Number(amount),
       currency: "ETB",
-      email: "donor@cheeret.com",
-      first_name: donorName.split(" ")[0] || "Donor",
-      last_name: donorName.split(" ").slice(1).join(" ") || "User",
+      email: "cheer@cheeret.com",           // Fixed email
+      first_name: donorName.split(" ")[0] || "Cheer",
+      last_name: "Donor",
       tx_ref: tx_ref,
-      title: `Donation to @${creatorUsername}`,
-      description: message || "Thank you for your support",
+      title: `Support @${creatorUsername}`,
+      description: message || "Thank you!",
       callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
       return_url: "https://your-frontend.com/success",
     };
@@ -79,14 +79,14 @@ app.post("/api/donate", async (req, res) => {
       }
     );
 
-    console.log("✅ Chapa Init Success:", tx_ref);
+    console.log("✅ Chapa Success:", tx_ref);
     res.json(chapaResponse.data);
 
   } catch (err) {
     console.error("DONATE ERROR:", err.response?.data || err.message);
     res.status(500).json({ 
       error: "Donation failed", 
-      chapaDetails: err.response?.data 
+      chapaError: err.response?.data 
     });
   }
 });
