@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
-  collection, query, where,
-  getDocs, addDoc, serverTimestamp
+  collection, query, where, getDocs
 } from "firebase/firestore";
 import { db } from "../firebase";
 import "../styles/creator.css";
 import verifiedIcon from '../assets/verified.png'
 
-/* ── GIF banks  (swap with your Giphy API call if preferred) ── */
+/* ── GIF banks ── */
 const GIFS_BASIC = [
   "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif",
   "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
@@ -34,16 +33,13 @@ const GIFS_PLUS = [
   "https://media.giphy.com/media/26tPplGWjN0xLybiU/giphy.gif",
 ];
 
-/* ── Ensure URLs always have a proper scheme ── */
 function safeUrl(raw = "") {
   const s = raw.trim();
   if (!s) return "#";
   return /^https?:\/\//i.test(s) ? s : `https://${s}`;
 }
 
-/* ══════════════════════════════════════════════
-   SKELETON
-══════════════════════════════════════════════ */
+/* Skeleton Loader */
 function SkeletonLoader() {
   return (
     <div className="skeleton-page">
@@ -64,9 +60,7 @@ function SkeletonLoader() {
   );
 }
 
-/* ══════════════════════════════════════════════
-   GIF PICKER
-══════════════════════════════════════════════ */
+/* GIF Picker */
 function GifPicker({ isPlusUser, onSelect, selected }) {
   const [open, setOpen] = useState(false);
   const gifs = isPlusUser ? [...GIFS_BASIC, ...GIFS_PLUS] : GIFS_BASIC;
@@ -105,9 +99,7 @@ function GifPicker({ isPlusUser, onSelect, selected }) {
   );
 }
 
-/* ══════════════════════════════════════════════
-   AD BANNER
-══════════════════════════════════════════════ */
+/* Ad Banner */
 function AdBanner({ isPlus }) {
   const [ad, setAd] = useState(null);
 
@@ -128,28 +120,19 @@ function AdBanner({ isPlus }) {
 
   if (isPlus || !ad) return null;
 
-  const href = safeUrl(ad.adUrl);   // ← always a real external URL
+  const href = safeUrl(ad.adUrl);
 
   return (
     <div className="ad-wrap">
       <span className="ad-pill">Sponsored</span>
-      <a
-        className="glass ad-card"
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a className="glass ad-card" href={href} target="_blank" rel="noopener noreferrer">
         <img src={ad.imgUrl} alt="sponsored" className="ad-img" />
       </a>
     </div>
   );
 }
 
-/* ══════════════════════════════════════════════
-   SUGGESTED ACCOUNTS
-══════════════════════════════════════════════ */
-
-/* gradient palette per card index */
+/* Suggested Accounts */
 const CARD_GRADS = [
   "linear-gradient(135deg,#1e3a8a,#3b82f6)",
   "linear-gradient(135deg,#1e4060,#0ea5e9)",
@@ -160,7 +143,7 @@ const CARD_GRADS = [
 
 function SuggestedAccounts() {
   const [accounts, setAccounts] = useState([]);
-  const [ready, setReady]       = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -181,38 +164,14 @@ function SuggestedAccounts() {
   if (!ready || !accounts.length) return null;
 
   const SCard = ({ acc, idx, isSlide }) => (
-    <div
-      className={`s-card${isSlide ? " s-slide" : ""}`}
-      style={{ "--grad": CARD_GRADS[idx % CARD_GRADS.length] }}
-    >
-      {/* coloured top stripe */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0, height: 3,
-        background: CARD_GRADS[idx % CARD_GRADS.length],
-        borderRadius: "18px 18px 0 0"
-      }} />
-
+    <div className={`s-card${isSlide ? " s-slide" : ""}`} style={{ "--grad": CARD_GRADS[idx % CARD_GRADS.length] }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: CARD_GRADS[idx % CARD_GRADS.length], borderRadius: "18px 18px 0 0" }} />
       <div className="s-avatar" style={{ background: CARD_GRADS[idx % CARD_GRADS.length] }}>
-        {acc.photoURL
-          ? <img src={acc.photoURL} alt={acc.username} />
-          : <span>{(acc.username || "?")[0].toUpperCase()}</span>
-        }
+        {acc.photoURL ? <img src={acc.photoURL} alt={acc.username} /> : <span>{(acc.username || "?")[0].toUpperCase()}</span>}
       </div>
-
       <span className="s-name">@{acc.username}</span>
-
-      {acc.followers && (
-        <span className="s-follow">
-          {Number(acc.followers).toLocaleString()} followers
-        </span>
-      )}
-
-      <button
-        className="s-btn"
-        onClick={() => { window.location.href = `/${acc.username}`; }}
-      >
-        Check him
-      </button>
+      {acc.followers && <span className="s-follow">{Number(acc.followers).toLocaleString()} followers</span>}
+      <button className="s-btn" onClick={() => { window.location.href = `/${acc.username}`; }}>Check him</button>
     </div>
   );
 
@@ -221,13 +180,9 @@ function SuggestedAccounts() {
       <div className="suggest-header">
         <span className="suggest-title">Suggested Creators</span>
       </div>
-
-      {/* desktop 5-col grid */}
       <div className="suggest-grid">
         {accounts.map((acc, i) => <SCard key={acc.id} acc={acc} idx={i} isSlide={false} />)}
       </div>
-
-      {/* mobile snap-slider */}
       <div className="suggest-slider">
         {accounts.map((acc, i) => <SCard key={acc.id} acc={acc} idx={i} isSlide={true} />)}
       </div>
@@ -235,30 +190,26 @@ function SuggestedAccounts() {
   );
 }
 
-/* ══════════════════════════════════════════════
-   MAIN PAGE
-══════════════════════════════════════════════ */
+/* MAIN PAGE */
 export default function CreatorPage() {
   const { username } = useParams();
-  const navigate     = useNavigate();
 
-  const [creator,     setCreator]     = useState(null);
-  const [name,        setName]        = useState("");
-  const [amount,      setAmount]      = useState("");
-  const [message,     setMessage]     = useState("");
+  const [creator, setCreator] = useState(null);
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [message, setMessage] = useState("");
   const [selectedGif, setSelectedGif] = useState(null);
-  const [loading,     setLoading]     = useState(true);
-  const [processing,  setProcessing]  = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => { loadCreator(); }, []);
 
   const loadCreator = async () => {
     try {
-      const q    = query(collection(db, "users"), where("username", "==", username));
+      const q = query(collection(db, "users"), where("username", "==", username));
       const snap = await getDocs(q);
 
       if (snap.empty) {
-        // ← redirect to your 404 page
         window.location.replace("/404.html");
         return;
       }
@@ -275,9 +226,9 @@ export default function CreatorPage() {
   const handleDonate = async () => {
     if (!creator) return;
     if (creator.status !== "active") { alert("User not active"); return; }
-    if (creator.banned)               { alert("Creator banned");  return; }
+    if (creator.banned) { alert("Creator banned"); return; }
 
-    const minAmt = Number(creator.minDonation) || 10;
+    const minAmt = Number(creator.minDonation) || 100;
     if (Number(amount) < minAmt) {
       alert(`Minimum donation is ${minAmt} ETB`);
       return;
@@ -285,196 +236,131 @@ export default function CreatorPage() {
 
     try {
       setProcessing(true);
-      const tx_ref = `CHEER-${Date.now()}`;
-
-      await addDoc(collection(db, "donations"), {
-        streamerId:      creator.id,
-        creatorUsername: creator.username,
-        donorName:       name,
-        amount:          Number(amount),
-        message,
-        gifUrl:          selectedGif || null,
-        tx_ref,
-        paymentStatus:   "pending",
-        createdAt:       serverTimestamp(),
-      });
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/create-payment`,
+        `${import.meta.env.VITE_API_URL}/api/donate`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount, name, message, tx_ref, creator }),
+          body: JSON.stringify({
+            amount: Number(amount),
+            donorName: name,
+            message: message || "",
+            creatorUsername: creator.username,
+            streamerId: creator.id,
+            email: "donor@cheeret.com"
+          }),
         }
       );
 
+      if (!res.ok) {
+        throw new Error("Failed to initialize payment");
+      }
+
       const data = await res.json();
-      if (data.checkout_url) window.location.href = data.checkout_url;
+      
+      if (data.data?.checkout_url) {
+        window.location.href = data.data.checkout_url;
+      } else {
+        alert("Payment link not received. Try again.");
+      }
 
     } catch (err) {
-      console.error(err);
+      console.error("Donate Error:", err);
       alert("Payment failed. Please try again.");
     } finally {
       setProcessing(false);
     }
   };
 
-  /* derived flags */
   const isPremiumActive = creator?.premium === "active";
-  const isPlus          = creator?.premium === "plus" || creator?.plus === true;
-  const isBanned        = creator?.banned === true;
-  const isInactive      = !isBanned && creator?.status !== "active";
-  const isVerified      = creator?.verified === true;
-  const minDonation     = Number(creator?.minDonation) || 10;
+  const isPlus = creator?.premium === "plus" || creator?.plus === true;
+  const isBanned = creator?.banned === true;
+  const isInactive = !isBanned && creator?.status !== "active";
+  const isVerified = creator?.verified === true;
+  const minDonation = Number(creator?.minDonation) || 100;
 
-  /* ── Loading ── */
   if (loading) return <SkeletonLoader />;
-
-  /* creator is null  → redirect already fired in loadCreator */
   if (!creator) return null;
 
-  /* ── Page ── */
   return (
     <div className={`creator-page ${isPremiumActive ? "bg-premium" : "bg-standard"}`}>
       <div className="page-content">
 
-        {/* ── Profile card ── */}
+        {/* Profile Card */}
         <div className="glass creator-top">
-          {/* avatar */}
           <div className="avatar-wrap">
-            {creator.photoURL
-              ? <img src={creator.photoURL} alt={creator.username} className="profile-avatar" />
-              : <div className="avatar-fallback">{creator.username[0].toUpperCase()}</div>
-            }
-          </div>
-
-          {/* name + verified */}
-          <div className="username-row">
-            <h1>{creator.username}</h1>
-            {isVerified && (
-              <img
-                src={verifiedIcon}
-                alt="Verified"
-                className="verified-icon"
-                title="Verified Creator"
-              />
+            {creator.photoURL ? (
+              <img src={creator.photoURL} alt={creator.username} className="profile-avatar" />
+            ) : (
+              <div className="avatar-fallback">{creator.username[0].toUpperCase()}</div>
             )}
           </div>
-
-          {creator.platform  && <p className="creator-meta">{creator.platform}</p>}
+          <div className="username-row">
+            <h1>{creator.username}</h1>
+            {isVerified && <img src={verifiedIcon} alt="Verified" className="verified-icon" title="Verified Creator" />}
+          </div>
+          {creator.platform && <p className="creator-meta">{creator.platform}</p>}
           {creator.followers && (
-            <p className="creator-meta">
-              {Number(creator.followers).toLocaleString()} followers
-            </p>
+            <p className="creator-meta">{Number(creator.followers).toLocaleString()} followers</p>
           )}
         </div>
 
-        {/* ── Donation card ── */}
+        {/* Donation Card */}
         <div className={`glass donation-card${isBanned ? " banned" : isInactive ? " inactive" : ""}`}>
 
-          {/* BANNED */}
           {isBanned && (
             <div className="state-msg">
-              <span className="state-icon-ring red">
-                {/* bi-x-circle */}
-                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="#f87171" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                </svg>
-              </span>
               <p className="state-title red">@{creator.username} is banned</p>
               <p className="state-sub">This account has been suspended.</p>
             </div>
           )}
 
-          {/* INACTIVE */}
           {isInactive && (
             <div className="state-msg">
-              <span className="state-icon-ring blue">
-                {/* bi-exclamation-circle */}
-                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" fill="#60a5fa" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                  <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
-                </svg>
-              </span>
               <p className="state-title blue">@{creator.username} is inactive</p>
               <p className="state-sub">This creator is currently unavailable.</p>
             </div>
           )}
 
-          {/* ACTIVE FORM */}
           {!isBanned && !isInactive && (
             <>
               <div className="form-group">
                 <label className="form-label">Your Name</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Kebede"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                />
+                <input type="text" className="form-input" placeholder="Kebede" value={name} onChange={e => setName(e.target.value)} />
               </div>
 
               <div className="form-group">
                 <label className="form-label">Amount (ETB)</label>
-                <input
-                  type="number"
-                  className="form-input"
-                  placeholder={`Min ${minDonation} ETB`}
-                  min={minDonation}
-                  value={amount}
-                  onChange={e => setAmount(e.target.value)}
-                />
+                <input type="number" className="form-input" placeholder={`Min ${minDonation} ETB`} min={minDonation} value={amount} onChange={e => setAmount(e.target.value)} />
               </div>
 
-              {/* GIF picker — premium & plus only */}
               {(isPremiumActive || isPlus) && (
-                <GifPicker
-                  isPlusUser={isPlus}
-                  onSelect={setSelectedGif}
-                  selected={selectedGif}
-                />
+                <GifPicker isPlusUser={isPlus} onSelect={setSelectedGif} selected={selectedGif} />
               )}
 
               <div className="form-group">
                 <label className="form-label">Message</label>
-                <textarea
-                  className="form-textarea"
-                  placeholder="Say something nice..."
-                  value={message}
-                  onChange={e => setMessage(e.target.value)}
-                />
+                <textarea className="form-textarea" placeholder="Say something nice..." value={message} onChange={e => setMessage(e.target.value)} />
               </div>
 
-              <button
-                className="cheer-btn"
-                onClick={handleDonate}
-                disabled={processing || !name.trim() || !amount}
-              >
+              <button className="cheer-btn" onClick={handleDonate} disabled={processing || !name.trim() || !amount}>
                 {processing ? "Processing..." : "Cheer"}
               </button>
             </>
           )}
         </div>
 
-        {/* ── Ad banner ── */}
         <AdBanner isPlus={isPlus} />
-
-        {/* ── Suggested accounts (hidden for premium / plus) ── */}
         {!isPremiumActive && !isPlus && <SuggestedAccounts />}
 
       </div>
 
-      {/* ── Footer ── */}
       <footer className="site-footer">
         <span className="footer-logo">
-          <span className="footer-line" />
-          Cheer ET
-          <span className="footer-line" />
+          <span className="footer-line" /> Cheer ET <span className="footer-line" />
         </span>
       </footer>
-
     </div>
   );
 }

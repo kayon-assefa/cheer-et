@@ -7,40 +7,57 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// ======================
-// FIREBASE INIT
-// ======================
+/**
+ * =========================
+ * FIREBASE INIT (Fixed for Render)
+ * =========================
+ */
 if (!admin.apps.length) {
+  const rawKey = process.env.FIREBASE_PRIVATE_KEY || '';
+  const privateKey = rawKey
+    .replace(/\\n/g, '\n')
+    .replace(/"/g, '')
+    .trim();
+
+  console.log("🔑 Private Key Length:", privateKey.length);
+  console.log("🔑 Private Key Starts:", privateKey.substring(0, 60) + "...");
+
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      privateKey: privateKey,
     }),
   });
 }
 
 const db = admin.firestore();
 
-// ======================
-// CHAPA SECRET
-// ======================
+/**
+ * =========================
+ * CHAPA SECRET
+ * =========================
+ */
 const CHAPA_SECRET = process.env.CHAPA_SECRET;
 
 if (!CHAPA_SECRET) {
   console.error("❌ CHAPA_SECRET is not set!");
 }
 
-// ======================
-// ROOT ROUTE
-// ======================
+/**
+ * =========================
+ * ROOT ROUTE
+ * =========================
+ */
 app.get("/", (req, res) => {
   res.send("Cheer ET Backend is running 🚀");
 });
 
-// ======================
-// CREATE DONATION
-// ======================
+/**
+ * =========================
+ * CREATE DONATION
+ * =========================
+ */
 app.post("/api/donate", async (req, res) => {
   try {
     const {
@@ -79,7 +96,7 @@ app.post("/api/donate", async (req, res) => {
         email: email || "donor@cheeret.com",
         tx_ref,
         callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
-        return_url: "https://your-frontend.com/success", // Change later
+        return_url: "https://your-frontend-domain.com/success",
       },
       {
         headers: {
@@ -101,9 +118,11 @@ app.post("/api/donate", async (req, res) => {
   }
 });
 
-// ======================
-// VERIFY PAYMENT
-// ======================
+/**
+ * =========================
+ * VERIFY PAYMENT
+ * =========================
+ */
 app.get("/api/chapa/verify", async (req, res) => {
   try {
     const { trx_ref } = req.query;
@@ -138,13 +157,13 @@ app.get("/api/chapa/verify", async (req, res) => {
       return res.send("Already processed");
     }
 
-    // Update donation status
+    // Update donation
     await docRef.update({
       paymentStatus: "completed",
       paidAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Update streamer balance
+    // Update user balance
     await db.collection("users").doc(donation.streamerId).set({
       balance: admin.firestore.FieldValue.increment(Number(donation.amount)),
     }, { merge: true });
@@ -158,11 +177,14 @@ app.get("/api/chapa/verify", async (req, res) => {
   }
 });
 
-// ======================
-// START SERVER
-// ======================
+/**
+ * =========================
+ * START SERVER
+ * =========================
+ */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Cheer ET Server running on port ${PORT}`);
   console.log("FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID ? "✅ Set" : "❌ Missing");
+  console.log("FIREBASE_CLIENT_EMAIL:", process.env.FIREBASE_CLIENT_EMAIL ? "✅ Set" : "❌ Missing");
 });
