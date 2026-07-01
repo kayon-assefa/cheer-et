@@ -7,11 +7,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-/**
- * =========================
- * FIREBASE INIT (FIXED)
- * =========================
- */
+// ======================
+// FIREBASE INIT
+// ======================
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -24,18 +22,25 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-/**
- * =========================
- * CHAPA SECRET
- * =========================
- */
+// ======================
+// CHAPA SECRET
+// ======================
 const CHAPA_SECRET = process.env.CHAPA_SECRET;
 
-/**
- * =========================
- * CREATE DONATION
- * =========================
- */
+if (!CHAPA_SECRET) {
+  console.error("❌ CHAPA_SECRET is not set!");
+}
+
+// ======================
+// ROOT ROUTE
+// ======================
+app.get("/", (req, res) => {
+  res.send("Cheer ET Backend is running 🚀");
+});
+
+// ======================
+// CREATE DONATION
+// ======================
 app.post("/api/donate", async (req, res) => {
   try {
     const {
@@ -47,11 +52,15 @@ app.post("/api/donate", async (req, res) => {
       email
     } = req.body;
 
+    if (!amount || !donorName || !streamerId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
     const tx_ref = `CHEER-${Date.now()}`;
 
-    // Save donation
+    // Save pending donation
     await db.collection("donations").doc(tx_ref).set({
-      amount,
+      amount: Number(amount),
       donorName,
       message: message || "",
       creatorUsername,
@@ -61,59 +70,58 @@ app.post("/api/donate", async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Send to Chapa
-    const chapa = await axios.post(
+    // Initialize Chapa Payment
+    const chapaResponse = await axios.post(
       "https://api.chapa.co/v1/transaction/initialize",
       {
-        amount,
+        amount: Number(amount),
         currency: "ETB",
-        email: email || "test@example.com",
+        email: email || "donor@cheeret.com",
         tx_ref,
         callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
-        return_url: "https://your-frontend.com/success",
+        return_url: "https://your-frontend.com/success", // Change later
       },
       {
         headers: {
           Authorization: `Bearer ${CHAPA_SECRET}`,
+          "Content-Type": "application/json",
         },
       }
     );
 
-    console.log("CHAPA INIT SUCCESS:", tx_ref);
-
-    res.json(chapa.data);
+    console.log("✅ Chapa Init Success:", tx_ref);
+    res.json(chapaResponse.data);
 
   } catch (err) {
     console.error("DONATE ERROR:", err.response?.data || err.message);
-    res.status(500).json({ error: "Donation failed" });
+    res.status(500).json({ 
+      error: "Donation failed",
+      details: err.response?.data || err.message 
+    });
   }
 });
 
-/**
- * =========================
- * VERIFY PAYMENT (MAIN FIX)
- * =========================
- */
+// ======================
+// VERIFY PAYMENT
+// ======================
 app.get("/api/chapa/verify", async (req, res) => {
   try {
     const { trx_ref } = req.query;
+    if (!trx_ref) return res.status(400).send("Missing trx_ref");
 
-    console.log("VERIFY START:", trx_ref);
+    console.log("🔄 VERIFY START:", trx_ref);
 
     const verify = await axios.get(
       `https://api.chapa.co/v1/transaction/verify/${trx_ref}`,
       {
-        headers: {
-          Authorization: `Bearer ${CHAPA_SECRET}`,
-        },
+        headers: { Authorization: `Bearer ${CHAPA_SECRET}` },
       }
     );
 
     const data = verify.data.data;
 
-    console.log("CHAPA STATUS:", data.status);
-
     if (data.status !== "success") {
+      console.log("❌ Payment not successful:", data.status);
       return res.send("Payment failed");
     }
 
@@ -130,48 +138,31 @@ app.get("/api/chapa/verify", async (req, res) => {
       return res.send("Already processed");
     }
 
-    console.log("UPDATING FIRESTORE...");
-
-    // UPDATE DONATION
+    // Update donation status
     await docRef.update({
       paymentStatus: "completed",
       paidAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // UPDATE USER BALANCE
-    await db.collection("users").doc(donation.streamerId).set(
-      {
-        balance: admin.firestore.FieldValue.increment(Number(donation.amount)),
-      },
-      { merge: true }
-    );
+    // Update streamer balance
+    await db.collection("users").doc(donation.streamerId).set({
+      balance: admin.firestore.FieldValue.increment(Number(donation.amount)),
+    }, { merge: true });
 
-    console.log("DONE SUCCESS");
-
+    console.log("✅ Payment Completed:", trx_ref);
     res.send("Payment completed successfully");
 
   } catch (err) {
-    console.error("VERIFY ERROR:", err.message);
+    console.error("VERIFY ERROR:", err.response?.data || err.message);
     res.status(500).send("Server error");
   }
 });
 
-/**
- * =========================
- * START SERVER
- * =========================
- */
+// ======================
+// START SERVER
+// ======================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log(`🚀 Cheer ET Server running on port ${PORT}`);
+  console.log("FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID ? "✅ Set" : "❌ Missing");
 });
-console.log("FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
-console.log("FIREBASE_CLIENT_EMAIL:", process.env.FIREBASE_CLIENT_EMAIL);
-console.log(
-  "PRIVATE KEY EXISTS:",
-  !!process.env.FIREBASE_PRIVATE_KEY
-);
-console.log(
-  "PRIVATE KEY START:",
-  process.env.FIREBASE_PRIVATE_KEY?.slice(0, 30)
-);
