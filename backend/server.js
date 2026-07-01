@@ -38,15 +38,16 @@ app.post("/api/donate", async (req, res) => {
   try {
     const { amount, donorName, message, creatorUsername, streamerId, email } = req.body;
 
-    if (!amount || !donorName || !streamerId) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!amount || amount < 100 || !donorName || !streamerId) {
+      return res.status(400).json({ error: "Invalid donation data. Minimum 100 ETB required." });
     }
 
     const tx_ref = `CHEER-${Date.now()}`;
 
+    // Save to Firestore
     await db.collection("donations").doc(tx_ref).set({
       amount: Number(amount),
-      donorName,
+      donorName: donorName.trim(),
       message: message || "",
       creatorUsername,
       streamerId,
@@ -55,15 +56,20 @@ app.post("/api/donate", async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    // Chapa Request
+    const chapaPayload = {
+      amount: Number(amount),
+      currency: "ETB",
+      email: email || "donor@cheeret.com",
+      tx_ref: tx_ref,
+      callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
+      return_url: "https://your-frontend.com/success",
+      title: "Donation to " + creatorUsername,
+    };
+
     const chapaResponse = await axios.post(
       "https://api.chapa.co/v1/transaction/initialize",
-      {
-        amount: Number(amount),
-        currency: "ETB",
-        email: email || "donor@cheeret.com",
-        tx_ref,
-        callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
-      },
+      chapaPayload,
       {
         headers: {
           Authorization: `Bearer ${CHAPA_SECRET}`,
@@ -72,12 +78,15 @@ app.post("/api/donate", async (req, res) => {
       }
     );
 
-    console.log("✅ Chapa Success:", tx_ref);
+    console.log("✅ Chapa Init Success:", tx_ref);
     res.json(chapaResponse.data);
 
   } catch (err) {
-    console.error("DONATE ERROR:", err.message);
-    res.status(500).json({ error: "Donation failed" });
+    console.error("DONATE ERROR:", err.response?.data || err.message);
+    res.status(500).json({ 
+      error: "Donation failed", 
+      details: err.response?.data?.message || err.message 
+    });
   }
 });
 
