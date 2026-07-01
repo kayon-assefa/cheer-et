@@ -2,65 +2,27 @@ import express from "express";
 import axios from "axios";
 import cors from "cors";
 import admin from "firebase-admin";
+import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-/**
- * =========================
- * FIREBASE INIT - IMPROVED
- * =========================
- */
+// Firebase Init using JSON file
 if (!admin.apps.length) {
-  let privateKey = process.env.FIREBASE_PRIVATE_KEY || '';
-
-  // Aggressive cleaning for Render
-  privateKey = privateKey
-    .replace(/\\n/g, '\n')
-    .replace(/\\r/g, '')
-    .replace(/""/g, '"')
-    .trim();
-
-  console.log("🔑 Private Key Length:", privateKey.length);
-  console.log("🔑 Starts with:", privateKey.substring(0, 80));
-
   admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: privateKey,
-    }),
+    credential: admin.credential.cert(serviceAccount),
   });
 }
 
 const db = admin.firestore();
 
-/**
- * =========================
- * CHAPA SECRET
- * =========================
- */
 const CHAPA_SECRET = process.env.CHAPA_SECRET;
 
-if (!CHAPA_SECRET) {
-  console.error("❌ CHAPA_SECRET is not set!");
-}
-
-/**
- * =========================
- * ROOT ROUTE
- * =========================
- */
 app.get("/", (req, res) => {
   res.send("Cheer ET Backend is running 🚀");
 });
 
-/**
- * =========================
- * CREATE DONATION
- * =========================
- */
 app.post("/api/donate", async (req, res) => {
   try {
     const { amount, donorName, message, creatorUsername, streamerId, email } = req.body;
@@ -105,16 +67,10 @@ app.post("/api/donate", async (req, res) => {
 
   } catch (err) {
     console.error("DONATE ERROR:", err.message);
-    if (err.response) console.error("Chapa Response:", err.response.data);
     res.status(500).json({ error: "Donation failed", details: err.message });
   }
 });
 
-/**
- * =========================
- * VERIFY PAYMENT
- * =========================
- */
 app.get("/api/chapa/verify", async (req, res) => {
   try {
     const { trx_ref } = req.query;
@@ -130,7 +86,6 @@ app.get("/api/chapa/verify", async (req, res) => {
     const data = verify.data.data;
 
     if (data.status !== "success") {
-      console.log("❌ Not success:", data.status);
       return res.send("Payment failed");
     }
 
@@ -141,9 +96,7 @@ app.get("/api/chapa/verify", async (req, res) => {
 
     const donation = snap.data();
 
-    if (donation.paymentStatus === "completed") {
-      return res.send("Already processed");
-    }
+    if (donation.paymentStatus === "completed") return res.send("Already processed");
 
     await docRef.update({
       paymentStatus: "completed",
@@ -163,11 +116,6 @@ app.get("/api/chapa/verify", async (req, res) => {
   }
 });
 
-/**
- * =========================
- * START SERVER
- * =========================
- */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Cheer ET Server running on port ${PORT}`);
