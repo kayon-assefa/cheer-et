@@ -55,18 +55,22 @@ app.post("/api/donate", async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    const chapaPayload = {
+      amount: Number(amount),
+      currency: "ETB",
+      email: "donor@cheeret.com",
+      first_name: donorName.split(" ")[0] || "Donor",
+      last_name: donorName.split(" ").slice(1).join(" ") || "User",
+      tx_ref: tx_ref,
+      title: `Donation to @${creatorUsername}`,
+      description: message || "Thank you for your support",
+      callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
+      return_url: "https://your-frontend.com/success",
+    };
+
     const chapaResponse = await axios.post(
       "https://api.chapa.co/v1/transaction/initialize",
-      {
-        amount: Number(amount),
-        currency: "ETB",
-        email: "donor@cheeret.com",        // Fixed valid email
-        first_name: donorName.split(" ")[0] || "Donor",
-        tx_ref: tx_ref,
-        callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
-        return_url: "https://your-frontend.com/success",
-        title: `Support for @${creatorUsername}`,
-      },
+      chapaPayload,
       {
         headers: {
           Authorization: `Bearer ${CHAPA_SECRET}`,
@@ -82,7 +86,7 @@ app.post("/api/donate", async (req, res) => {
     console.error("DONATE ERROR:", err.response?.data || err.message);
     res.status(500).json({ 
       error: "Donation failed", 
-      details: err.response?.data?.message || err.message 
+      chapaDetails: err.response?.data 
     });
   }
 });
