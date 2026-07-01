@@ -248,7 +248,7 @@ export default function CreatorPage() {
             message: message || "",
             creatorUsername: creator.username,
             streamerId: creator.id,
-            email: "donor@cheeret.com"
+            
           }),
         }
       );

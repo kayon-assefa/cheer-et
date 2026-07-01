@@ -36,15 +36,14 @@ app.get("/", (req, res) => res.send("Cheer ET Backend is running 🚀"));
 
 app.post("/api/donate", async (req, res) => {
   try {
-    const { amount, donorName, message, creatorUsername, streamerId, email } = req.body;
+    const { amount, donorName, message, creatorUsername, streamerId } = req.body;
 
     if (!amount || amount < 100 || !donorName || !streamerId) {
-      return res.status(400).json({ error: "Invalid donation data. Minimum 100 ETB required." });
+      return res.status(400).json({ error: "Minimum 100 ETB and name required" });
     }
 
     const tx_ref = `CHEER-${Date.now()}`;
 
-    // Save to Firestore
     await db.collection("donations").doc(tx_ref).set({
       amount: Number(amount),
       donorName: donorName.trim(),
@@ -56,20 +55,18 @@ app.post("/api/donate", async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Chapa Request
-    const chapaPayload = {
-      amount: Number(amount),
-      currency: "ETB",
-      email: email || "donor@cheeret.com",
-      tx_ref: tx_ref,
-      callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
-      return_url: "https://your-frontend.com/success",
-      title: "Donation to " + creatorUsername,
-    };
-
     const chapaResponse = await axios.post(
       "https://api.chapa.co/v1/transaction/initialize",
-      chapaPayload,
+      {
+        amount: Number(amount),
+        currency: "ETB",
+        email: "donor@cheeret.com",        // Fixed valid email
+        first_name: donorName.split(" ")[0] || "Donor",
+        tx_ref: tx_ref,
+        callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
+        return_url: "https://your-frontend.com/success",
+        title: `Support for @${creatorUsername}`,
+      },
       {
         headers: {
           Authorization: `Bearer ${CHAPA_SECRET}`,
