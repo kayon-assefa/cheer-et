@@ -83,7 +83,7 @@ app.post("/api/create-payment", async (req, res) => {
 
     console.log("CHAPA INIT SUCCESS:", tx_ref);
 
-   res.json({
+   res.json({ 
   checkout_url: chapa.data.data.checkout_url,
 });
 app.get("/", (req, res) => {
