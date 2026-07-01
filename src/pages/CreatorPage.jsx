@@ -300,11 +300,18 @@ export default function CreatorPage() {
       });
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/donate`,
+        `${import.meta.env.VITE_API_URL}/api/create-payment`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount, name, message, tx_ref, creator }),
+         body: JSON.stringify({
+  amount: Number(amount),
+  donorName: name,
+  message,
+  creatorUsername: creator.username,
+  streamerId: creator.id,
+  email: "cheeret@gmail.com"
+})
         }
       );
 

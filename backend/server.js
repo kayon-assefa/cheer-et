@@ -83,10 +83,14 @@ app.post("/api/create-payment", async (req, res) => {
 
     console.log("CHAPA INIT SUCCESS:", tx_ref);
 
-    res.json(chapa.data);
-
+   res.json({
+  checkout_url: chapa.data.data.checkout_url,
+});
+app.get("/", (req, res) => {
+  res.send("Cheer ET API is running");
+});
   } catch (err) {
-    console.error("DONATE ERROR:", err.response?.data || err.message);
+    console.error(err);
     res.status(500).json({ error: "Donation failed" });
   }
 });
