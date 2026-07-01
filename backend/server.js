@@ -36,9 +36,7 @@ const CHAPA_SECRET = process.env.CHAPA_SECRET;
  * CREATE DONATION
  * =========================
  */
-app.post("/api/create-payment", async (req, res) => {
-    console.log("POST RECEIVED");
-  console.log(req.body);
+app.post("/api/donate", async (req, res) => {
   try {
     const {
       amount,
@@ -83,14 +81,10 @@ app.post("/api/create-payment", async (req, res) => {
 
     console.log("CHAPA INIT SUCCESS:", tx_ref);
 
-   res.json({
-  checkout_url: chapa.data.data.checkout_url,
-});
-app.get("/", (req, res) => {
-  res.send("Cheer ET API is running");
-});
+    res.json(chapa.data);
+
   } catch (err) {
-    console.error(err);
+    console.error("DONATE ERROR:", err.response?.data || err.message);
     res.status(500).json({ error: "Donation failed" });
   }
 });

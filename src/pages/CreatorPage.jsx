@@ -304,14 +304,7 @@ export default function CreatorPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({
-  amount: Number(amount),
-  donorName: name,
-  message,
-  creatorUsername: creator.username,
-  streamerId: creator.id,
-  email: "cheeret@gmail.com"
-})
+          body: JSON.stringify({ amount, name, message, tx_ref, creator }),
         }
       );
 
