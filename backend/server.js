@@ -2,13 +2,23 @@ import express from "express";
 import axios from "axios";
 import cors from "cors";
 import admin from "firebase-admin";
-import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
+import fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Firebase Init using JSON file
+// Load service account
+const serviceAccount = JSON.parse(
+  fs.readFileSync("./serviceAccountKey.json", "utf8")
+);
+
+// Firebase Init
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -119,4 +129,5 @@ app.get("/api/chapa/verify", async (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Cheer ET Server running on port ${PORT}`);
+  console.log("✅ Firebase initialized using serviceAccountKey.json");
 });
