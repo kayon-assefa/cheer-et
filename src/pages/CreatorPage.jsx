@@ -300,7 +300,7 @@ export default function CreatorPage() {
       });
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/create-payment`,
+        `${import.meta.env.VITE_API_URL}/api/donate`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

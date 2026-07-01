@@ -36,7 +36,9 @@ const CHAPA_SECRET = process.env.CHAPA_SECRET;
  * CREATE DONATION
  * =========================
  */
-app.post("/api/donate", async (req, res) => {
+app.post("/api/create-payment", async (req, res) => {
+    console.log("POST RECEIVED");
+  console.log(req.body);
   try {
     const {
       amount,
