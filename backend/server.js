@@ -32,7 +32,7 @@ console.log("CHAPA KEY LENGTH:", process.env.CHAPA_SECRET?.length);
 
 const db = admin.firestore();
 
-const CHAPA_SECRET = process.env.CHAPA_SECRET;
+const CHAPA_SECRET = process.env.CHAPA_SECRET?.trim();
 
 app.get("/", (req, res) => res.send("Cheer ET Backend is running 🚀"));
 
