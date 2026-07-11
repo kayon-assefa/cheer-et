@@ -28,52 +28,7 @@
   --s-font:      -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
   --s-shadow:    0 10px 44px rgba(0,0,0,0.52);
 }
-/* ── STRONG RESET TO FIX NAVBAR CONFLICT ── */
-.s-page, .s-page * {
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
 
-.s-page {
-  padding-top: 70px !important; /* Give space after navbar */
-  margin: 0 !important;
-}
-
-.s-container {
-  max-width: 680px !important;
-  width: 100% !important;
-  margin: 0 auto !important;
-  padding: 0 20px !important;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  position: relative;
-  z-index: 1;
-}
-
-.s-card {
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 auto 18px !important;
-}
-
-/* Make sure profile card doesn't get stretched */
-.s-profile-card {
-  display: flex !important;
-  align-items: flex-start !important;
-}
-/* Global Card Fix */
-.s-page .s-card {
-  margin-bottom: 18px;
-}
-
-/* Fix container spacing */
-
-.s-section {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-}
 /* ── RESET (scoped) ── */
 .s-page *, .s-modal-bg * {
   box-sizing: border-box;
@@ -111,6 +66,17 @@
   pointer-events: none;
   z-index: 0;
 }
+.s-container {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+}
 
 /* ── LOADING ── */
 .s-loading {
@@ -138,7 +104,11 @@
 @keyframes s-spin { to { transform: rotate(360deg); } }
 
 /* ── SECTION ── */
-
+.s-section {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
 .s-section-label {
   font-size: 11px;
   font-weight: 600;
@@ -150,30 +120,17 @@
 }
 
 /* ── BASE CARD (glassmorphism) ── */
-/* ── BASE CARD (glassmorphism) ── */
-/* ── BASE CARD ── */
 .s-card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)) !important;
-  border: 1px solid var(--s-border) !important;
-  border-radius: var(--s-r3) !important;
-  padding: 20px !important;
-  backdrop-filter: blur(40px) saturate(140%) !important;
-  box-shadow: var(--s-shadow) !important;
-  position: relative;
-  z-index: 1;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 auto 18px !important;
-}
-/* Make sure list cards and other variants also look good */
-.s-list-card {
-  padding: 0 !important;
-  overflow: hidden;
-}
-
-.s-overlay-card,
-.s-creator-badge {
-  padding: 24px 22px 20px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+  border: 1px solid var(--s-border);
+  border-radius: var(--s-r3);
+  padding: 18px 18px;
+  max-width: 100%;
+  min-height: auto;
+  height: auto;
+  backdrop-filter: blur(40px) saturate(140%);
+  -webkit-backdrop-filter: blur(40px) saturate(140%);
+  box-shadow: var(--s-shadow);
 }
 
 /* ════════════════════════════════════
@@ -181,11 +138,13 @@
 ════════════════════════════════════ */
 .s-profile-card {
   display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 22px 22px 20px;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 18px 16px;
   position: relative;
   overflow: hidden;
+  min-height: auto;
+  height: auto;
 }
 .s-profile-card::before {
   content: "";
@@ -226,8 +185,7 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  /* static badge — subtle gold glow, no click affordance needed */
-  filter: drop-shadow(0 0 5px rgba(255, 214, 10, 0.55));
+  cursor: pointer;
 }
 .s-profile-email {
   font-size: 13px;
@@ -1066,14 +1024,12 @@ input[type="range"]::-moz-range-thumb {
   display: flex;
   justify-content: center;
   margin-bottom: 14px;
-  width: 100%;
 }
 .s-canvas {
   border-radius: 20px;
   max-width: 100%;
   max-height: 55vh;
   width: auto;
-  height: auto;
   box-shadow: 0 12px 40px rgba(0,0,0,0.6);
   display: block;
 }
@@ -1377,7 +1333,6 @@ input[type="range"]::-moz-range-thumb {
 }
 .s-follower-row input {
   flex: 1;
-  min-width: 0;
 }
 .s-follower-suffix {
   display: flex;
@@ -1534,17 +1489,6 @@ input[type="range"]::-moz-range-thumb {
   /* Theme grid stays 2-col but tighter */
   .s-theme-btn { padding: 12px; }
   .s-theme-grid { gap: 8px; }
-
-  /* Follower row wraps cleanly instead of overflowing */
-  .s-follower-row { flex-wrap: wrap; }
-  .s-follower-row input { flex-basis: 100%; }
-  .s-follower-suffix { flex: 1; }
-  .s-suffix-btn { flex: 1; padding: 0 8px; }
-
-  /* Overlay preview / share teaser tighten up */
-  .s-overlay-card { padding: 18px 16px 16px; }
-  .s-share-teaser { padding: 14px 16px; gap: 12px; }
-  .s-share-icon-wrap { width: 34px; height: 34px; }
 }
 
 /* ── Very small phones ── */
@@ -1553,24 +1497,70 @@ input[type="range"]::-moz-range-thumb {
   .s-container { padding: 0 12px; }
   .s-card { padding: 14px; }
 }
-
-/* ── Extra-narrow phones ── */
-@media (max-width: 340px) {
-  .s-avatar { width: 50px; height: 50px; }
-  .s-profile-card { gap: 10px; padding: 14px 12px 12px; }
-  .s-edit-btn { padding: 7px 12px !important; font-size: 12px !important; }
-  .s-donation-num { font-size: 26px; }
-  .s-suffix-btn { padding: 0 6px; font-size: 12.5px; }
-}
-/* ── EMERGENCY GLOBAL OVERRIDE ── */
-body, html, .appLayout, .content, .navbar ~ * {
-  margin: 0 !important;
-  padding: 0 !important;
+/* ─────────────────────────────────────
+   FINAL BALANCED CARD FIX
+───────────────────────────────────── */
+.s-container {
+  max-width: 640px !important;
+  margin: 0 auto !important;
+  padding: 0 20px 40px !important; /* balanced bottom space */
 }
 
-.s-page {
-  margin-top: 0 !important;
-  padding-top: 90px !important; /* extra space after navbar */
+.s-card,
+.s-profile-card,
+.s-list-card,
+.s-overlay-card,
+.s-creator-badge {
+  max-width: 640px !important;
   width: 100% !important;
-  max-width: none !important;
+  margin: 0 auto 18px !important;
+  padding: 18px 18px !important;
+  box-sizing: border-box !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+/* Top Profile Card - controlled */
+.s-profile-card {
+  max-width: 620px !important;
+  padding: 20px 18px !important;
+  margin-bottom: 20px !important;
+}
+
+/* Strong page-scoped isolation block */
+.s-settings-page,
+.s-settings-page .s-container,
+.s-settings-page .s-card,
+.s-settings-page .s-profile-card,
+.s-settings-page .s-list-card,
+.s-settings-page .s-overlay-card,
+.s-settings-page .s-creator-badge {
+  isolation: isolate !important;
+  contain: layout style paint !important;
+}
+
+.s-settings-page .s-card,
+.s-settings-page .s-profile-card,
+.s-settings-page .s-list-card,
+.s-settings-page .s-overlay-card,
+.s-settings-page .s-creator-badge {
+  aspect-ratio: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  height: auto !important;
+  display: block !important;
+  width: 100% !important;
+  padding: 18px !important;
+  margin: 0 auto 18px !important;
+  box-sizing: border-box !important;
+}
+
+.s-settings-page .s-card {
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}
+
+/* Prevent top push */
+.s-page {
+  padding-top: 80px !important; /* give space after navbar */
 }

@@ -23,6 +23,25 @@ import "../styles/dashboard.css";
 /* ─── Commission rate ──────────────────────────────────────── */
 const COMMISSION_RATE = 0.10;
 
+/* ─── Avatar accent palette (matches design system) ─────────── */
+const AVATAR_COLORS = [
+  "linear-gradient(135deg,#0a84ff,#2563eb)",   // blue
+  "linear-gradient(135deg,#5856d6,#8b7bf0)",   // purple
+  "linear-gradient(135deg,#34c759,#1fa851)",   // green
+  "linear-gradient(135deg,#ff9f0a,#ffb340)",   // orange
+  "linear-gradient(135deg,#ff453a,#ff6961)",   // red
+  "linear-gradient(135deg,#ffd60a,#ffb340)",   // yellow
+];
+
+/** Deterministic accent color for a given name, so the same donor
+ *  always gets the same fallback avatar color. */
+function colorForName(name) {
+  const str = String(name || "?");
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
 /* ─── Confetti ─────────────────────────────────────────────── */
 function spawnConfetti() {
   const colors = ["#0a84ff","#34c759","#ffd60a","#5856d6","#ff9f0a","#ff453a"];
@@ -49,9 +68,34 @@ function ChartTooltip({ active, payload, label }) {
       background:"rgba(2,11,26,0.95)",
       border:"1px solid rgba(255,255,255,0.12)",
       borderRadius:10,padding:"8px 12px",fontSize:13,color:"#fff",
+      boxShadow:"0 12px 32px rgba(0,0,0,0.4)",
     }}>
       <div style={{opacity:0.6,marginBottom:4}}>Day {label}</div>
       <div style={{fontWeight:800}}>{Number(payload[0].value).toFixed(2)} ETB</div>
+    </div>
+  );
+}
+
+/* ─── Avatar (real photo → colorful initials fallback) ──────── */
+function Avatar({ name, photo, size = 34, fontSize = 11 }) {
+  if (photo) {
+    return (
+      <img
+        src={photo}
+        alt={name || "Donor"}
+        className="listAvatarImg"
+        style={{ width: size, height: size }}
+        onError={(e) => { e.target.style.display = "none"; }}
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+  return (
+    <div
+      className="listAvatarPlaceholder"
+      style={{ width: size, height: size, fontSize, background: colorForName(name) }}
+    >
+      {(name || "?").slice(0, 2).toUpperCase()}
     </div>
   );
 }
@@ -61,6 +105,14 @@ export default function Dashboard() {
   const [authUser,       setAuthUser]       = useState(null);
   const [user,           setUser]           = useState({});
   const [loading,        setLoading]        = useState(true);
+
+  /* granular load flags — dashboard only leaves skeleton state
+     once EVERY data source has reported at least once. This is
+     what prevents the "flash of 0 / empty state" bug. */
+  const [userLoaded,      setUserLoaded]      = useState(false);
+  const [donationsLoaded, setDonationsLoaded] = useState(false);
+  const [payoutsLoaded,   setPayoutsLoaded]   = useState(false);
+  const [eventsLoaded,    setEventsLoaded]    = useState(false);
 
   /* donations */
   const [totalRaised,    setTotalRaised]    = useState(0);
@@ -98,6 +150,14 @@ export default function Dashboard() {
     a.preload = "auto";
     audioRef.current = a;
   }, []);
+
+  /* ── flip `loading` off only once all 4 sources are in ──────
+     Runs whenever any of the 4 flags changes. */
+  useEffect(() => {
+    if (userLoaded && donationsLoaded && payoutsLoaded && eventsLoaded) {
+      setLoading(false);
+    }
+  }, [userLoaded, donationsLoaded, payoutsLoaded, eventsLoaded]);
 
   /* ── toast ───────────────────────────────────────────────── */
   const addToast = useCallback(({ title, sub, icon = "bi-gift", color = "green" }) => {
@@ -145,22 +205,38 @@ export default function Dashboard() {
     const unsubs = [];
 
     const unsubAuth = onAuthStateChanged(auth, (cu) => {
-      if (!cu) { setLoading(false); return; }
+      if (!cu) {
+        // Signed out — nothing to load, drop straight out of skeleton state.
+        setLoading(false);
+        setUserLoaded(true);
+        setDonationsLoaded(true);
+        setPayoutsLoaded(true);
+        setEventsLoaded(true);
+        return;
+      }
       setAuthUser(cu);
 
       /* user doc — balance read from currentBalance field */
       unsubs.push(
         onSnapshot(doc(db, "users", cu.uid), (snap) => {
           setUser(snap.data() || {});
-          setLoading(false);
-        })
+          setUserLoaded(true);
+        }, () => setUserLoaded(true))
       );
 
-      /* donations */
+      /* donations — ONLY completed donations count toward totals/balance.
+         Filtering server-side (not client-side) means we never even
+         download pending/failed docs into the revenue calculations. */
+      const donationsQ = query(
+        collection(db, "donations"),
+        where("streamerId", "==", cu.uid),
+        where("status", "==", "completed")
+      );
+
       unsubs.push(
-        onSnapshot(collection(db, "donations"), (snapshot) => {
+        onSnapshot(donationsQ, (snapshot) => {
           let total = 0;
-          const donorsMap = {};
+          const donorsMap = {}; // name -> { amount, photo }
           const daily = {};
           const arr = [];
 
@@ -172,14 +248,21 @@ export default function Dashboard() {
 
           snapshot.forEach((docSnap) => {
             const d = docSnap.data();
-            if (d.streamerId !== cu.uid) return;
             const amt  = Number(d.amount || 0);
             const date = d.createdAt?.seconds
               ? new Date(d.createdAt.seconds * 1000) : new Date();
+            const photo = d.donorPhoto || d.photoURL || null;
 
             total += amt;
-            arr.push({ ...d, _id: docSnap.id, _date: date });
-            donorsMap[d.name] = (donorsMap[d.name] || 0) + amt;
+            arr.push({ ...d, _id: docSnap.id, _date: date, _photo: photo });
+
+            const key = d.name || "Anonymous";
+            const existing = donorsMap[key] || { amount: 0, photo: null };
+            donorsMap[key] = {
+              amount: existing.amount + amt,
+              photo: existing.photo || photo, // keep first known photo for this donor
+            };
+
             const day = date.getDate();
             daily[day] = (daily[day] || 0) + amt;
             if (date >= day0)  todayT += amt;
@@ -187,8 +270,10 @@ export default function Dashboard() {
             if (date >= mon0)  monthT += amt;
           });
 
-          /* sound + toast for new donation */
-          if (arr.length > prevCount.current) {
+          /* sound + toast for new donation (only fires after the first
+             load, thanks to prevCount starting at 0 and this being a
+             live subscription — genuinely new docs only). */
+          if (donationsLoaded && arr.length > prevCount.current) {
             const newest = [...arr].sort((a,b)=>b._date-a._date)[0];
             audioRef.current?.play().catch(() => {});
             addToast({
@@ -207,12 +292,18 @@ export default function Dashboard() {
           setMonthAmt(monthT);
           setDonators(Object.keys(donorsMap).length);
           setTopDonators(
-            Object.entries(donorsMap).sort((a,b)=>b[1]-a[1]).slice(0,3)
+            Object.entries(donorsMap)
+              .sort((a,b)=>b[1].amount-a[1].amount)
+              .slice(0,3)
           );
           setChartData(
             Array.from({length:30},(_,i)=>({ day:i+1, amount:daily[i+1]||0 }))
           );
           setRecent([...arr].sort((a,b)=>b._date-a._date).slice(0,5));
+          setDonationsLoaded(true);
+        }, (err) => {
+          console.error("donations snapshot:", err);
+          setDonationsLoaded(true);
         })
       );
 
@@ -225,9 +316,11 @@ export default function Dashboard() {
           arr.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
           setPayouts(arr.slice(0,5));
           setPendingPayout(arr.find(p=>statusNorm(p.status)==="pending")||null);
+          setPayoutsLoaded(true);
         }, (err) => {
           console.error("payout snapshot:", err);
           setPayouts([]); setPendingPayout(null);
+          setPayoutsLoaded(true);
         })
       );
 
@@ -251,11 +344,13 @@ export default function Dashboard() {
           });
           setActiveEvent(live);
           setUpcomingEvent(upcoming);
-        })
+          setEventsLoaded(true);
+        }, () => setEventsLoaded(true))
       );
     });
 
     return () => { unsubAuth(); unsubs.forEach(u=>u()); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addToast, sendNotif]);
 
   /* ── toggle ──────────────────────────────────────────────── */
@@ -266,9 +361,11 @@ export default function Dashboard() {
     if (field==="donationEnabled") sendNotif(value?"Donations open":"Donations paused");
   }, [authUser, sendNotif]);
 
-  /* ── balance from users.currentBalance ───────────────────── */
+  /* ── balance from users.currentBalance (source of truth) ─────
+     totalRaised (used only for the commission-display math) is
+     already restricted to completed donations by the query above. */
   const availableBalance = Number(user.currentBalance || 0);
-  const commission       = Math.max(0, totalRaised * COMMISSION_RATE);
+  const commission       = Math.max(0, totalRaised * COMMISSION_RATE); // display only
 
   /* ── loading skeleton ────────────────────────────────────── */
   if (loading) {
@@ -276,6 +373,7 @@ export default function Dashboard() {
       <div className="appLayout">
         <Navbar />
         <div className="content">
+          <div className="skeletonBase skeletonLine" style={{width:"40%", height:52, borderRadius:"50%", maxWidth:52}} />
           <div className="skeletonBase skeletonHero" style={{marginTop:16}} />
           <div className="statsGrid" style={{marginTop:16}}>
             {[1,2,3,4].map(i=><div key={i} className="skeletonBase skeletonCard"/>)}
@@ -293,12 +391,11 @@ export default function Dashboard() {
   const liveMinLeft = activeEvent
     ? Math.max(0, Math.round((activeEvent._end - Date.now())/60000)) : 0;
   const initials = (user.username||"U").slice(0,2).toUpperCase();
+  const isVerified = user.verified === true;
 
   return (
     <div className="appLayout">
       <Navbar navOpen={navOpen} setNavOpen={setNavOpen} />
-
-     
 
       {navOpen && (
         <div className="overlay" onClick={()=>setNavOpen(false)} role="presentation"/>
@@ -315,9 +412,14 @@ export default function Dashboard() {
           <div className="profileInfo">
             <div className="profileName">
               {user.username || "Creator"}
-              <span className="verifiedBadge" title="Verified">
-                <i className="bi bi-check"/>
-              </span>
+              {isVerified && (
+                <img
+                  src="/verified.png"
+                  alt="Verified creator"
+                  className="verifiedBadge"
+                  title="Verified"
+                />
+              )}
             </div>
             <div className="profileSub">
               <span><i className="bi bi-people-fill"/>&nbsp;{donators} supporters</span>
@@ -348,9 +450,11 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* No live event — show the upcoming one, styled inactive
+            (grayscale + reduced opacity) via .countdownBanner--inactive */}
         {!activeEvent && upcomingEvent && (
           <div
-            className="eventBanner countdownBanner"
+            className="eventBanner countdownBanner countdownBanner--inactive"
             onClick={()=>window.location.href=`/donations?event=${upcomingEvent.id}`}
             role="button" tabIndex={0}
             onKeyDown={e=>e.key==="Enter"&&(window.location.href=`/donations?event=${upcomingEvent.id}`)}
@@ -519,7 +623,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* FIXED: explicit pixel height on wrapper + inner div, not "100%" */}
+          {/* explicit pixel height on wrapper + inner div, not "100%" */}
           <div className="chartOuterWrap">
             <div className="chartInnerWrap">
               <ResponsiveContainer width="100%" height={260}>
@@ -586,18 +690,16 @@ export default function Dashboard() {
             </div>
             {topDonators.length === 0
               ? <div className="emptyState">No donations yet.</div>
-              : topDonators.map(([name,amt],i) => (
+              : topDonators.map(([name, info], i) => (
                 <div key={i} className="listLine">
                   <span className={`listRank ${["gold","silver","bronze"][i]||""}`}>
                     {i===0 ? <i className="bi bi-trophy-fill"/> : i+1}
                   </span>
-                  <div className="listAvatarPlaceholder" style={{fontSize:11}}>
-                    {(name||"?").slice(0,2).toUpperCase()}
-                  </div>
+                  <Avatar name={name} photo={info.photo} size={34} fontSize={11} />
                   <div className="listMeta">
                     <div className="listName">{name}</div>
                   </div>
-                  <div className="listValue">{Number(amt).toFixed(2)} ETB</div>
+                  <div className="listValue">{Number(info.amount).toFixed(2)} ETB</div>
                 </div>
               ))
             }
@@ -612,9 +714,7 @@ export default function Dashboard() {
               ? <div className="emptyState">No donations yet.</div>
               : recent.map((d,i) => (
                 <div key={i} className="listLine">
-                  <div className="listAvatarPlaceholder" style={{fontSize:11}}>
-                    {(d.name||"A").slice(0,2).toUpperCase()}
-                  </div>
+                  <Avatar name={d.name || "Anonymous"} photo={d._photo} size={34} fontSize={11} />
                   <div className="listMeta">
                     <div className="listName">{d.name||"Anonymous"}</div>
                     <div className="listSub">{fmtDate(d.createdAt)}</div>
@@ -670,7 +770,7 @@ export default function Dashboard() {
 /* ── sub-components ──────────────────────────────────────────── */
 function StatCard({ label, value, highlight }) {
   return (
-    <div className="statCard">
+    <div className={`statCard${highlight ? " statCard--highlight" : ""}`}>
       <div className="statLabel">{label}</div>
       <div className="statValue" style={highlight?{color:"var(--blue-primary)"}:{}}>
         {Number(value||0).toFixed(2)}

@@ -36,6 +36,7 @@ import {
 import confetti from "canvas-confetti";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import Navbar from "../components/Navbar";
 import "../styles/donation.css";
 
 /* ─── Firebase singletons ───────────────────────────────────────────────── */
@@ -44,7 +45,7 @@ const db   = getFirestore();
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
 const ETB_RATE   = 158;
-const PAGE_SIZE  = 20;
+const PAGE_SIZE  = 10;
 const PIE_COLORS = ["#0071e3","#3b82f6","#60a5fa","#93c5fd","#1d4ed8","#2563eb","#7c3aed"];
 const PLAN_LIMITS = {
   basic  : { goals: 1, events: 1 },
@@ -333,13 +334,22 @@ export default function Donation() {
     return onAuthStateChanged(auth, async (u) => {
       if (!u) { navigate("/login"); return; }
       setUser(u);
-      /* fetch user doc for plan + banned */
       try {
+        /* Force a fresh ID token before anything else. On a hard reload the
+           Firebase Auth SDK can restore the session slightly before the
+           token has fully propagated to the Firestore client, which makes
+           the very first onSnapshot listeners fail silently. Forcing a
+           refresh here guarantees Firestore always opens with a valid
+           token, whether we arrived via navigation or a cold reload. */
+        await u.getIdToken(true);
         const snap = await getDoc(doc(db, "users", u.uid));
         const data = snap.exists() ? snap.data() : {};
         setUserData(data);
         if (data.banned === true) setShowBanned(true);
-      } catch (_) { /* no doc → basic */ }
+      } catch (err) {
+        console.error("auth/user-doc load error:", err);
+        /* no doc → basic */
+      }
       setAuthReady(true);
       /* request notification permission early */
       if ("Notification" in window && Notification.permission === "default") {
@@ -377,7 +387,7 @@ export default function Donation() {
         prevDonLen.current = docs.length;
         setAllDonations(docs);
       },
-      () => {}
+      (err) => console.error("donations listener error:", err)
     );
     return unsub;
   }, [authReady, user]);
@@ -385,18 +395,25 @@ export default function Donation() {
   /* ── goals ── */
   useEffect(() => {
     if (!authReady || !user) return;
+    /* No orderBy here on purpose: pairing where(ownerId) with
+       orderBy(createdAt) requires a composite Firestore index. If that
+       index hasn't been created yet, the listener fails silently (the
+       write still succeeds) which is exactly why new goals appeared to
+       "do nothing". We sort client-side instead so the query only needs
+       the default single-field index. */
     const q = query(
       collection(db, "goals"),
-      where("ownerId", "==", user.uid),
-      orderBy("createdAt", "desc")
+      where("ownerId", "==", user.uid)
     );
     const unsub = onSnapshot(
       q, { includeMetadataChanges: false },
       (snap) => {
-        const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const docs = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => toDate(b.createdAt) - toDate(a.createdAt));
         setGoals(docs);
       },
-      () => {}
+      (err) => console.error("goals listener error:", err)
     );
     return unsub;
   }, [authReady, user]);
@@ -404,18 +421,21 @@ export default function Donation() {
   /* ── events ── */
   useEffect(() => {
     if (!authReady || !user) return;
+    /* Same reasoning as the goals query above — avoid requiring a
+       composite index and sort client-side instead. */
     const q = query(
       collection(db, "events"),
-      where("ownerId", "==", user.uid),
-      orderBy("createdAt", "desc")
+      where("ownerId", "==", user.uid)
     );
     const unsub = onSnapshot(
       q, { includeMetadataChanges: false },
       (snap) => {
-        const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const docs = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => toDate(b.createdAt) - toDate(a.createdAt));
         setEvents(docs);
       },
-      () => {}
+      (err) => console.error("events listener error:", err)
     );
     return unsub;
   }, [authReady, user]);
@@ -707,6 +727,12 @@ export default function Donation() {
     r.readAsDataURL(f);
   };
 
+  /* ── donation pagination navigation ── */
+  const goToPage = (p) => {
+    if (p < 1 || p > totalPages || p === donPage) return;
+    setDonPage(p);
+  };
+
   /* ── chart renderer ── */
   const renderChart = () => {
     if (!chartData.length)
@@ -842,6 +868,9 @@ export default function Donation() {
         </div>
       )}
 
+      {/* ── Navbar ── */}
+      <Navbar />
+
       {/* ══ BANNED MODAL ══ */}
       {showBanned && (
         <div className="modal-overlay">
@@ -941,39 +970,6 @@ export default function Donation() {
         </div>
       )}
 
-      {/* ══ ACTION CARD (replaces navbar / top bar) ══ */}
-      <div className="action-card">
-        <div className="action-card-brand">
-          <span className="ac-logo">CHEER ET</span>
-          <span className={`ac-plan ac-plan--${plan}`}>{plan}</span>
-        </div>
-        <div className="action-card-btns">
-          <button className="ac-btn ac-btn--primary" onClick={() => setShowGoalModal(true)}>
-            <i className="bi bi-bullseye" /><span>Goal</span>
-          </button>
-          <button className="ac-btn ac-btn--secondary" onClick={() => setShowEventModal(true)}>
-            <i className="bi bi-camera-video-fill" /><span>Event</span>
-          </button>
-          <button className="ac-btn" onClick={() => navigate("/livesub")}>
-            <i className="bi bi-broadcast" /><span>Live Sub</span>
-          </button>
-          <button className="ac-btn" onClick={() => exportCSV(allDonations, currency)}>
-            <i className="bi bi-file-earmark-spreadsheet-fill" /><span>CSV</span>
-          </button>
-          <button className="ac-btn" onClick={downloadSummaryPDF}>
-            <i className="bi bi-file-earmark-pdf-fill" /><span>PDF</span>
-          </button>
-          <button
-            className={`ac-btn${notifs.length > 0 ? " ac-btn--notif" : ""}`}
-            onClick={() => setShowNotif((p) => !p)}
-          >
-            <i className="bi bi-bell-fill" />
-            {notifs.length > 0 && <span className="ac-notif-dot">{Math.min(notifs.length, 99)}</span>}
-            <span>Alerts</span>
-          </button>
-        </div>
-      </div>
-
       {/* ══ MAIN CONTENT ══ */}
       <main className="dash-main" id="dash-main">
 
@@ -1068,6 +1064,38 @@ export default function Donation() {
           <div className="heatmap-row">
             <span className="hm-label">Last 14 Days</span>
             <Heatmap data={heatmapData} />
+          </div>
+        </section>
+
+        {/* ─ Quick actions (formerly the top action card) ─ */}
+        <section className="quick-actions">
+          <div className="qa-left">
+            <span className="ac-plan">{plan}</span>
+          </div>
+          <div className="qa-btns">
+            <button className="ac-btn ac-btn--primary" onClick={() => setShowGoalModal(true)}>
+              <i className="bi bi-bullseye" /><span>Goal</span>
+            </button>
+            <button className="ac-btn ac-btn--secondary" onClick={() => setShowEventModal(true)}>
+              <i className="bi bi-camera-video-fill" /><span>Event</span>
+            </button>
+            <button className="ac-btn" onClick={() => navigate("/livesub")}>
+              <i className="bi bi-broadcast" /><span>Live Sub</span>
+            </button>
+            <button className="ac-btn" onClick={() => exportCSV(allDonations, currency)}>
+              <i className="bi bi-file-earmark-spreadsheet-fill" /><span>CSV</span>
+            </button>
+            <button className="ac-btn" onClick={downloadSummaryPDF}>
+              <i className="bi bi-file-earmark-pdf-fill" /><span>PDF</span>
+            </button>
+            <button
+              className={`ac-btn${notifs.length > 0 ? " ac-btn--notif" : ""}`}
+              onClick={() => setShowNotif((p) => !p)}
+            >
+              <i className="bi bi-bell-fill" />
+              {notifs.length > 0 && <span className="ac-notif-dot">{Math.min(notifs.length, 99)}</span>}
+              <span>Alerts</span>
+            </button>
           </div>
         </section>
 
@@ -1235,23 +1263,25 @@ export default function Donation() {
             </div>
           ) : (
             <>
-              <div className="timeline">
-                {pagedDonations.map((d, i) => (
-                  <div
-                    key={d.id}
-                    className={`tl-item${i === 0 && donPage === 1 ? " tl-item--new" : ""}`}
-                  >
-                    <div className="tl-dot" />
-                    <div className="tl-card">
-                      <div className="tl-top">
-                        <span className="tl-name">{d.donorName ?? "Anonymous"}</span>
-                        <span className="tl-amt">{fmt(d.amount ?? 0, currency)}</span>
+              <div className="timeline-page" key={donPage}>
+                <div className="timeline">
+                  {pagedDonations.map((d, i) => (
+                    <div
+                      key={d.id}
+                      className={`tl-item${i === 0 && donPage === 1 ? " tl-item--new" : ""}`}
+                    >
+                      <div className="tl-dot" />
+                      <div className="tl-card">
+                        <div className="tl-top">
+                          <span className="tl-name">{d.donorName ?? "Anonymous"}</span>
+                          <span className="tl-amt">{fmt(d.amount ?? 0, currency)}</span>
+                        </div>
+                        {d.message && <div className="tl-msg">"{d.message}"</div>}
+                        <div className="tl-time">{toDate(d.createdAt).toLocaleString()}</div>
                       </div>
-                      {d.message && <div className="tl-msg">"{d.message}"</div>}
-                      <div className="tl-time">{toDate(d.createdAt).toLocaleString()}</div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
               {/* Pagination */}
@@ -1260,7 +1290,7 @@ export default function Donation() {
                   <button
                     className="pg-btn"
                     disabled={donPage === 1}
-                    onClick={() => setDonPage((p) => p - 1)}
+                    onClick={() => goToPage(donPage - 1)}
                   >
                     <i className="bi bi-chevron-left" />
                   </button>
@@ -1278,7 +1308,7 @@ export default function Donation() {
                         <button
                           key={p}
                           className={`pg-btn${donPage === p ? " pg-btn--active" : ""}`}
-                          onClick={() => setDonPage(p)}
+                          onClick={() => goToPage(p)}
                         >
                           {p}
                         </button>
@@ -1287,7 +1317,7 @@ export default function Donation() {
                   <button
                     className="pg-btn"
                     disabled={donPage === totalPages}
-                    onClick={() => setDonPage((p) => p + 1)}
+                    onClick={() => goToPage(donPage + 1)}
                   >
                     <i className="bi bi-chevron-right" />
                   </button>

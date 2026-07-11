@@ -837,7 +837,7 @@ export default function Settings() {
         <QRCode value={profileLink} size={120} fgColor="#0a84ff" bgColor="#ffffff" />
       </div>
 
-      <div className="s-page">
+     <div className="s-page s-settings-page">
         <div className="s-container">
           {/* ══ PROFILE CARD ══ */}
           <section className="s-section">
