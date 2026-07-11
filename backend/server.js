@@ -62,10 +62,10 @@ app.post("/api/donate", async (req, res) => {
       first_name: donorName.split(" ")[0] || "Cheer",
       last_name: "Donor",
       tx_ref: tx_ref,
-      title: `Support @${creatorUsername}`,
+      title: `Cheer @${creatorUsername}`,
       description: message || "Thank you!",
       callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
-      return_url: "https://your-frontend.com/success",
+      return_url: "https://cheer-et.web.app/payment-success",
     };
 
     const chapaResponse = await axios.post(
@@ -79,7 +79,7 @@ app.post("/api/donate", async (req, res) => {
       }
     );
 
-    console.log("✅ Chapa Success:", tx_ref);
+    console.log(" Chapa Success:", tx_ref);
     res.json(chapaResponse.data);
 
   } catch (err) {
@@ -120,7 +120,7 @@ app.get("/api/chapa/verify", async (req, res) => {
       balance: admin.firestore.FieldValue.increment(Number(donation.amount)),
     }, { merge: true });
 
-    console.log("✅ Completed:", tx_ref);
+    console.log(" Completed:", tx_ref);
     res.send("Payment completed successfully");
 
   } catch (err) {
@@ -131,5 +131,5 @@ app.get("/api/chapa/verify", async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(` Server running on port ${PORT}`);
 });

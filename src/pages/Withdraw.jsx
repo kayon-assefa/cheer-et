@@ -45,7 +45,9 @@ export default function WithdrawPage() {
   const [amount, setAmount] = useState("");
   const [amountMasked, setAmountMasked] = useState(true);
 
-  const [method, setMethod] = useState("CBE");
+  const [method, setMethod] = useState(
+  "Commercial Bank of Ethiopia (CBE)"
+);
   const [bankNumber, setBankNumber] = useState("");
   const [bankUserName, setBankUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -484,8 +486,13 @@ export default function WithdrawPage() {
                     onChange={(e) => setMethod(e.target.value)}
                     style={styles.select}
                   >
-                    <option value="CBE">CBE</option>
-                    <option value="Telebirr">Telebirr</option>
+                   <option value="Commercial Bank of Ethiopia (CBE)">
+  Commercial Bank of Ethiopia (CBE)
+</option>
+
+<option value="Telebirr">
+  Telebirr
+</option>
                   </select>
                 </div>
 

@@ -207,7 +207,7 @@ const styles = {
     left: "20px",
     width: "52px",
     height: "52px",
-    background: "rgba(30, 64, 175, 0.85)",
+    background: "transparent",
     border: "none",
     borderRadius: "50%",
     zIndex: 1000,

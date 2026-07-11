@@ -180,6 +180,12 @@ function effectiveOverlay(data) {
   return { ...DEFAULT_OVERLAY, ...stored, theme: stored.theme === "premium" ? "premium" : "default" };
 }
 
+/* Follower count needed before a creator qualifies for the verified badge flow */
+const VERIFICATION_FOLLOWER_THRESHOLD = 30000;
+
+/* Max upload size accepted for a profile photo, checked before it's ever read into memory */
+const MAX_PHOTO_UPLOAD_BYTES = 8 * 1024 * 1024; // 8MB
+
 /* ─────────────────────────────────────
    Format follower count for display
 ───────────────────────────────────── */
@@ -255,19 +261,19 @@ async function drawShareCard(canvas, { username, photoURL, qrDataUrl }, layout =
   const isSquare = layout === "square";
   const scale = isSquare ? 0.92 : 1;
 
-  // "Cheer Me Up" text
-  const baseY = 38;
+  // "Cheer Me Up" text — tightened top offset so the header doesn't leave a big empty gap
+  const baseY = 26;
   ctx.save();
   ctx.font = `bold ${Math.round(21 * scale)}px -apple-system, Helvetica Neue, sans-serif`;
   ctx.textAlign = "center";
   ctx.fillStyle = "rgba(255,255,255,0.95)";
-  ctx.fillText("Cheer Me Up", W / 2, baseY + 22);
+  ctx.fillText("Cheer Me Up", W / 2, baseY + 18);
   ctx.restore();
 
   // Avatar
   const avatarR = isSquare ? 46 : 52;
   const avatarCX = W / 2;
-  const avatarCY = baseY + 22 + avatarR + 28;
+  const avatarCY = baseY + 18 + avatarR + 18;
   const avatarImg = await loadImage(photoURL || DEFAULT_AVATAR);
   ctx.save();
   ctx.beginPath();
@@ -652,7 +658,16 @@ export default function Settings() {
   const onPhotoSelected = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) { notify("Please select an image file", "error"); return; }
+    if (!file.type.startsWith("image/")) {
+      notify("Please select an image file", "error");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_PHOTO_UPLOAD_BYTES) {
+      notify("Image is too large — please choose a file under 8MB", "error");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setCropModal(reader.result);
     reader.readAsDataURL(file);
@@ -669,9 +684,9 @@ export default function Settings() {
     setSaving(true);
     try {
       await updateDoc(doc(db, "users", user.uid), {
-        username: form.username,
-        phone: form.phone,
-        telegram: form.telegram,
+        username: (form.username || "").trim(),
+        phone: (form.phone || "").trim(),
+        telegram: (form.telegram || "").trim(),
         photoURL: photoInput,
       });
       notify("Profile updated", "success");
@@ -688,8 +703,8 @@ export default function Settings() {
       await updateDoc(doc(db, "users", user.uid), {
         lastBankInfo: {
           method: form.method,
-          bankNumber: form.bankNumber,
-          bankUserName: form.bankUserName,
+          bankNumber: (form.bankNumber || "").trim(),
+          bankUserName: (form.bankUserName || "").trim(),
         },
       });
       notify("Bank info saved", "success");
@@ -699,7 +714,8 @@ export default function Settings() {
   };
 
   const saveFollowers = async () => {
-    const formatted = formatFollowers(followerNum, followerSuffix);
+    const safeNum = Math.max(0, Number(followerNum) || 0);
+    const formatted = formatFollowers(safeNum, followerSuffix);
     try {
       await updateDoc(doc(db, "users", user.uid), { followers: formatted });
       notify("Followers updated", "success");
@@ -797,7 +813,13 @@ export default function Settings() {
   const followerActual = followerSuffix === "M" ? followerRaw * 1_000_000
     : followerSuffix === "K" ? followerRaw * 1_000
     : followerRaw;
-  const showVerifiedBadge = followerActual > 3000;
+
+  // The verified badge shown on the profile card only reflects a real, confirmed
+  // verified status — it is never inferred from follower count.
+  const isVerified = data.verified === true;
+  // Follower count only decides whether we invite the creator to apply for
+  // verification (30k+); it never toggles the badge itself.
+  const qualifiesForVerification = followerActual >= VERIFICATION_FOLLOWER_THRESHOLD;
 
   if (loading)
     return (
@@ -832,13 +854,12 @@ export default function Settings() {
               <div className="s-profile-info">
                 <div className="s-profile-name">
                   {form.username || "Your Name"}
-                  {showVerifiedBadge && (
+                  {isVerified && (
                     <img
                       src={verifiedIcon}
                       alt="Verified"
                       className="s-verified-icon"
-                      onClick={() => { window.location.href = "/premium"; }}
-                      title="Get Verified Badge"
+                      title="Verified Account"
                     />
                   )}
                 </div>
@@ -955,7 +976,10 @@ export default function Settings() {
                 max="10000"
                 step="1"
                 value={data.minDonation || 67}
-                onChange={(e) => updateDoc(doc(db, "users", user.uid), { minDonation: Number(e.target.value) })}
+                onChange={(e) => {
+                  const v = Math.min(10000, Math.max(67, Number(e.target.value) || 67));
+                  updateDoc(doc(db, "users", user.uid), { minDonation: v });
+                }}
               />
               <div className="s-slider-labels">
                 <span>67</span>
@@ -971,8 +995,13 @@ export default function Settings() {
               <div className="s-field">
                 <label className="s-label">Payment Method</label>
                 <select value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })}>
-                  <option value="CBE">CBE</option>
-                  <option value="Telebirr">Telebirr</option>
+                <option value="Commercial Bank of Ethiopia (CBE)">
+  Commercial Bank of Ethiopia (CBE)
+</option>
+
+<option value="Telebirr">
+  Telebirr
+</option>
                 </select>
               </div>
               <div className="s-field">
@@ -980,6 +1009,8 @@ export default function Settings() {
                 <input
                   placeholder="e.g. 1000123456789"
                   value={form.bankNumber}
+                  maxLength={34}
+                  autoComplete="off"
                   onChange={(e) => setForm({ ...form, bankNumber: e.target.value })}
                 />
               </div>
@@ -988,6 +1019,8 @@ export default function Settings() {
                 <input
                   placeholder="Full name on account"
                   value={form.bankUserName}
+                  maxLength={60}
+                  autoComplete="off"
                   onChange={(e) => setForm({ ...form, bankUserName: e.target.value })}
                 />
               </div>
@@ -1068,7 +1101,10 @@ export default function Settings() {
                     type="number"
                     min="0"
                     value={followerNum}
-                    onChange={(e) => setFollowerNum(e.target.value)}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === "" || Number(v) >= 0) setFollowerNum(v);
+                    }}
                     placeholder="e.g. 12"
                     style={{ userSelect: "none" }}
                   />
@@ -1101,7 +1137,7 @@ export default function Settings() {
                   </div>
                 )}
 
-                {showVerifiedBadge && (
+                {qualifiesForVerification && !isVerified && (
                   <button className="s-get-verified-banner" onClick={() => { window.location.href = "/premium"; }}>
                     <img src={verifiedIcon} alt="Verified" className="s-get-verified-img" />
                     <div>
@@ -1206,15 +1242,32 @@ export default function Settings() {
 
             <div className="s-field">
               <label className="s-label">Username</label>
-              <input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
+              <input
+                value={form.username}
+                maxLength={30}
+                autoComplete="off"
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+              />
             </div>
             <div className="s-field">
               <label className="s-label">Phone</label>
-              <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+251..." />
+              <input
+                value={form.phone}
+                maxLength={20}
+                autoComplete="tel"
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="+251..."
+              />
             </div>
             <div className="s-field">
               <label className="s-label">Telegram</label>
-              <input value={form.telegram} onChange={(e) => setForm({ ...form, telegram: e.target.value })} placeholder="@handle" />
+              <input
+                value={form.telegram}
+                maxLength={32}
+                autoComplete="off"
+                onChange={(e) => setForm({ ...form, telegram: e.target.value })}
+                placeholder="@handle"
+              />
             </div>
 
             <div className="s-toggle-row">
@@ -1260,7 +1313,13 @@ export default function Settings() {
             </div>
             <div className="s-field">
               <label className="s-label">New Email</label>
-              <input type="email" placeholder="new@email.com" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
+              <input
+                type="email"
+                placeholder="new@email.com"
+                value={newEmail}
+                autoComplete="email"
+                onChange={(e) => setNewEmail(e.target.value)}
+              />
             </div>
             <div className="s-modal-actions">
               <button className="s-btn-primary" onClick={() => setReauthModal(true)}>Continue</button>
@@ -1285,7 +1344,13 @@ export default function Settings() {
             <p className="s-modal-desc">Enter your current password to confirm this change.</p>
             <div className="s-field">
               <label className="s-label">Password</label>
-              <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <div className="s-modal-actions">
               <button className="s-btn-primary" onClick={reauth}>Confirm</button>

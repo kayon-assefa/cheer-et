@@ -7,7 +7,7 @@ import Donation from "./pages/Donation";
 import Withdraw from "./pages/Withdraw";
 import Settings from "./pages/Settings";
 import Livesub from "./pages/Livesub";
-import Home from "./pages/Home";
+import CheerETHome from "./pages/CheerETHome";
 import CreatorPage from "./pages/CreatorPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import OverlayPage from "./pages/OverlayPage";
@@ -17,7 +17,7 @@ import NotFound from "./pages/NotFound";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<CheerETHome />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />

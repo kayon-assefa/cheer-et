@@ -298,16 +298,7 @@ export default function Dashboard() {
     <div className="appLayout">
       <Navbar navOpen={navOpen} setNavOpen={setNavOpen} />
 
-      {/* mobile top bar */}
-      <div className="mobileTopBar">
-        <button className="toggleBtn" onClick={()=>setNavOpen(true)} aria-label="Open menu">
-          <i className="bi bi-list" style={{fontSize:22}}/>
-        </button>
-        <span style={{fontWeight:800,fontSize:16}}>
-          Cheer<span style={{color:"var(--blue-primary)"}}>ET</span>
-        </span>
-        <div style={{width:36}}/>
-      </div>
+     
 
       {navOpen && (
         <div className="overlay" onClick={()=>setNavOpen(false)} role="presentation"/>
