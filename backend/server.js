@@ -17,7 +17,9 @@ if (!admin.apps.length) {
     .trim();
 
   console.log("🔑 Key Length:", privateKey ? privateKey.length : 0);
-
+console.log("CHAPA KEY EXISTS:", !!process.env.CHAPA_SECRET);
+console.log("CHAPA KEY PREFIX:", process.env.CHAPA_SECRET?.substring(0, 12));
+console.log("CHAPA KEY LENGTH:", process.env.CHAPA_SECRET?.length);
 
   admin.initializeApp({
     credential: admin.credential.cert({
