@@ -127,6 +127,8 @@ app.get("/api/chapa/verify", async (req, res) => {
     console.error("VERIFY ERROR:", err.message);
     res.status(500).send("Server error");
   }
+  console.log("Chapa key loaded:", !!process.env.CHAPA_SECRET);
+console.log("Key prefix:", process.env.CHAPA_SECRET?.substring(0, 10));
 });
 
 const PORT = process.env.PORT || 5000;
