@@ -17,9 +17,7 @@ if (!admin.apps.length) {
     .trim();
 
   console.log("🔑 Key Length:", privateKey ? privateKey.length : 0);
-console.log("CHAPA KEY EXISTS:", !!process.env.CHAPA_SECRET);
-console.log("CHAPA KEY PREFIX:", process.env.CHAPA_SECRET?.substring(0, 12));
-console.log("CHAPA KEY LENGTH:", process.env.CHAPA_SECRET?.length);
+  console.log("🔑 Starts with:", privateKey ? privateKey.substring(0, 100) : "MISSING");
 
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -32,7 +30,7 @@ console.log("CHAPA KEY LENGTH:", process.env.CHAPA_SECRET?.length);
 
 const db = admin.firestore();
 
-const CHAPA_SECRET = process.env.CHAPA_SECRET?.trim();
+const CHAPA_SECRET = process.env.CHAPA_SECRET;
 
 app.get("/", (req, res) => res.send("Cheer ET Backend is running 🚀"));
 
@@ -69,9 +67,7 @@ app.post("/api/donate", async (req, res) => {
       callback_url: "https://cheerapi.onrender.com/api/chapa/verify",
       return_url: "https://cheer-et.web.app/payment-success",
     };
-console.log("CHAPA KEY EXISTS:", !!process.env.CHAPA_SECRET);
-console.log("CHAPA KEY PREFIX:", process.env.CHAPA_SECRET?.substring(0, 12));
-console.log("CHAPA KEY LENGTH:", process.env.CHAPA_SECRET?.length);
+
     const chapaResponse = await axios.post(
       "https://api.chapa.co/v1/transaction/initialize",
       chapaPayload,
@@ -127,13 +123,10 @@ app.get("/api/chapa/verify", async (req, res) => {
     console.log(" Completed:", tx_ref);
     res.send("Payment completed successfully");
 
-  } 
-  
-  catch (err) {
+  } catch (err) {
     console.error("VERIFY ERROR:", err.message);
     res.status(500).send("Server error");
   }
-
 });
 
 const PORT = process.env.PORT || 5000;
