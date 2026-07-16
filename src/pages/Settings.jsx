@@ -318,6 +318,14 @@ async function drawShareCard(canvas, { username, photoURL, qrDataUrl }, layout =
     }
   }
 
+  // Caption embedded into the image itself
+  ctx.save();
+  ctx.font = `${Math.round(11 * scale)}px -apple-system, Helvetica Neue, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.fillText("Support me on Cheer ET", W / 2, H - 42);
+  ctx.restore();
+
   // Footer
   ctx.save();
   ctx.font = `${Math.round(11.5 * scale)}px -apple-system, Helvetica Neue, sans-serif`;
@@ -372,6 +380,12 @@ function cropToCircle(imgEl, cropX, cropY, cropSize, outputSize = 320) {
     0, 0, outputSize, outputSize
   );
   return canvas.toDataURL("image/jpeg", 0.88);
+}
+
+async function dataUrlToFile(dataUrl, fileName = "cheer-card.png") {
+  const response = await fetch(dataUrl);
+  const blob = await response.blob();
+  return new File([blob], fileName, { type: blob.type || "image/png" });
 }
 
 /* ─────────────────────────────────────
@@ -558,6 +572,7 @@ export default function Settings() {
   const [followerSuffix, setFollowerSuffix] = useState(""); // "", "K", "M"
 
   const [cardLayout, setCardLayout] = useState("portrait");
+  const [shareCardPreviewUrl, setShareCardPreviewUrl] = useState("");
 
   const canvasRef = useRef(null);
   const fileRef = useRef(null);
@@ -595,10 +610,32 @@ export default function Settings() {
         let parsedNum = "";
         let parsedSuffix = "";
         if (stored) {
-          const upper = String(stored).toUpperCase();
-          if (upper.endsWith("M")) { parsedNum = upper.slice(0, -1); parsedSuffix = "M"; }
-          else if (upper.endsWith("K")) { parsedNum = upper.slice(0, -1); parsedSuffix = "K"; }
-          else { parsedNum = stored; parsedSuffix = ""; }
+          const raw = String(stored).trim();
+          const upper = raw.toUpperCase();
+          if (upper.endsWith("M")) {
+            parsedNum = upper.slice(0, -1);
+            parsedSuffix = "M";
+          } else if (upper.endsWith("K")) {
+            parsedNum = upper.slice(0, -1);
+            parsedSuffix = "K";
+          } else {
+            const numeric = Number(raw);
+            if (!Number.isNaN(numeric)) {
+              if (numeric >= 1_000_000 && numeric % 1_000_000 === 0) {
+                parsedNum = String(numeric / 1_000_000);
+                parsedSuffix = "M";
+              } else if (numeric >= 1_000 && numeric % 1_000 === 0) {
+                parsedNum = String(numeric / 1_000);
+                parsedSuffix = "K";
+              } else {
+                parsedNum = raw;
+                parsedSuffix = "";
+              }
+            } else {
+              parsedNum = raw;
+              parsedSuffix = "";
+            }
+          }
         }
         setFollowerNum(parsedNum);
         setFollowerSuffix(parsedSuffix);
@@ -644,6 +681,9 @@ export default function Settings() {
         { username: data.username, photoURL: data.photoURL, qrDataUrl: qrUrl },
         cardLayout
       );
+      if (canvasRef.current) {
+        setShareCardPreviewUrl(canvasRef.current.toDataURL("image/png"));
+      }
     })();
     return () => { active = false; };
   }, [shareModal, data, cardLayout]);
@@ -714,10 +754,26 @@ export default function Settings() {
   };
 
   const saveFollowers = async () => {
-    const safeNum = Math.max(0, Number(followerNum) || 0);
-    const formatted = formatFollowers(safeNum, followerSuffix);
+    const trimmed = String(followerNum || "").trim();
+    if (!trimmed) {
+      try {
+        await updateDoc(doc(db, "users", user.uid), { followers: "" });
+        notify("Followers updated", "success");
+      } catch {
+        notify("Failed to save", "error");
+      }
+      return;
+    }
+
+    const safeNum = Math.max(0, Number(trimmed) || 0);
+    const rawValue = followerSuffix === "M"
+      ? safeNum * 1_000_000
+      : followerSuffix === "K"
+        ? safeNum * 1_000
+        : safeNum;
+
     try {
-      await updateDoc(doc(db, "users", user.uid), { followers: formatted });
+      await updateDoc(doc(db, "users", user.uid), { followers: String(rawValue) });
       notify("Followers updated", "success");
     } catch {
       notify("Failed to save", "error");
@@ -787,10 +843,32 @@ export default function Settings() {
     notify("Card downloaded", "success");
   };
 
-  const telegramShare = () => {
-    const text = encodeURIComponent(`Support me on Cheer ET${data.username ? ` @${data.username}` : ""}`);
-    const url = encodeURIComponent(profileLink);
-    window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank", "noopener,noreferrer");
+  const telegramShare = async () => {
+    const shareText = `Support me on Cheer ET${data.username ? ` @${data.username}` : ""}\n\n${profileLink}`;
+    const shareUrl = profileLink;
+
+    try {
+      const cardUrl = shareCardPreviewUrl || canvasRef.current?.toDataURL("image/png") || "";
+      if (cardUrl && navigator.share && navigator.canShare) {
+        const file = await dataUrlToFile(cardUrl, "cheer-et-profile-card.png");
+        if (navigator.canShare({ files: [file], text: shareText, url: shareUrl })) {
+          await navigator.share({
+            title: "Cheer ET profile card",
+            text: shareText,
+            url: shareUrl,
+            files: [file],
+          });
+          notify("Card shared to Telegram", "success");
+          return;
+        }
+      }
+    } catch {
+      // fall back to Telegram intent below
+    }
+
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+    window.open(telegramUrl, "_blank", "noopener,noreferrer");
+    notify("Opening Telegram share sheet", "info");
   };
 
   const fireTestAlert = () => {
@@ -917,6 +995,19 @@ export default function Settings() {
                 </div>
               </div>
             )}
+          </section>
+
+          {/* ══ SHARE PROFILE ══ */}
+          <section className="s-section">
+            <p className="s-section-label">Share Profile</p>
+            <button className="s-share-teaser" onClick={() => setShareModal(true)}>
+              <div className="s-share-icon-wrap">{Icon.share}</div>
+              <div className="s-share-text">
+                <div className="s-share-title">Share Your Profile Card</div>
+                <div className="s-share-sub">Generate a card to post with your audience</div>
+              </div>
+              <span className="s-chevron" style={{ color: "rgba(255,255,255,0.7)" }}>{Icon.chevron}</span>
+            </button>
           </section>
 
           {/* ══ ACCOUNT ══ */}
@@ -1075,19 +1166,6 @@ export default function Settings() {
                 </button>
               </div>
             </div>
-          </section>
-
-          {/* ══ SHARE PROFILE ══ */}
-          <section className="s-section">
-            <p className="s-section-label">Share Profile</p>
-            <button className="s-share-teaser" onClick={() => setShareModal(true)}>
-              <div className="s-share-icon-wrap">{Icon.share}</div>
-              <div className="s-share-text">
-                <div className="s-share-title">Share Your Profile Card</div>
-                <div className="s-share-sub">Generate a card to post with your audience</div>
-              </div>
-              <span className="s-chevron" style={{ color: "rgba(255,255,255,0.7)" }}>{Icon.chevron}</span>
-            </button>
           </section>
 
           {/* ══ SOCIAL ══ */}
@@ -1412,6 +1490,12 @@ export default function Settings() {
             <div className="s-canvas-wrap">
               <canvas ref={canvasRef} width={360} height={540} className="s-canvas" />
             </div>
+
+            {shareCardPreviewUrl && (
+              <div className="s-share-preview">
+                <img className="s-share-preview-image" src={shareCardPreviewUrl} alt="Profile card preview" />
+              </div>
+            )}
 
             <button
               className="s-copy-link-btn"

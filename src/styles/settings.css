@@ -73,7 +73,7 @@
   padding: 0 24px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
   position: relative;
   z-index: 1;
 }
@@ -107,7 +107,7 @@
 .s-section {
   display: flex;
   flex-direction: column;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 .s-section-label {
   font-size: 11px;
@@ -115,7 +115,7 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--s-text3);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   padding-left: 2px;
 }
 
@@ -1023,7 +1023,20 @@ input[type="range"]::-moz-range-thumb {
 .s-canvas-wrap {
   display: flex;
   justify-content: center;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
+}
+.s-share-preview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.s-share-preview-image {
+  width: 100%;
+  max-width: 280px;
+  border-radius: 16px;
+  border: 1px solid var(--s-border);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  display: block;
 }
 .s-canvas {
   border-radius: 20px;
@@ -1452,7 +1465,18 @@ input[type="range"]::-moz-range-thumb {
 
 /* ── Tablet ── */
 @media (max-width: 768px) {
-  .s-container { padding: 0 16px; }
+  .s-container {
+    padding: 0 14px;
+  }
+
+  .s-card,
+  .s-profile-card,
+  .s-list-card,
+  .s-overlay-card,
+  .s-creator-badge {
+    margin-bottom: 10px !important;
+    padding: 14px 14px !important;
+  }
 }
 
 /* ── Mobile ── */
@@ -1503,7 +1527,7 @@ input[type="range"]::-moz-range-thumb {
 .s-container {
   max-width: 640px !important;
   margin: 0 auto !important;
-  padding: 0 20px 40px !important; /* balanced bottom space */
+  padding: 0 20px 24px !important;
 }
 
 .s-card,
@@ -1513,8 +1537,8 @@ input[type="range"]::-moz-range-thumb {
 .s-creator-badge {
   max-width: 640px !important;
   width: 100% !important;
-  margin: 0 auto 18px !important;
-  padding: 18px 18px !important;
+  margin: 0 auto 8px !important;
+  padding: 14px 14px !important;
   box-sizing: border-box !important;
   min-height: auto !important;
   height: auto !important;
@@ -1523,8 +1547,8 @@ input[type="range"]::-moz-range-thumb {
 /* Top Profile Card - controlled */
 .s-profile-card {
   max-width: 620px !important;
-  padding: 20px 18px !important;
-  margin-bottom: 20px !important;
+  padding: 16px 14px !important;
+  margin-bottom: 8px !important;
 }
 
 /* Strong page-scoped isolation block */
@@ -1562,5 +1586,5 @@ input[type="range"]::-moz-range-thumb {
 
 /* Prevent top push */
 .s-page {
-  padding-top: 80px !important; /* give space after navbar */
+  padding-top: 60px !important;
 }

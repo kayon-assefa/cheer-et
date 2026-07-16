@@ -671,34 +671,7 @@ export default function Dashboard() {
 
       <div className="content">
 
-        {/* ── profile header ─────────────────────────────── */}
-        <div className="profileHeader cheerDash-glass">
-          {user.photoURL
-            ? <img src={user.photoURL} alt={user.username} className="profileAvatar"/>
-            : <div className="profileAvatarPlaceholder">{initials}</div>
-          }
-          <div className="profileInfo">
-            <div className="profileName">
-              {user.username || "Creator"}
-              {isVerified && (
-                <img
-                  src="/verified.png"
-                  alt="Verified creator"
-                  className="verifiedBadge"
-                  title="Verified"
-                />
-              )}
-            </div>
-            <div className="profileSub">
-              <span><i className="bi bi-people-fill"/>&nbsp;{donators} supporters</span>
-              <span><i className="bi bi-cash-stack"/>&nbsp;{Number(totalRaised).toFixed(0)} ETB raised</span>
-            </div>
-          </div>
-          <div className="lastActive">
-            <i className="bi bi-shield-fill-check" style={{color:"var(--green)"}}/>
-            Secured by Chapa
-          </div>
-        </div>
+   
 
         {/* ── live event banner ──────────────────────────── */}
         {activeEvent && (
