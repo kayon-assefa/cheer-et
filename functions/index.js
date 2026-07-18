@@ -31,27 +31,3 @@ exports.updateBalanceOnDonation = functions.firestore
     }
   });
 
-/* ========== DEDUCT BALANCE ON PAID PAYOUT ========== */
-exports.updateBalanceOnPayout = functions.firestore
-  .document("payout/{payoutId}")
-  .onUpdate(async (change, context) => {
-    
-    const before = change.before.data();
-    const after = change.after.data();
-
-    if (after.status === "paid" && before.status !== "paid") {
-      
-      const uid = after.uid;
-      const amount = Number(after.amount || 0);
-
-      if (!uid || amount <= 0) return;
-
-      const userRef = admin.firestore().collection("users").doc(uid);
-
-      await userRef.update({
-        currentBalance: admin.firestore.FieldValue.increment(-amount)
-      });
-
-      console.log(`✅ Payout deducted for ${uid} | -${amount} ETB`);
-    }
-  });
