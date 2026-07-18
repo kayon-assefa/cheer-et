@@ -77,7 +77,7 @@ const handleUpgrade = async (user, userData) => {
   if (!user) return alert("Please login first");
 
   try {
-    const response = await fetch('https://your-backend.onrender.com/api/premium/create', {
+  const response = await fetch('https://cheerapi.onrender.com/api/premium/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
