@@ -13,6 +13,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import OverlayPage from "./pages/OverlayPage";
 // FIXED: Now importing the proper React JSX component instead of an HTML file
 import NotFound from "./pages/NotFound"; 
+import Premium from './pages/Premium';
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
 
       {/* CREATOR PAGE (Keep this at the very bottom) */}
       <Route path="/:username" element={<CreatorPage />} />
-      
+      <Route path="/premium" element={<Premium />} />
       {/* Catch-all for deeper invalid paths like /settings/abc/xyz */}
       <Route path="*" element={<NotFound />} />
     </Routes>
